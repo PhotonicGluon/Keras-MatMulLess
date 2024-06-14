@@ -3,7 +3,11 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
-    "postCreateCommand": ["/bin/sh", "-c", "/bin/bash ./.devcontainer/postCreateCommand.sh"],
+    "postCreateCommand": [
+        "/bin/sh",
+        "-c",
+        "/bin/bash ./.devcontainer/postCreateCommand.sh"
+    ],
     "customizations": {
         "vscode": {
             "extensions": [
@@ -19,7 +23,9 @@
                 "ms-azuretools.vscode-docker"
             ],
             "settings": {
-                "isort.check": true
+                "isort.check": true,
+                "autoDocstring.docstringFormat": "google-notypes",
+                "autoDocstring.startOnNewLine": true,
             }
         }
     }
