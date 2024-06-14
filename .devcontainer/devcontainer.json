@@ -23,9 +23,16 @@
                 "ms-azuretools.vscode-docker"
             ],
             "settings": {
+                "black-formatter.args": [
+                    "--line-length=120"
+                ],
                 "isort.check": true,
+                "isort.args": [
+                    "-w 120"
+                ],
                 "autoDocstring.docstringFormat": "google-notypes",
                 "autoDocstring.startOnNewLine": true,
+                "editor.formatOnSave": true
             }
         }
     }

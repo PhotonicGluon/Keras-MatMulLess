@@ -25,6 +25,7 @@ priority = "explicit"
 # Main dependencies
 python = "^3.9"
 keras = "~3.3.3"
+numpy = "~1.26.4"
 
 # Tensorflow
 tensorflow = { version = "~2.16.1", optional = true }
@@ -35,7 +36,7 @@ torchvision = { version = "^0.18.1+cpu", source = "pytorch-cpu", optional = true
 torchaudio = { version = "^2.3.1+cpu", source = "pytorch-cpu", optional = true }
 
 # Jax
-jax = { version = "<0.4.29", optional = true }
+jax = { version = "<0.4.29", extras=["cpu"], optional = true }
 
 [tool.poetry.group.dev.dependencies]
 # Tests
