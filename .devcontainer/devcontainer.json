@@ -3,7 +3,7 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
-    "postCreateCommand": "sudo poetry install --with dev",
+    "postCreateCommand": ["/bin/sh", "-c", "/bin/bash ./.devcontainer/postCreateCommand.sh"],
     "customizations": {
         "vscode": {
             "extensions": [
@@ -15,7 +15,8 @@
                 "njpwerner.autodocstring",
                 "DavidAnson.vscode-markdownlint",
                 "tamasfe.even-better-toml",
-                "streetsidesoftware.code-spell-checker"
+                "streetsidesoftware.code-spell-checker",
+                "ms-azuretools.vscode-docker"
             ],
             "settings": {
                 "isort.check": true

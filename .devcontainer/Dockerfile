@@ -7,4 +7,4 @@ RUN python3 -m pip install -U pip
 
 # Set up poetry
 RUN pip install poetry
-ENV POETRY_VIRTUALENVS_CREATE=false
+ENV PYTHONPATH="$PYTHONPATH:$PWD"
