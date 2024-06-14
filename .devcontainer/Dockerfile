@@ -7,3 +7,6 @@ RUN python3 -m pip install -U pip
 
 # Set up poetry
 RUN python3 -m pip install poetry
+
+# Set up helpful aliases
+RUN alias python="poetry run python"
