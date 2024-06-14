@@ -15,9 +15,20 @@ readme = "README.md"
 keywords = []
 classifiers = []
 
+[[tool.poetry.source]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
+
 [tool.poetry.dependencies]
 python = "^3.9"
+keras = "~3.3.3"
 
 [tool.poetry.group.dev.dependencies]
+jax = "<0.4.29"
+tensorflow = "~2.16.1"
+torch = {version = "^2.3.1+cpu", source = "pytorch-cpu"}
+torchvision = {version = "^0.18.1+cpu", source = "pytorch-cpu"}
+torchaudio = {version = "^2.3.1+cpu", source = "pytorch-cpu"}
 
 [tool.poetry.urls]
