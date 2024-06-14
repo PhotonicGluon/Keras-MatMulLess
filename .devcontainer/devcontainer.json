@@ -1,0 +1,24 @@
+{
+    "name": "Keras-MML",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.black-formatter",
+                "ms-python.isort",
+                "ms-python.python",
+                "yzhang.markdown-all-in-one",
+                "VisualStudioExptTeam.vscodeintellicode",
+                "njpwerner.autodocstring",
+                "DavidAnson.vscode-markdownlint",
+                "tamasfe.even-better-toml",
+                "streetsidesoftware.code-spell-checker"
+            ],
+            "settings": {
+                "isort.check": true
+            }
+        }
+    }
+}
