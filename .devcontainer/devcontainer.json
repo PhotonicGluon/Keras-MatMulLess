@@ -3,7 +3,7 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
-    "postCreateCommand": "poetry install --with dev",
+    "postCreateCommand": "sudo poetry install --with dev",
     "customizations": {
         "vscode": {
             "extensions": [

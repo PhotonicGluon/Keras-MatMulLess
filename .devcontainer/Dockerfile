@@ -6,7 +6,5 @@ RUN apt-get install -y git python3-pip python3-setuptools python3-venv
 RUN python3 -m pip install -U pip
 
 # Set up poetry
-RUN python3 -m pip install poetry
-
-# Set up helpful aliases
-RUN alias python="poetry run python"
+RUN pip install poetry
+ENV POETRY_VIRTUALENVS_CREATE=false
