@@ -6,8 +6,10 @@
         "furo",
         "intersphinx",
         "myst",
+        "ndarray",
         "pred",
         "reftypes",
+        "rtype",
         "Tensorflow",
         "typehints"
     ]
