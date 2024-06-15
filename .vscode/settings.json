@@ -10,6 +10,7 @@
         "furo",
         "intersphinx",
         "keepdims",
+        "matmul",
         "myst",
         "ndarray",
         "pred",
