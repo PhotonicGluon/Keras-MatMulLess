@@ -2,10 +2,10 @@
 Implements a matmul-less Dense layer.
 """
 
-from typing import Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import keras
-from keras import ops
+from keras import activations, initializers, ops
 
 from keras_mml.layers.rms_norm import RMSNorm
 
@@ -18,28 +18,48 @@ class DenseMML(keras.Layer):
     """
     Dense layer without matrix multiplication.
 
-    Specifically, this is the ``BitLinear`` layer described in https://arxiv.org/pdf/2310.11453. It
-    uses bit quantization to reduce matrix multiplication operations to simple addition and 
+    The core of the layer is the ``BitLinear`` layer described in https://arxiv.org/pdf/2310.11453.
+    It uses bit quantization to reduce matrix multiplication operations to simple addition and
     subtraction.
 
-    This implementation only allows the layer to have a rank of 2. That is, the input to this layer 
-    must be of the form ``(batch_size, d0)``. An input shape that does not conform to this will 
+    This implementation differs from ``BitLinear`` by allowing an activation function to be
+    specified. More precisely, :py:class:`~DenseMML` implements the operation
+    :math:`\\mathbf{y} = \\sigma\\left(\\mathbf{x}\\mathbf{W}^\\intercal\\right)` where
+    :math:`\\mathbf{x}` is the quantized input vector, :math:`\\mathbf{W}` is the quantized weights
+    matrix, and :math:`\\sigma` is the element-wise activation function.
+
+    This implementation only allows the layer to have a rank of 2. That is, the input to this layer
+    must be of the form ``(batch_size, d0)``. An input shape that does not conform to this will
     raise a :py:exc:`ValueError`.
 
     Attributes:
         units: Dimensionality of the output space.
+        activation: Activation function.
+        weights_initializer: Initializer for the weights matrix.
     """
 
-    def __init__(self, units:int, **kwargs):
+    def __init__(
+        self,
+        units: int,
+        activation: Optional[str] = None,
+        weights_initializer: str = "glorot_uniform",
+        **kwargs,
+    ):
         """
         Initializes a new :py:class:`~DenseMML` layer.
 
         Args:
             units: Dimensionality of the output space.
+            activation: Activation function to use. If you don't specify anything, no activation is
+                applied (i.e. "linear" activation: :math:`\\sigma(\\mathbf{x}) = \\mathbf{x}`).
+            weights_initializer: Initializer for the weights matrix.
         """
 
         super().__init__(**kwargs)
+
         self.units = units
+        self.activation = activations.get(activation)
+        self.weights_initializer = initializers.get(weights_initializer)
 
     # Helper methods
     @staticmethod
@@ -95,7 +115,7 @@ class DenseMML(keras.Layer):
 
         u = signs * scale
         return u
-    
+
     # Public methods
     def build(self, input_shape: Tuple[int, int]):
         """
@@ -105,7 +125,7 @@ class DenseMML(keras.Layer):
             input_shape: Shape of the input.
 
         Raises:
-            ValueError: If the input shape does not have a rank of 2 (i.e., something like 
+            ValueError: If the input shape does not have a rank of 2 (i.e., something like
                 ``(batch_size, d0)``).
         """
 
@@ -113,8 +133,9 @@ class DenseMML(keras.Layer):
             raise ValueError(f"DenseMML input shape must have rank 2 (received: {input_shape})")
 
         self.w = self.add_weight(
+            name="weights",
             shape=(input_shape[-1], self.units),
-            initializer="random_normal",
+            initializer=self.weights_initializer,
             trainable=True,
         )
 
@@ -135,5 +156,42 @@ class DenseMML(keras.Layer):
 
         x_quantized = self._activations_quantization(x_norm)
         w_quantized = self._weights_quantization(self.w)
-        y = ops.matmul(x_quantized, w_quantized)  # This, in theory, just involves addition and subtraction
-        return y
+        x = ops.matmul(x_quantized, w_quantized)  # This, in theory, just involves addition and subtraction
+
+        # Then apply activation
+        if self.activation is not None:
+            x = self.activation(x)
+        return x
+
+    def compute_output_shape(self, input_shape: Tuple[int, int]) -> Tuple[int, int]:
+        """
+        Computes the output shape given a tensor of a given shape.
+
+        Args:
+            input_shape: Input shape into the layer.
+
+        Returns:
+            Output shape after passing through the layer.
+        """
+
+        output_shape = list(input_shape)
+        output_shape[-1] = self.units
+        return tuple(output_shape)
+
+    def get_config(self) -> Dict[str, Any]:
+        """
+        Gets the configuration for the layer.
+
+        Returns:
+            Layer configuration.
+        """
+
+        config = super().get_config()
+        config.update(
+            {
+                "units": self.units,
+                "activation": activations.serialize(self.activation),
+                "weights_initializer": initializers.serialize(self.weights_initializer),
+            }
+        )
+        return config
