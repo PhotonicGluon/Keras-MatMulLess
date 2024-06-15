@@ -1,8 +1,10 @@
 {
     "cSpell.words": [
         "absmax",
+        "autocast",
         "autosummary",
         "copybutton",
+        "dtype",
         "fieldlist",
         "furo",
         "intersphinx",
@@ -11,6 +13,7 @@
         "ndarray",
         "pred",
         "reftypes",
+        "regularizer",
         "rtype",
         "Tensorflow",
         "typehints"
