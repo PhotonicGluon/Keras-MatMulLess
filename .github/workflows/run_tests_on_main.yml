@@ -1,12 +1,11 @@
-name: Run Release Tests
+name: Run Tests on Main
 
 on:
   push:
     branches:
-      - dev-release
-  pull_request:
-    branches:
-      - release
+      - main
+    paths:
+      - "**.py"
 
 jobs:
   run-tests:
