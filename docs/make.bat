@@ -7,6 +7,9 @@ REM Command file for Sphinx documentation
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
+if "%SPHINXAPIDOC%" == "" (
+	set SPHINXAPIDOC=sphinx-apidoc
+)
 set SOURCEDIR=source
 set BUILDDIR=build
 
@@ -25,6 +28,7 @@ if errorlevel 9009 (
 
 if "%1" == "" goto help
 
+%SPHINXAPIDOC% -o "%SOURCEDIR%/api" "../keras_mml"
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 goto end
 

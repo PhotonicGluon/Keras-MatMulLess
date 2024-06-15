@@ -27,15 +27,16 @@ release = "0.0.1.dev1"
 
 extensions = [
     "sphinx.ext.duration",
+    "sphinx.ext.napoleon",
     "sphinx.ext.doctest",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
-    "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
     "myst_parser",
-    "sphinx_copybutton"
+    "sphinx_copybutton",
+    "sphinx_design",
 ]
 
-intersphinx_disabled_domains = ["std"]
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
@@ -44,4 +45,14 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "furo"
 html_static_path = ["_static"]
+
+napoleon_include_init_with_doc = True
+napoleon_numpy_docstring = False
+
+autodoc_class_signature = "separated"
 autodoc_typehints = "description"
+
+intersphinx_disabled_domains = ["std"]
+intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+
+myst_enable_extensions = ["colon_fence", "fieldlist"]

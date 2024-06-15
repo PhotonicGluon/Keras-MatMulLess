@@ -36,7 +36,7 @@ torchvision = { version = "^0.18.1+cpu", source = "pytorch-cpu", optional = true
 torchaudio = { version = "^2.3.1+cpu", source = "pytorch-cpu", optional = true }
 
 # Jax
-jax = { version = "<0.4.29", extras=["cpu"], optional = true }
+jax = { version = "<0.4.29", extras = ["cpu"], optional = true }
 
 [tool.poetry.group.dev.dependencies]
 # Tests
@@ -48,6 +48,7 @@ myst-parser = "~3.0.1"
 sphinx = "~7.3.7"
 furo = "2024.5.6"
 sphinx-copybutton = "~0.5.2"
+sphinx-design = "~0.6.0"
 
 [tool.poetry.extras]
 tensorflow = ["tensorflow"]
