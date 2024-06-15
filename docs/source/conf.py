@@ -27,11 +27,12 @@ release = "0.0.1.dev1"
 
 extensions = [
     "sphinx.ext.duration",
-    "sphinx.ext.napoleon",
     "sphinx.ext.doctest",
-    "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.autodoc",
+    "sphinx_autodoc_typehints",
+    "sphinx.ext.autosummary",
     "myst_parser",
     "sphinx_copybutton",
     "sphinx_design",
@@ -48,12 +49,16 @@ html_static_path = ["_static"]
 
 napoleon_include_init_with_doc = True
 napoleon_numpy_docstring = False
+napoleon_use_rtype = False
 
 autodoc_class_signature = "separated"
-autodoc_typehints = "description"
+
+typehints_document_rtype = True
+typehints_use_rtype = False
+typehints_defaults = "comma"
 
 intersphinx_disabled_domains = ["std"]
-intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+intersphinx_mapping = {"python": ("https://docs.python.org/3", None), "numpy": ("https://numpy.org/doc/stable/", None)}
 intersphinx_disabled_reftypes = ["*"]
 
 myst_enable_extensions = ["colon_fence", "fieldlist"]
