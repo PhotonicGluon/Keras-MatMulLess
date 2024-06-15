@@ -1,0 +1,40 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+      - dev-release
+  pull_request:
+    branches:
+      - release
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        backend: ["tensorflow", "torch", "jax"]
+    env:
+      KERAS_BACKEND: ${{ matrix.backend }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2
+      - name: Install Project Dependencies
+        run: poetry install --with dev --extras ${{ matrix.backend }}
+      - name: Test with Pytest
+        run: poetry run pytest --doctest-modules --junitxml=junit/test-results-${{ matrix.backend }}-${{ matrix.python-version }}.xml --cov=keras_mml
+      - name: Upload Pytest Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-results-${{ matrix.backend }}-${{ matrix.python-version }}
+          path: junit/test-results-${{ matrix.backend }}-${{ matrix.python-version }}.xml
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
