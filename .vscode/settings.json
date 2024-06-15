@@ -1,10 +1,12 @@
 {
     "cSpell.words": [
+        "absmax",
         "autosummary",
         "copybutton",
         "fieldlist",
         "furo",
         "intersphinx",
+        "keepdims",
         "myst",
         "ndarray",
         "pred",
