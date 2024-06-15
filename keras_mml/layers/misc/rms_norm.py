@@ -1,3 +1,7 @@
+"""
+Root Mean Square Normalization (RMSNorm) implementation.
+"""
+
 import keras
 from keras import ops
 

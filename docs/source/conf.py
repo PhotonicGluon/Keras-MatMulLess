@@ -54,5 +54,6 @@ autodoc_typehints = "description"
 
 intersphinx_disabled_domains = ["std"]
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+intersphinx_disabled_reftypes = ["*"]
 
 myst_enable_extensions = ["colon_fence", "fieldlist"]
