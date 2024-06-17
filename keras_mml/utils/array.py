@@ -2,7 +2,9 @@
 Utilities for handing numpy arrays.
 """
 
+import os
 from typing import Any
+
 import numpy as np
 
 
@@ -22,6 +24,9 @@ def as_numpy(x: Any) -> np.ndarray:
 
     try:
         return x.numpy()
+    except RuntimeError:
+        if os.environ["KERAS_BACKEND"] == "torch":
+            return as_numpy(x.detach())
     except AttributeError:
         pass
 

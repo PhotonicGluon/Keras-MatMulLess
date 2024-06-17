@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "absmax",
+        "allclose",
         "arange",
         "autocast",
         "autosummary",
@@ -11,6 +12,7 @@
         "intercal",
         "intersphinx",
         "keepdims",
+        "keras",
         "mathbf",
         "matmul",
         "myst",
