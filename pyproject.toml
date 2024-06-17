@@ -54,6 +54,7 @@ furo = "2024.5.6"
 sphinx-copybutton = "~0.5.2"
 sphinx-design = "~0.6.0"
 sphinx-autodoc-typehints = "~2.1.1"
+sphinx-autobuild = "2024.4.16"
 
 [tool.poetry.extras]
 # Keras backends

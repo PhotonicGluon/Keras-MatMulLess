@@ -1,0 +1,7 @@
+myst-parser
+sphinx
+furo
+sphinx-copybutton
+sphinx-design
+sphinx-autodoc-typehints
+sphinx-autobuild
