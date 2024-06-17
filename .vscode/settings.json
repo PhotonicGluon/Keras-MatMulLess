@@ -9,6 +9,7 @@
         "dtype",
         "fieldlist",
         "furo",
+        "GLUMML",
         "intercal",
         "intersphinx",
         "keepdims",
