@@ -33,10 +33,18 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
     "sphinx.ext.autosummary",
-    "myst_parser",
+    "myst_nb",
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinx_rtd_theme",
+    # "myst_parser",
 ]
+
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".ipynb": "myst-nb",
+    ".md": "myst-nb",
+}
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
@@ -46,6 +54,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "furo"
 html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 
 napoleon_include_init_with_doc = True
 napoleon_numpy_docstring = False
@@ -62,3 +71,5 @@ intersphinx_mapping = {"python": ("https://docs.python.org/3", None), "numpy": (
 intersphinx_disabled_reftypes = ["*"]
 
 myst_enable_extensions = ["colon_fence", "fieldlist"]
+
+nb_execution_mode = "off"

@@ -1,12 +1,6 @@
-name: Run Release Tests
+name: Run Tests
 
-on:
-  push:
-    branches:
-      - dev-release
-  pull_request:
-    branches:
-      - release
+on: [workflow_call]
 
 jobs:
   run-tests:

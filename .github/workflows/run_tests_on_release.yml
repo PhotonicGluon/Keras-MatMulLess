@@ -1,0 +1,13 @@
+name: Run Tests on Release
+
+on:
+  push:
+    branches:
+      - dev-release
+  pull_request:
+    branches:
+      - release
+
+jobs:
+  run-tests:
+    uses: ./.github/workflows/run_tests.yml

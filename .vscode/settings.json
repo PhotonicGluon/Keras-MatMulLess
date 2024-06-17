@@ -17,11 +17,14 @@
         "matmul",
         "myst",
         "ndarray",
+        "numpy",
         "pred",
+        "Quickstart",
         "reftypes",
         "regularizer",
         "rtype",
         "Tensorflow",
-        "typehints"
+        "typehints",
+        "venv"
     ]
 }
