@@ -33,11 +33,18 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
     "sphinx.ext.autosummary",
-    "myst_parser",
+    "myst_nb",
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_rtd_theme",
+    # "myst_parser",
 ]
+
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".ipynb": "myst-nb",
+    ".md": "myst-nb",
+}
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
@@ -64,3 +71,5 @@ intersphinx_mapping = {"python": ("https://docs.python.org/3", None), "numpy": (
 intersphinx_disabled_reftypes = ["*"]
 
 myst_enable_extensions = ["colon_fence", "fieldlist"]
+
+nb_execution_mode = "off"

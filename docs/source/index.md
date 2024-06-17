@@ -1,4 +1,4 @@
-# Welcome to Keras-MatMulLess's documentation!
+# Welcome to Keras-MatMulLess (Keras-MML)'s documentation!
 
 ```{toctree}
 :maxdepth: 2

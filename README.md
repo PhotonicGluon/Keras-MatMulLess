@@ -67,3 +67,7 @@ If you have not installed a backend (i.e., [Tensorflow](https://www.tensorflow.o
 ```bash
 poetry install --with dev --extras BACKEND_NAME
 ```
+
+## Quickstart
+
+See the [tutorial notebook](docs/source/getting-started/tutorial.ipynb).
