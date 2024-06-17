@@ -36,8 +36,6 @@ extensions = [
     "myst_nb",
     "sphinx_copybutton",
     "sphinx_design",
-    "sphinx_rtd_theme",
-    # "myst_parser",
 ]
 
 source_suffix = {
