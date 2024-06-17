@@ -3,9 +3,13 @@
 [![CodeCov](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess/graph/badge.svg?token=VKD0CJX1SD)](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess)
 [![ReadTheDocs](https://readthedocs.org/projects/keras-matmulless/badge/?version=latest)](https://keras-matmulless.readthedocs.io/en/latest/?badge=latest)
 
+<!-- start summary -->
 Keras layers without using matrix multiplications.
 
-This is a Keras based implementation of some layers mentioned in the paper ["BitNet: Scaling 1-bit Transformers for Large Language Models"](https://arxiv.org/pdf/2310.11453). Find the documentation [here](https://keras-matmulless.readthedocs.io/en/latest/).
+This is a Keras based implementation of some layers mentioned in the papers ["BitNet: Scaling 1-bit Transformers for Large Language Models"](https://arxiv.org/pdf/2310.11453) and ["Scalable MatMul-free Language Modeling"](https://arxiv.org/pdf/2406.02528). <!-- end summary --> Find the documentation [here](https://keras-matmulless.readthedocs.io/en/latest/).
+
+## Rationale
+<!-- start rationale -->
 
 Traditional, matrix multiplication based layers suffer from a few issues.
 
@@ -15,7 +19,10 @@ Traditional, matrix multiplication based layers suffer from a few issues.
 
 Matrix multiplication free layers addresses these pain points by removing the key source of costs &mdash; matrix multiplications.
 
+<!-- end rationale -->
+
 ## Installation
+<!-- start installation overview -->
 
 For now, the only way to install Keras-MML is via GitHub.
 
@@ -23,7 +30,10 @@ The requirements for the package are:
 
 - Python 3.9 (and above)
 
+<!-- end installation overview -->
+
 ### Installation via GitHub
+<!-- start installation GitHub -->
 
 First, clone the repository using
 
@@ -67,6 +77,10 @@ If you have not installed a backend (i.e., [Tensorflow](https://www.tensorflow.o
 ```bash
 poetry install --with dev --extras BACKEND_NAME
 ```
+
+That's it! You should now have access to the `keras_mml` package.
+
+<!-- end installation GitHub -->
 
 ## Quickstart
 
