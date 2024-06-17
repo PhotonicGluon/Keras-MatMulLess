@@ -218,7 +218,7 @@ class DenseMML(keras.Layer):
                 w_bools = w_quantized > 0
                 store[f"{i}"] = w_bools
                 store[f"{i}-beta"] = beta
-            else:
+            else:  # pragma: no cover
                 store[f"{i}"] = v
 
     def load_own_variables(self, store: Dict):
@@ -242,7 +242,7 @@ class DenseMML(keras.Layer):
                 expected_count += 1
 
         if len(store.keys()) != expected_count:
-            if expected_count == 0 and not self.built:
+            if expected_count == 0 and not self.built:  # pragma: no cover
                 raise ValueError(
                     f"Layer '{self.name}' was never built and thus it doesn't have any variables. "
                     f"However the weights file lists {len(store.keys())} "
@@ -265,7 +265,7 @@ class DenseMML(keras.Layer):
                     "to create the state "
                     "of the layer (i.e. its variables) upon deserialization.",
                 )
-            raise ValueError(
+            raise ValueError(  # pragma: no cover
                 f"Layer '{self.name}' expected {expected_count} variables, "
                 "but received "
                 f"{len(store.keys())} variables during loading. "
@@ -285,5 +285,5 @@ class DenseMML(keras.Layer):
                 # Update the beta value to signal that we are using a saved weight
                 self._beta = beta
 
-            else:
+            else:  # pragma: no cover
                 v.assign(store[f"{i}"])

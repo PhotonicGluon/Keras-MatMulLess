@@ -2,6 +2,7 @@ import os
 import tempfile
 
 import numpy as np
+import pytest
 from keras import backend, layers, models, ops
 
 from keras_mml.layers.dense import DenseMML
@@ -33,3 +34,10 @@ def test_save_load():
         model2_output = as_numpy(model2(mock_data))
 
         assert np.allclose(model1_output, model2_output)
+
+
+def test_improper_build():
+    x = np.array([[[1.0, 2.0, 3.0]]])
+    layer = DenseMML(4)
+    with pytest.raises(ValueError):
+        layer(x)
