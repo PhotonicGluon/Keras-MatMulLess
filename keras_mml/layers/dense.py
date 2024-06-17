@@ -11,6 +11,7 @@ from keras_mml.layers.rms_norm import RMSNorm
 
 EPSILON = 1e-5
 HUGE = 1e9
+WEIGHTS_NAME = "weights"
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
@@ -61,22 +62,22 @@ class DenseMML(keras.Layer):
         self.activation = activations.get(activation)
         self.weights_initializer = initializers.get(weights_initializer)
 
+        self._beta = None  # Used for when the layer is loaded from file
+
     # Helper methods
     @staticmethod
-    def _activations_quantization(x):
+    def _activations_quantization(x) -> Tuple[Any, Any]:
         """
         Quantizes the activations to 8-bit precision using absmax quantization.
 
         This is equation (4) in the aforementioned paper.
 
-        Also pre-undoes part of the scaling in (11) by dividing the clipped values by the
-        scale.
-
         Args:
             x: Array of quantization values.
 
         Returns:
-            Quantized activation values.
+            A tuple. The first value is the quantized activation values. The second is the scaling
+            factor needed for equation (11) in the paper.
         """
 
         absolutes = ops.abs(x)
@@ -88,23 +89,21 @@ class DenseMML(keras.Layer):
         rounded = ops.round(rescaled)
         clipped = ops.clip(rounded, -128, 127)
 
-        y = clipped / scale  # Perform part of the undoing in eq. (11)
-        return y
+        return clipped, scale
 
     @staticmethod
-    def _weights_quantization(w):
+    def _weights_quantization(w) -> Tuple[Any, Any]:
         """
         Quantizes the weights to 1-bit precision.
 
         This is equation (1) in the aforementioned paper.
 
-        Also pre-undoes part of the scaling in (11) by multiplying the weights by the scale.
-
         Args:
             w: Array of weights.
 
         Returns:
-            Quantized weights.
+            A tuple. The first is the quantized weights. The second is the scaling factor needed in
+            equation (11) in the paper.
         """
 
         absolutes = ops.abs(w)
@@ -113,8 +112,7 @@ class DenseMML(keras.Layer):
 
         signs = ops.sign(w - alpha)
 
-        u = signs * scale
-        return u
+        return signs, scale
 
     # Public methods
     def build(self, input_shape: Tuple[int, int]):
@@ -133,7 +131,7 @@ class DenseMML(keras.Layer):
             raise ValueError(f"DenseMML input shape must have rank 2 (received: {input_shape})")
 
         self.w = self.add_weight(
-            name="weights",
+            name=WEIGHTS_NAME,
             shape=(input_shape[-1], self.units),
             initializer=self.weights_initializer,
             trainable=True,
@@ -154,9 +152,14 @@ class DenseMML(keras.Layer):
         input_dim = ops.shape(inputs)[1]
         x_norm = RMSNorm(input_dim)(inputs)
 
-        x_quantized = self._activations_quantization(x_norm)
-        w_quantized = self._weights_quantization(self.w)
-        x = ops.matmul(x_quantized, w_quantized)  # This, in theory, just involves addition and subtraction
+        x_quantized, gamma_qb = self._activations_quantization(x_norm)
+        w_quantized, beta = self._weights_quantization(self.w)
+
+        if self._beta is not None:  # Using a saved layer
+            beta = self._beta
+
+        scaling = beta / gamma_qb  # See eq. (11)
+        x = ops.matmul(x_quantized, w_quantized) * scaling  # The `matmul` should just involve addition and subtraction
 
         # Then apply activation
         if self.activation is not None:
@@ -195,3 +198,92 @@ class DenseMML(keras.Layer):
             }
         )
         return config
+
+    def save_own_variables(self, store: Dict):
+        """
+        Saves the state of the layer.
+
+        Args:
+            store: Dictionary where the state of the model will be saved.
+        """
+
+        all_vars = self._trainable_variables + self._non_trainable_variables
+        for i, v in enumerate(all_vars):
+            if v.name == WEIGHTS_NAME:
+                # Pre-quantize the weights
+                w_quantized, beta = self._weights_quantization(v)
+
+                # For more efficient saving, convert the weights to boolean values, where 1 is True and -1 (and 0) are
+                # False
+                w_bools = w_quantized > 0
+                store[f"{i}"] = w_bools
+                store[f"{i}-beta"] = beta
+            else:
+                store[f"{i}"] = v
+
+    def load_own_variables(self, store: Dict):
+        """
+        Loads the state of the layer.
+
+        Args:
+            store: Dictionary from which the state of the model will be loaded.
+
+        Raises:
+            ValueError: If the layer was never built but the weights file lists variables for the
+                layer.
+            ValueError: If the expected number of variables for the layer does not match the number
+                of variables provided by the weights file.
+        """
+
+        all_vars = self._trainable_variables + self._non_trainable_variables
+        expected_count = len(all_vars)
+        for v in all_vars:
+            if v.name == WEIGHTS_NAME:
+                expected_count += 1
+
+        if len(store.keys()) != expected_count:
+            if expected_count == 0 and not self.built:
+                raise ValueError(
+                    f"Layer '{self.name}' was never built and thus it doesn't have any variables. "
+                    f"However the weights file lists {len(store.keys())} "
+                    "variables for this layer.\n"
+                    "In most cases, this error indicates that either:\n\n"
+                    "1. The layer is owned by a parent layer that "
+                    "implements a `build()` method, but calling the "
+                    "parent's `build()` method did NOT create the state of "
+                    f"the child layer '{self.name}'. A `build()` method "
+                    "must create ALL state for the layer, including "
+                    "the state of any children layers.\n\n"
+                    "2. You need to implement "
+                    "the `def build_from_config(self, config)` method "
+                    f"on layer '{self.name}', to specify how to rebuild "
+                    "it during loading. "
+                    "In this case, you might also want to implement the "
+                    "method that generates the build config at saving time, "
+                    "`def get_build_config(self)`. "
+                    "The method `build_from_config()` is meant "
+                    "to create the state "
+                    "of the layer (i.e. its variables) upon deserialization.",
+                )
+            raise ValueError(
+                f"Layer '{self.name}' expected {expected_count} variables, "
+                "but received "
+                f"{len(store.keys())} variables during loading. "
+                f"Expected: {[v.name for v in all_vars]}"
+            )
+
+        for i, v in enumerate(all_vars):
+            if v.name == WEIGHTS_NAME:
+                # Get the quantized weights and the scale
+                w_quantized = store[f"{i}"][()]  # These are HDF5 dataset objects
+                beta = store[f"{i}-beta"][()]
+
+                # Pre-multiply them to get back the correct weights
+                w = w_quantized * beta
+                v.assign(w)
+
+                # Update the beta value to signal that we are using a saved weight
+                self._beta = beta
+
+            else:
+                v.assign(store[f"{i}"])
