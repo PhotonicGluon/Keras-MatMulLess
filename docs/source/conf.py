@@ -26,6 +26,7 @@ release = "0.0.1.dev1"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    # Sphinx's own extensions
     "sphinx.ext.duration",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
@@ -33,6 +34,8 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
     "sphinx.ext.autosummary",
+    "sphinx.ext.viewcode",
+    # External extensions
     "myst_nb",
     "sphinx_copybutton",
     "sphinx_design",
@@ -54,6 +57,7 @@ html_theme = "furo"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 
+# -- Options for extensions --------------------------------------------------
 napoleon_include_init_with_doc = True
 napoleon_numpy_docstring = False
 napoleon_use_rtype = False
@@ -68,6 +72,6 @@ intersphinx_disabled_domains = ["std"]
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None), "numpy": ("https://numpy.org/doc/stable/", None)}
 intersphinx_disabled_reftypes = ["*"]
 
-myst_enable_extensions = ["colon_fence", "fieldlist"]
+myst_enable_extensions = ["colon_fence", "fieldlist", "dollarmath"]
 
 nb_execution_mode = "off"
