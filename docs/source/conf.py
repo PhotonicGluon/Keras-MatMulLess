@@ -36,6 +36,7 @@ extensions = [
     "myst_parser",
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinx_rtd_theme",
 ]
 
 templates_path = ["_templates"]
@@ -46,6 +47,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme = "furo"
 html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 
 napoleon_include_init_with_doc = True
 napoleon_numpy_docstring = False

@@ -22,6 +22,7 @@
         "regularizer",
         "rtype",
         "Tensorflow",
-        "typehints"
+        "typehints",
+        "venv"
     ]
 }

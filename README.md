@@ -50,15 +50,20 @@ or, if you are on Windows,
 venv/Scripts/activate
 ```
 
-Now we install Poetry and the development dependencies. If you have not installed a backend (i.e., Tensorflow, PyTorch, or Jax) you can do so here.
+Now we install Poetry.
 
 ```bash
-# Installing poetry
 pip install poetry
+```
 
-# Without backend
+Finally, install the development dependencies.
+
+```bash
 poetry install --with dev
+```
 
-# With backend
+If you have not installed a backend (i.e., [Tensorflow](https://www.tensorflow.org/), [PyTorch](https://pytorch.org/), or [Jax](https://jax.readthedocs.io/en/latest/index.html)) you can do so here.
+
+```bash
 poetry install --with dev --extras BACKEND_NAME
 ```
