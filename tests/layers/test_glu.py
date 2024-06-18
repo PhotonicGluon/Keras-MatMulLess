@@ -2,17 +2,32 @@ import os
 import tempfile
 
 import numpy as np
+import pytest
 from keras import backend, layers, models, ops
 
-from keras_mml.layers.dense import DenseMML
+from keras_mml.layers.glu import GLUMML
 from keras_mml.utils.array import as_numpy
 
 
-def test_call():
+def test_fixed_intermediate_size():
     x = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
-    layer = DenseMML(4)
+    layer = GLUMML(8, intermediate_size=16)
     y = layer(x)
-    assert ops.shape(y) == (2, 4)
+    assert ops.shape(y) == (2, 8)
+    assert layer.intermediate_size == 16
+
+
+def test_dynamic_intermediate_size():
+    x = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+    layer = GLUMML(8)
+    y = layer(x)
+    assert ops.shape(y) == (2, 8)
+    assert layer.intermediate_size == 256
+
+
+def test_invalid_activation():
+    with pytest.raises(ValueError):
+        GLUMML(8, activation="fake")
 
 
 def test_save_load():
@@ -20,8 +35,8 @@ def test_save_load():
         mock_data = np.array([[1.0, 2.0, 3.0]])
 
         # Check saving
-        model_path = os.path.join(tmpdir, "test_save_dense_mml.keras")
-        model1 = models.Sequential(layers=[layers.Input(shape=(3,)), DenseMML(8), DenseMML(16), layers.Dense(5)])
+        model_path = os.path.join(tmpdir, "test_save_glu_mml.keras")
+        model1 = models.Sequential(layers=[layers.Input(shape=(3,)), GLUMML(16), layers.Dense(5)])
         model1_output = as_numpy(model1(mock_data))
 
         model1.save(model_path)

@@ -42,6 +42,7 @@ class GLUMML(keras.Layer):
         hidden_ratio: int = 4,
         intermediate_size: Optional[int] = None,
         activation: str = "silu",  # swish is another name for silu
+        **kwargs,
     ):
         """
         Initializes a new :py:class:`~GLUMML` layer.
@@ -58,6 +59,8 @@ class GLUMML(keras.Layer):
             ValueError: If the activation function specified is not in the
                 :py:const:`~PERMITTED_ACTIVATIONS`.
         """
+
+        super().__init__(**kwargs)
 
         if activation not in PERMITTED_ACTIVATIONS:
             raise ValueError(
