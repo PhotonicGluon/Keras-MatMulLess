@@ -1,11 +1,10 @@
 import numpy as np
 
+from keras_mml.layers.rms_norm import RMSNorm
 from keras_mml.utils import as_numpy
 
 
-def test_simple_rms_norm():
-    from keras_mml.layers.rms_norm import RMSNorm
-
+def test_rms_norm():
     x = np.array([1, 2, 3])
     y = RMSNorm(2)(x)
     y_pred = as_numpy(y)
