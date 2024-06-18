@@ -4,8 +4,9 @@
 :maxdepth: 2
 :hidden:
 
-getting-started/index
-api
+Home Page <self>
+Getting Started <getting-started/index>
+API Reference <api/keras_mml>
 ```
 
 ```{include} ../../README.md
