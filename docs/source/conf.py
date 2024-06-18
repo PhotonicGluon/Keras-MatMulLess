@@ -14,13 +14,15 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../../keras_mml"))
 
+import keras_mml
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Keras-MatMulLess"
 copyright = "2024, PhotonicGluon"
 author = "PhotonicGluon"
-release = "0.0.1.dev1"
+release = keras_mml.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
