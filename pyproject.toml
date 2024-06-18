@@ -1,13 +1,13 @@
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.isort]
 profile = "black"
 
 [tool.poetry]
 name = "keras-matmulless"
-version = "0.0.1.dev1"
+version = "0.0.0"
 description = "Keras layers without using matrix multiplications."
 license = "MIT"
 authors = ["PhotonicGluon <25820201+PhotonicGluon@users.noreply.github.com>"]
@@ -42,6 +42,9 @@ jax = { version = "<0.4.29", extras = ["cpu"], optional = true }
 jupyter = { version = "^1.0.0", optional = true }
 notebook = { version = "~7.2.1", optional = true }
 
+# Others
+poetry-dynamic-versioning = { extras = ["plugin"], version = "~1.4.0" }
+
 [tool.poetry.group.dev.dependencies]
 # Tests
 pytest = "~8.2.2"
@@ -65,3 +68,8 @@ jax = ["jax"]
 
 # Others
 notebook = ["jupyter", "notebook"]
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "semver"

@@ -32,6 +32,8 @@ build:
       # VIRTUAL_ENV needs to be set manually for now.
       # See https://github.com/readthedocs/readthedocs.org/pull/11152/
       - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with dev --extras tensorflow
+      # Update versioning
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry dynamic-versioning
       # Now we need to build the API stuff
       - cd docs; make clean html
 
