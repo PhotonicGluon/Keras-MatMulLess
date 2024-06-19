@@ -12,4 +12,6 @@ jobs:
   publish-testpypi:
     needs: [run-tests]
     uses: ./.github/workflows/publish_to_testpypi.yml
+    with:
+      continue_on_error: true
     secrets: inherit
