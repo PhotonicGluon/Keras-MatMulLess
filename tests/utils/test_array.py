@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from keras_mml.utils import as_numpy
 
 

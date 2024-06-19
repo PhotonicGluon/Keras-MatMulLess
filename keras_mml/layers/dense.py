@@ -8,6 +8,7 @@ import keras
 from keras import activations, initializers, ops
 
 from keras_mml.layers.rms_norm import RMSNorm
+from keras_mml.utils.validation import ensure_is_rank_2
 
 EPSILON = 1e-5
 HUGE = 1e9
@@ -127,8 +128,7 @@ class DenseMML(keras.Layer):
                 ``(batch_size, d0)``).
         """
 
-        if len(input_shape) != 2:
-            raise ValueError(f"DenseMML input shape must have rank 2 (received: {input_shape})")
+        ensure_is_rank_2(input_shape)
 
         self.w = self.add_weight(
             name=WEIGHTS_NAME,
