@@ -3,7 +3,7 @@ name: Publish Python Package To TestPyPi
 on: 
   workflow_call:
     secrets:
-      api_token:
+      TEST_PYPI_API_TOKEN:
         required: true
 
 permissions:
@@ -34,4 +34,4 @@ jobs:
         with:
           repository_url: https://test.pypi.org/legacy/
           user: __token__
-          password: ${{ secrets.api_token }}
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}

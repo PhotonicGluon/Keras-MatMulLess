@@ -3,7 +3,7 @@ name: Run Tests
 on: 
   workflow_call:
     secrets:
-      codecov_token:
+      CODECOV_TOKEN:
         required: true
 
 jobs:
@@ -32,7 +32,7 @@ jobs:
         uses: codecov/codecov-action@v4.4.1
         with:
           verbose: true
-          token: ${{ secrets.codecov_token }}
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: Upload Pytest Test Results
         uses: actions/upload-artifact@v4
         with:
