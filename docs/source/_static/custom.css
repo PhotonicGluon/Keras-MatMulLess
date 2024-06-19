@@ -1,3 +1,8 @@
+/* Nicely justify paragraphs */
+p {
+    text-align: justify;
+}
+
 /* Hide captions for TOCs, but only if it is in the page content */
 div.toctree-wrapper>p.caption>span.caption-text {
     display: none;
