@@ -90,3 +90,4 @@ format-jinja = """
         {{ serialize_pep440(bump_version(base), stage, revision, dev=distance) }}
     {%- endif -%}
 """
+fix-shallow-repository = true
