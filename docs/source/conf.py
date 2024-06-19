@@ -74,6 +74,6 @@ intersphinx_disabled_domains = ["std"]
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None), "numpy": ("https://numpy.org/doc/stable/", None)}
 intersphinx_disabled_reftypes = ["*"]
 
-myst_enable_extensions = ["colon_fence", "fieldlist", "dollarmath"]
+myst_enable_extensions = ["colon_fence", "fieldlist", "dollarmath", "attrs_block"]
 
 nb_execution_mode = "off"
