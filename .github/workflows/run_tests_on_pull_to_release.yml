@@ -1,9 +1,6 @@
-name: Run Tests on Release
+name: Run Tests on Pull to Release
 
 on:
-  push:
-    branches:
-      - dev-release
   pull_request:
     branches:
       - release
@@ -11,3 +8,4 @@ on:
 jobs:
   run-tests:
     uses: ./.github/workflows/run_tests.yml
+    secrets: inherit

@@ -78,7 +78,7 @@ poetry install --with dev
 If you have not installed a backend (i.e., [Tensorflow](https://www.tensorflow.org/), [PyTorch](https://pytorch.org/), or [Jax](https://jax.readthedocs.io/en/latest/index.html)) you can do so here.
 
 ```bash
-poetry install --with dev --extras BACKEND_NAME
+poetry install --with dev,BACKEND_NAME
 ```
 
 That's it! You should now have access to the `keras_mml` package.

@@ -22,25 +22,15 @@ url = "https://download.pytorch.org/whl/cpu"
 priority = "explicit"
 
 [tool.poetry.dependencies]
-# Main dependencies
 python = "^3.9"
+
+# Main dependencies
 keras = "~3.3.3"
 numpy = "~1.26.4"
 
-# Tensorflow
-tensorflow = { version = "~2.16.1", optional = true }
-
-# PyTorch
-torch = { version = "^2.3.1+cpu", source = "pytorch-cpu", optional = true }
-torchvision = { version = "^0.18.1+cpu", source = "pytorch-cpu", optional = true }
-torchaudio = { version = "^2.3.1+cpu", source = "pytorch-cpu", optional = true }
-
-# Jax
-jax = { version = "<0.4.29", extras = ["cpu"], optional = true }
-
-# Notebook
-jupyter = { version = "^1.0.0", optional = true }
-notebook = { version = "~7.2.1", optional = true }
+# HOTFIXES
+# TODO: Remove once the issues have been resolved
+filelock = "3.15.1"
 
 # Others
 poetry-dynamic-versioning = { extras = ["plugin"], version = "~1.4.0" }
@@ -60,16 +50,44 @@ sphinx-autodoc-typehints = "~2.1.1"
 sphinx-autobuild = "2024.4.16"
 myst-nb = "~1.1.0"
 
-[tool.poetry.extras]
-# Keras backends
-tensorflow = ["tensorflow"]
-torch = ["torch", "torchvision", "torchaudio"]
-jax = ["jax"]
+[tool.poetry.group.tensorflow]
+optional = true
 
-# Others
-notebook = ["jupyter", "notebook"]
+[tool.poetry.group.tensorflow.dependencies]
+tensorflow = "~2.16.1"
+
+[tool.poetry.group.torch]
+optional = true
+
+[tool.poetry.group.torch.dependencies]
+torch = { version = "^2.3.1+cpu", source = "pytorch-cpu" }
+torchvision = { version = "^0.18.1+cpu", source = "pytorch-cpu" }
+torchaudio = { version = "^2.3.1+cpu", source = "pytorch-cpu" }
+
+[tool.poetry.group.jax]
+optional = true
+
+[tool.poetry.group.jax.dependencies]
+jax = { version = "<0.4.29", extras = ["cpu"] }
+
+[tool.poetry.group.notebook]
+optional = true
+
+[tool.poetry.group.notebook.dependencies]
+jupyter = "^1.0.0"
+notebook = "~7.2.1"
 
 [tool.poetry-dynamic-versioning]
 enable = true
 vcs = "git"
-style = "semver"
+style = "pep440"
+format-jinja = """
+    {%- if distance == 0 -%}
+        {{ serialize_pep440(base, stage, revision) }}
+    {%- elif revision is not none -%}
+        {{ serialize_pep440(base, stage, revision + 1, dev=distance) }}
+    {%- else -%}
+        {{ serialize_pep440(bump_version(base), stage, revision, dev=distance) }}
+    {%- endif -%}
+"""
+fix-shallow-repository = true
