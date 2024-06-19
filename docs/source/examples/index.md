@@ -5,6 +5,7 @@ These are demonstrations of what Keras-MML can do. All of our examples are writt
 ```{toctree}
 :maxdepth: 1
 
-mnist-classifier
-gated-linear-unit
+MNIST Classification <mnist-classifier>
+Autoencoders <autoencoders>
+Gated Linear Units (GRUs) <gated-linear-unit>
 ```
