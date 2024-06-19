@@ -8,5 +8,4 @@ on:
 jobs:
   run-tests:
     uses: ./.github/workflows/run_tests.yml
-    with:
-      codecov_token: ${{ secrets.CODECOV_TOKEN }}
+    secrets: inherit
