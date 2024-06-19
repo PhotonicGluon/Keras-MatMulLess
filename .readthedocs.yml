@@ -18,7 +18,7 @@ build:
       # If there are no changes (git diff exits with 0) we force the command to return with 183.
       # This is a special exit code on Read the Docs that will cancel the build immediately.
       - |
-        if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/ keras_mml/ .readthedocs.yml;
+        if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/ keras_mml/ .readthedocs.yml README.md;
         then
           exit 183;
         fi
@@ -31,7 +31,7 @@ build:
       # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
       # VIRTUAL_ENV needs to be set manually for now.
       # See https://github.com/readthedocs/readthedocs.org/pull/11152/
-      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with dev --extras tensorflow
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with dev,tensorflow
       # Update versioning
       - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry dynamic-versioning
       # Now we need to build the API stuff
