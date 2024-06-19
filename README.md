@@ -80,6 +80,11 @@ If you have not installed a backend (i.e., [Tensorflow](https://www.tensorflow.o
 ```bash
 poetry install --with dev,BACKEND_NAME
 ```
+Note that the `BACKEND_NAME` to be specified here is
+
+- `tensorflow` for the Tensorflow backend;
+- `torch` for the PyTorch backend; and
+- `jax` for the Jax backend.
 
 That's it! You should now have access to the `keras_mml` package.
 
