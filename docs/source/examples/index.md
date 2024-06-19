@@ -6,4 +6,5 @@ These are demonstrations of what Keras-MML can do. All of our examples are writt
 :maxdepth: 1
 
 mnist-classifier
+gated-linear-unit
 ```
