@@ -1,0 +1,33 @@
+name: Publish Python Package To TestPyPi
+
+on: [workflow_call]
+
+permissions:
+  contents: read
+
+jobs:
+  publish-testpypi:
+    name: Publish to TestPyPi
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/keras-mml
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2
+      - name: Install Project Dependencies
+        run: poetry install --with dev
+      - name: Build Package
+        run: poetry build
+      - name: Publish Package
+        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        with:
+          repository_url: https://test.pypi.org/legacy/
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}

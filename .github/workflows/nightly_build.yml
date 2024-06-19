@@ -1,0 +1,13 @@
+name: Nightly Build
+
+on:
+  schedule:
+  - cron: "59 23 * * *"
+  workflow_dispatch:
+
+jobs:
+  run-tests:
+    uses: ./.github/workflows/common/run_tests.yml
+  publish-testpypi:
+    needs: [run-tests]
+    uses: ./.github/workflows/common/publish_to_testpypi.yml
