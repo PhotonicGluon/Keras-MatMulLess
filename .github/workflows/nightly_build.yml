@@ -8,6 +8,10 @@ on:
 jobs:
   run-tests:
     uses: ./.github/workflows/run_tests.yml
+    with:
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}
   publish-testpypi:
     needs: [run-tests]
     uses: ./.github/workflows/publish_to_testpypi.yml
+    with:
+      api_token: ${{ secrets.TEST_PYPI_API_TOKEN }}

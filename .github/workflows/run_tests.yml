@@ -1,6 +1,10 @@
 name: Run Tests
 
-on: [workflow_call]
+on: 
+  workflow_call:
+    inputs:
+      codecov_token:
+        type: string
 
 jobs:
   run-tests:
@@ -28,8 +32,7 @@ jobs:
         uses: codecov/codecov-action@v4.4.1
         with:
           verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ inputs.codecov_token }}
       - name: Upload Pytest Test Results
         uses: actions/upload-artifact@v4
         with:
