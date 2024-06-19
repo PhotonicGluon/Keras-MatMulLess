@@ -80,4 +80,4 @@ notebook = "~7.2.1"
 [tool.poetry-dynamic-versioning]
 enable = true
 vcs = "git"
-style = "semver"
+style = "pep440"
