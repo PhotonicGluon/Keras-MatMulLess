@@ -7,5 +7,5 @@ These are demonstrations of what Keras-MML can do. All of our examples are writt
 
 MNIST Classification <mnist-classifier>
 Autoencoders <autoencoders>
-Gated Linear Units (GRUs) <gated-linear-unit>
+Gated Linear Units (GLUs) <gated-linear-unit>
 ```
