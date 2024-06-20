@@ -16,10 +16,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Fetch
+        run: git fetch
       - name: Count Commit Diff
         id: diff_step
         run: |
-          echo "diff_count=`git log --oneline origin/nightly ^origin/main | wc -l`" >> "$GITHUB_OUTPUT"
+          diff_count=$(git log --oneline origin/main ^origin/nightly | wc -l)
+          echo $diff_count
+          echo "diff_count=$diff_count" >> "$GITHUB_OUTPUT"
   run-tests:
     needs: [count-diff]
     if: needs.count-diff.outputs.diff_count > 0
