@@ -212,11 +212,11 @@ class DenseMML(keras.Layer):
         """
 
         # Pre-quantize the weights
-        w_quantized, beta = self._weights_quantization(self.w)
+        w_quantized, w_scale = self._weights_quantization(self.w)
 
         # TODO: Develop more efficient weight saving method than this simple method
         store["weights"] = w_quantized
-        store["scale"] = beta
+        store["scale"] = w_scale
 
     def load_own_variables(self, store: Dict):
         """
@@ -233,5 +233,5 @@ class DenseMML(keras.Layer):
         try:
             self.w = store["weights"][()]
             self._weight_scale = store["scale"][()]
-        except ValueError:
+        except ValueError:  # pragma: no cover
             raise ValueError("DenseMML layer missing values when loading from file")
