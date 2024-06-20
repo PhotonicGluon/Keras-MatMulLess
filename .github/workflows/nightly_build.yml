@@ -1,13 +1,47 @@
 name: Nightly Build
 
 on:
-  push:
-    branches:
-      - nightly
+  schedule:
+  - cron: "59 15 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
+  count-diff:
+    runs-on: ubuntu-latest
+    outputs:
+      diff_count: ${{ steps.diff_step.outputs.diff_count }}
+    steps:
+      - name: Count Commit Diff
+        id: diff_step
+        run: |
+          echo "diff_count=`git log --oneline origin/nightly ^origin/main | wc -l`" >> "$GITHUB_OUTPUT"
+  run-tests:
+    needs: [count-diff]
+    if: needs.count-diff.outputs.diff_count > 0
+    uses: ./.github/workflows/run_tests.yml
+    secrets: inherit
   publish-testpypi:
+    needs: [run-tests]
     uses: ./.github/workflows/publish_to_testpypi.yml
     with:
       continue_on_error: true
     secrets: inherit
+  push-to-nightly:
+    needs: [run-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Push to Nightly Branch
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git fetch
+          git checkout nightly
+          git merge origin/main
+          git push -u origin nightly
