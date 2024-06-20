@@ -2,9 +2,10 @@
 Implements a matmul-less Gated Recurrent Unit (GRU) layer.
 """
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import keras
+import numpy as np
 from keras import activations, ops
 
 from keras_mml.layers.dense import DenseMML
@@ -21,18 +22,19 @@ class GRUCellMML(keras.Layer):
         units: int,
         activation: str = "silu",
         recurrent_activation: str = "sigmoid",
+        seed: Optional[int] = None,
         **kwargs,
     ):  # TODO: Add more
         """
         TODO: ADD DOCS
         """
 
-        super().__init__(**kwargs)
-
         if units <= 0:
             raise ValueError(
                 f"Received an invalid value for argument `units`, expected a positive integer, got {units}."
             )
+
+        super().__init__(**kwargs)
 
         self.input_spec = keras.layers.InputSpec(ndim=2)
 
@@ -40,7 +42,9 @@ class GRUCellMML(keras.Layer):
         self.activation = activations.get(activation)
         self.recurrent_activation = activations.get(recurrent_activation)
 
-        self.reset_after = True  # TODO: Change
+        self.seed = seed
+        self.seed_generator = keras.random.SeedGenerator(seed=seed)
+
         self.state_size = self.units
         self.output_size = self.units
 
@@ -48,6 +52,8 @@ class GRUCellMML(keras.Layer):
         """
         TODO: ADD DOCS
         """
+
+        super().build(input_shape)
 
         self.kernel_dense = DenseMML(self.units * 3, name="kernel")  # Will be used for $W_f$, $W_c$, and $W_g$
         self.kernel_dense.build(input_shape)
@@ -80,8 +86,39 @@ class GRUCellMML(keras.Layer):
         # Generate final output
         o_prime = g * h
         o = self.out_dense(o_prime)
-
         return o, new_state
+
+    def get_config(self):
+        """
+        Gets the configuration for the layer.
+
+        Returns:
+            Layer configuration.
+        """
+
+        config = super().get_config()
+        config.update(
+            {
+                "units": self.units,
+                "activation": activations.serialize(self.activation),
+                "recurrent_activation": activations.serialize(self.recurrent_activation),
+                "seed": self.seed,
+            }
+        )
+        return config
+
+    def get_initial_state(self, batch_size: Optional[int] = None) -> List[np.ndarray]:
+        """
+        Gets the initial states.
+
+        Args:
+            batch_size: Batch size for the cell. Defaults to None.
+
+        Returns:
+            Initial states.
+        """
+
+        return [ops.zeros((batch_size, self.state_size), dtype=self.compute_dtype)]
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
@@ -91,13 +128,13 @@ class GRUMML(keras.layers.RNN):
     """
 
     def __init__(
-        self, units: int, activation: str = "tanh", recurrent_activation: str = "sigmoid", **kwargs
+        self, units: int, activation: str = "silu", recurrent_activation: str = "sigmoid", **kwargs
     ):  # TODO: ADD MORE
         """
         TODO: ADD DOCS
         """
 
-        cell = GRUCellMML(units, activation=activation, recurrent_activation=recurrent_activation)
+        cell = GRUCellMML(units, activation=activation, recurrent_activation=recurrent_activation, name="grumml_cell")
         super().__init__(cell, **kwargs)
 
         self.input_spec = keras.layers.InputSpec(ndim=3)
@@ -115,64 +152,23 @@ class GRUMML(keras.layers.RNN):
     def recurrent_activation(self):
         return self.cell.recurrent_activation
 
-    @property
-    def use_bias(self):
-        return self.cell.use_bias
-
-    @property
-    def kernel_initializer(self):
-        return self.cell.kernel_initializer
-
-    @property
-    def recurrent_initializer(self):
-        return self.cell.recurrent_initializer
-
-    @property
-    def bias_initializer(self):
-        return self.cell.bias_initializer
-
-    @property
-    def kernel_regularizer(self):
-        return self.cell.kernel_regularizer
-
-    @property
-    def recurrent_regularizer(self):
-        return self.cell.recurrent_regularizer
-
-    @property
-    def bias_regularizer(self):
-        return self.cell.bias_regularizer
-
-    @property
-    def kernel_constraint(self):
-        return self.cell.kernel_constraint
-
-    @property
-    def recurrent_constraint(self):
-        return self.cell.recurrent_constraint
-
-    @property
-    def bias_constraint(self):
-        return self.cell.bias_constraint
-
-    @property
-    def dropout(self):
-        return self.cell.dropout
-
-    @property
-    def recurrent_dropout(self):
-        return self.cell.recurrent_dropout
-
-    @property
-    def reset_after(self):
-        return self.cell.reset_after
-
     # Public methods
     def call(self, sequences, initial_state: Optional[Any] = None, mask: Optional[Any] = None, training: bool = False):
         """
         TODO: ADD DOCS
         """
         return super().call(sequences, initial_state=initial_state, mask=mask, training=training)
+
+    def inner_loop(self, sequences, initial_state, mask, training: bool = False):
+        """
+        TODO: ADD DOCS
+        """
+
+        if keras.tree.is_nested(initial_state):
+            initial_state = initial_state[0]
+        if keras.tree.is_nested(mask):
+            mask = mask[0]
+        return super().inner_loop(sequences, initial_state, mask=mask, training=training)
 
     def get_config(self) -> Dict[str, Any]:
         """
