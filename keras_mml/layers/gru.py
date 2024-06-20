@@ -19,7 +19,7 @@ class GRUCellMML(keras.Layer):
     def __init__(
         self,
         units: int,
-        activation: str = "tanh",
+        activation: str = "silu",
         recurrent_activation: str = "sigmoid",
         **kwargs,
     ):  # TODO: Add more
@@ -31,7 +31,7 @@ class GRUCellMML(keras.Layer):
 
         if units <= 0:
             raise ValueError(
-                "Received an invalid value for argument `units`, " f"expected a positive integer, got {units}."
+                f"Received an invalid value for argument `units`, expected a positive integer, got {units}."
             )
 
         self.input_spec = keras.layers.InputSpec(ndim=2)
@@ -49,13 +49,11 @@ class GRUCellMML(keras.Layer):
         TODO: ADD DOCS
         """
 
-        self.kernel = DenseMML(self.units * 3, name="kernel")  # Will be used for $W_r$, $W_z$, and $W$
-        self.kernel.build(input_shape)
+        self.kernel_dense = DenseMML(self.units * 3, name="kernel")  # Will be used for $W_f$, $W_c$, and $W_g$
+        self.kernel_dense.build(input_shape)
 
-        self.recurrent_kernel = DenseMML(
-            self.units * 3, name="recurrent_kernel"
-        )  # Will be used for $U_r$, $U_z$, and $U$
-        self.recurrent_kernel.build((None, self.units))
+        self.out_dense = DenseMML(self.units, name="out_kernel")  # Will be used for $W_o$
+        self.out_dense.build((None, self.units))
 
         self.built = True
 
@@ -67,28 +65,23 @@ class GRUCellMML(keras.Layer):
         h_tm1 = states[0] if keras.tree.is_nested(states) else states  # Previous state
 
         # Inputs projected by all gate matrices at once
-        matrix_x = self.kernel(inputs)
-        x_r, x_z, x_h = ops.split(matrix_x, 3, axis=-1)
-
-        # The hidden state is projected by all gate matrices at once
-        matrix_inner = self.recurrent_kernel(h_tm1)
-        recurrent_r = matrix_inner[:, : self.units]
-        recurrent_z = matrix_inner[:, self.units : self.units * 2]
-        recurrent_h = matrix_inner[:, self.units * 2 :]
+        matrix_x = self.kernel_dense(inputs)
+        x_f, x_c, x_g = ops.split(matrix_x, 3, axis=-1)
 
         # Apply recurrent activations
-        r = self.recurrent_activation(x_r + recurrent_r)
-        z = self.recurrent_activation(x_z + recurrent_z)
-
-        recurrent_h = r * recurrent_h
-
-        # Form h_temp, which is $\tilde{h}_j^{\langle t \rangle}$
-        h_temp = self.activation(x_h + recurrent_h)
+        f = self.recurrent_activation(x_f)
+        c = self.activation(x_c)
+        g = self.recurrent_activation(x_g)
 
         # Previous and candidate states are mixed by the update gate
-        h = z * h_tm1 + (1 - z) * h_temp
+        h = f * h_tm1 + (1 - f) * c
         new_state = [h] if keras.tree.is_nested(states) else h
-        return h, new_state
+
+        # Generate final output
+        o_prime = g * h
+        o = self.out_dense(o_prime)
+
+        return o, new_state
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
