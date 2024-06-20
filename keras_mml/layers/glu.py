@@ -8,7 +8,6 @@ import keras
 from keras import activations, ops
 
 from keras_mml.layers.dense import DenseMML
-from keras_mml.utils.validation import ensure_is_rank_2
 
 #: Set of activations that can be used with :py:class:`~GLUMML`.
 PERMITTED_ACTIVATIONS = {"linear", "relu", "gelu", "silu", "selu"}
@@ -56,16 +55,24 @@ class GLUMML(keras.Layer):
             activation: GLU activation function.
 
         Raises:
+            ValueError: If the units provided is not a positive integer.
             ValueError: If the activation function specified is not in the
                 :py:const:`~PERMITTED_ACTIVATIONS`.
         """
 
         super().__init__(**kwargs)
 
+        if units <= 0:
+            raise ValueError(
+                f"Received an invalid value for argument `units`, expected a positive integer, got {units}"
+            )
+
         if activation not in PERMITTED_ACTIVATIONS:
             raise ValueError(
                 f"GLU activation '{activation}' not allowed; permitted activations are {PERMITTED_ACTIVATIONS}"
             )
+
+        self.input_spec = keras.layers.InputSpec(ndim=2)
 
         self.units = units
         self.hidden_ratio = hidden_ratio
@@ -86,8 +93,6 @@ class GLUMML(keras.Layer):
             ValueError: If the input shape does not have a rank of 2 (i.e., something like
                 ``(batch_size, d0)``).
         """
-
-        ensure_is_rank_2(input_shape)
 
         self.hidden_size = input_shape[-1]
 

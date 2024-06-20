@@ -8,7 +8,6 @@ import keras
 from keras import activations, initializers, ops
 
 from keras_mml.layers.rms_norm import RMSNorm
-from keras_mml.utils.validation import ensure_is_rank_2
 
 EPSILON = 1e-5
 HUGE = 1e9
@@ -55,9 +54,19 @@ class DenseMML(keras.Layer):
             activation: Activation function to use. If you don't specify anything, no activation is
                 applied (i.e. "linear" activation: :math:`\\sigma(\\mathbf{x}) = \\mathbf{x}`).
             weights_initializer: Initializer for the weights matrix.
+
+        Raises:
+            ValueError: If the units provided is not a positive integer.
         """
 
         super().__init__(**kwargs)
+
+        if units <= 0:
+            raise ValueError(
+                f"Received an invalid value for argument `units`, expected a positive integer, got {units}"
+            )
+
+        self.input_spec = keras.layers.InputSpec(ndim=2)
 
         self.units = units
         self.activation = activations.get(activation)
@@ -127,8 +136,6 @@ class DenseMML(keras.Layer):
             ValueError: If the input shape does not have a rank of 2 (i.e., something like
                 ``(batch_size, d0)``).
         """
-
-        ensure_is_rank_2(input_shape)
 
         self.w = self.add_weight(
             name=WEIGHTS_NAME,

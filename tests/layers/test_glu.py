@@ -25,11 +25,6 @@ def test_dynamic_intermediate_size():
     assert layer.intermediate_size == 256
 
 
-def test_invalid_activation():
-    with pytest.raises(ValueError):
-        GLUMML(8, activation="fake")
-
-
 def test_save_load():
     with tempfile.TemporaryDirectory() as tmpdir:
         mock_data = np.array([[1.0, 2.0, 3.0]])
@@ -48,3 +43,16 @@ def test_save_load():
         model2_output = as_numpy(model2(mock_data))
 
         assert np.allclose(model1_output, model2_output)
+
+
+def test_invalid_activation():
+    with pytest.raises(ValueError):
+        GLUMML(8, activation="fake")
+
+
+def test_invalid_units():
+    with pytest.raises(ValueError):
+        GLUMML(0)
+
+    with pytest.raises(ValueError):
+        GLUMML(-1)
