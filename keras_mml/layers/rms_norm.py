@@ -15,7 +15,7 @@ class RMSNorm(keras.Layer):
         scale: Scaling factor.
     """
 
-    def __init__(self, dim: int):
+    def __init__(self, dim: int, **kwargs):
         """
         Initializes a new RMSNorm instance.
 
@@ -26,7 +26,7 @@ class RMSNorm(keras.Layer):
             ValueError: If the given embedding size is not a positive integer.
         """
 
-        super().__init__()
+        super().__init__(**kwargs)
 
         if dim <= 0:
             raise ValueError(f"Received an invalid value for argument `dim`, expected a positive integer, got {dim}")
