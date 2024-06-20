@@ -5,18 +5,24 @@ on:
   - cron: "59 15 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  # run-tests:
-  #   uses: ./.github/workflows/run_tests.yml
-  #   secrets: inherit
+  run-tests:
+    uses: ./.github/workflows/run_tests.yml
+    secrets: inherit
   push-to-nightly:
-    # needs: [run-tests]
-    runs-on: ubuntu-latest"
+    needs: [run-tests]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Push to `nightly`
+        uses: actions/checkout@v4
+      - name: Push to Nightly Branch
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
+          git fetch
+          git checkout nightly
+          git merge origin/main
           git push -u origin nightly
