@@ -163,6 +163,7 @@ class DenseMML(keras.Layer):
         w_quantized, beta = self._weights_quantization(self.w)
 
         if self._beta is not None:  # Using a saved layer
+            # FIXME: This doesn't work for saved layers
             beta = self._beta
 
         scaling = beta / gamma_qb  # See eq. (11)
