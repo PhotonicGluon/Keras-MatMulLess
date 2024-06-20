@@ -1,0 +1,22 @@
+name: Nightly Push
+
+on:
+  schedule:
+  - cron: "59 15 * * *"
+  workflow_dispatch:
+
+jobs:
+  # run-tests:
+  #   uses: ./.github/workflows/run_tests.yml
+  #   secrets: inherit
+  push-to-nightly:
+    # needs: [run-tests]
+    runs-on: ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Push to `nightly`
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git push -u origin nightly

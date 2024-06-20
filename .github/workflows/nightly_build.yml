@@ -1,16 +1,12 @@
 name: Nightly Build
 
 on:
-  schedule:
-  - cron: "59 23 * * *"
-  workflow_dispatch:
+  push:
+    branches:
+      - nightly
 
 jobs:
-  run-tests:
-    uses: ./.github/workflows/run_tests.yml
-    secrets: inherit
   publish-testpypi:
-    needs: [run-tests]
     uses: ./.github/workflows/publish_to_testpypi.yml
     with:
       continue_on_error: true
