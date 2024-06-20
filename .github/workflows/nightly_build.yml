@@ -14,6 +14,8 @@ jobs:
     outputs:
       diff_count: ${{ steps.diff_step.outputs.diff_count }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Count Commit Diff
         id: diff_step
         run: |
