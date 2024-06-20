@@ -21,9 +21,15 @@ class RMSNorm(keras.Layer):
 
         Args:
             dim: Embedding size. Will be the square of the scaling factor (i.e., :py:attr:`~scale`).
+
+        Raises:
+            ValueError: If the given embedding size is not a positive integer.
         """
 
         super().__init__()
+
+        if dim <= 0:
+            raise ValueError(f"Received an invalid value for argument `dim`, expected a positive integer, got {dim}")
         self.scale = dim**-0.5
 
     def call(self, x):

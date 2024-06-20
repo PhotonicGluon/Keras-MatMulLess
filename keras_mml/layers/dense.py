@@ -55,9 +55,17 @@ class DenseMML(keras.Layer):
             activation: Activation function to use. If you don't specify anything, no activation is
                 applied (i.e. "linear" activation: :math:`\\sigma(\\mathbf{x}) = \\mathbf{x}`).
             weights_initializer: Initializer for the weights matrix.
+
+        Raises:
+            ValueError: If the units provided is not a positive integer.
         """
 
         super().__init__(**kwargs)
+
+        if units <= 0:
+            raise ValueError(
+                f"Received an invalid value for argument `units`, expected a positive integer, got {units}"
+            )
 
         self.units = units
         self.activation = activations.get(activation)

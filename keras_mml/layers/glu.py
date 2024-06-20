@@ -56,11 +56,17 @@ class GLUMML(keras.Layer):
             activation: GLU activation function.
 
         Raises:
+            ValueError: If the units provided is not a positive integer.
             ValueError: If the activation function specified is not in the
                 :py:const:`~PERMITTED_ACTIVATIONS`.
         """
 
         super().__init__(**kwargs)
+
+        if units <= 0:
+            raise ValueError(
+                f"Received an invalid value for argument `units`, expected a positive integer, got {units}"
+            )
 
         if activation not in PERMITTED_ACTIVATIONS:
             raise ValueError(
