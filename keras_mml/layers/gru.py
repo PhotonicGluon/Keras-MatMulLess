@@ -55,11 +55,13 @@ class GRUCellMML(keras.Layer):
 
         super().build(input_shape)
 
-        self.kernel_dense = DenseMML(self.units * 3, name="kernel")  # Will be used for $W_f$, $W_c$, and $W_g$
+        self.kernel_dense = DenseMML(self.units * 3, name="kernel")  # Will be used for $W_{xr}$, $W_{xf}$, and $W_{xc}$
         self.kernel_dense.build(input_shape)
 
-        self.out_dense = DenseMML(self.units, name="out_kernel")  # Will be used for $W_o$
-        self.out_dense.build((None, self.units))
+        self.recurrent_dense = DenseMML(
+            self.units * 3, name="recurrent"
+        )  # Will be used for $W_{hr}$, $W_{hf}$, and $W_{cc}$
+        self.recurrent_dense.build((None, self.units))
 
         self.built = True
 
@@ -70,23 +72,26 @@ class GRUCellMML(keras.Layer):
 
         h_tm1 = states[0] if keras.tree.is_nested(states) else states  # Previous state
 
-        # Inputs projected by all gate matrices at once
+        # Inputs and hidden states projected by all appropriate matrices at once
         matrix_x = self.kernel_dense(inputs)
-        x_f, x_c, x_g = ops.split(matrix_x, 3, axis=-1)
+        matrix_h = self.recurrent_dense(h_tm1)
+
+        x_r, x_f, x_c = ops.split(matrix_x, 3, axis=-1)
+        h_r, h_f, h_c = ops.split(matrix_h, 3, axis=-1)
 
         # Apply recurrent activations
-        f = self.recurrent_activation(x_f)
-        c = self.activation(x_c)
-        g = self.recurrent_activation(x_g)
+        r = self.recurrent_activation(x_r + h_r)
+        f = self.recurrent_activation(x_f + h_f)
+
+        # Form candidate state, c
+        h_c = r * h_c
+        c = self.activation(x_c + h_c)
 
         # Previous and candidate states are mixed by the update gate
         h = f * h_tm1 + (1 - f) * c
         new_state = [h] if keras.tree.is_nested(states) else h
 
-        # Generate final output
-        o_prime = g * h
-        o = self.out_dense(o_prime)
-        return o, new_state
+        return h, new_state
 
     def get_config(self):
         """
