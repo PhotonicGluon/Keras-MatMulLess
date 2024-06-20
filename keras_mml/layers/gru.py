@@ -40,6 +40,10 @@ class GRUCellMML(keras.Layer):
         self.activation = activations.get(activation)
         self.recurrent_activation = activations.get(recurrent_activation)
 
+        self.reset_after = True  # TODO: Change
+        self.state_size = self.units
+        self.output_size = self.units
+
     def build(self, input_shape: Tuple[int, ...]):
         """
         TODO: ADD DOCS
@@ -105,6 +109,72 @@ class GRUMML(keras.layers.RNN):
 
         self.input_spec = keras.layers.InputSpec(ndim=3)
 
+    # Properties
+    @property
+    def units(self):
+        return self.cell.units
+
+    @property
+    def activation(self):
+        return self.cell.activation
+
+    @property
+    def recurrent_activation(self):
+        return self.cell.recurrent_activation
+
+    @property
+    def use_bias(self):
+        return self.cell.use_bias
+
+    @property
+    def kernel_initializer(self):
+        return self.cell.kernel_initializer
+
+    @property
+    def recurrent_initializer(self):
+        return self.cell.recurrent_initializer
+
+    @property
+    def bias_initializer(self):
+        return self.cell.bias_initializer
+
+    @property
+    def kernel_regularizer(self):
+        return self.cell.kernel_regularizer
+
+    @property
+    def recurrent_regularizer(self):
+        return self.cell.recurrent_regularizer
+
+    @property
+    def bias_regularizer(self):
+        return self.cell.bias_regularizer
+
+    @property
+    def kernel_constraint(self):
+        return self.cell.kernel_constraint
+
+    @property
+    def recurrent_constraint(self):
+        return self.cell.recurrent_constraint
+
+    @property
+    def bias_constraint(self):
+        return self.cell.bias_constraint
+
+    @property
+    def dropout(self):
+        return self.cell.dropout
+
+    @property
+    def recurrent_dropout(self):
+        return self.cell.recurrent_dropout
+
+    @property
+    def reset_after(self):
+        return self.cell.reset_after
+
+    # Public methods
     def call(self, sequences, initial_state: Optional[Any] = None, mask: Optional[Any] = None, training: bool = False):
         """
         TODO: ADD DOCS
