@@ -2,7 +2,7 @@
 Implements a matmul-less Dense layer.
 """
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 import keras
 import numpy as np
@@ -81,7 +81,7 @@ class DenseMML(keras.Layer):
 
     # Helper methods
     @staticmethod
-    def _activations_quantization(x) -> Tuple[Any, Any]:
+    def _activations_quantization(x):
         """
         Quantizes the activations to 8-bit precision using absmax quantization.
 
@@ -91,16 +91,15 @@ class DenseMML(keras.Layer):
             x: Array of quantization values.
 
         Returns:
-            A tuple. The first value is the quantized activation values. The second is the scaling
-            factor needed for equation (11) in the paper.
+            The quantized activation values.
         """
 
         scale = 127.0 / ops.clip(ops.max(ops.abs(x), axis=-1, keepdims=True), EPSILON, HUGE)
-        y = ops.clip(ops.round(x * scale), -128, 127)
-        return y, scale
+        y = ops.clip(ops.round(x * scale), -128, 127) / scale
+        return y
 
     @staticmethod
-    def _weights_quantization(w) -> Tuple[Any, Any]:
+    def _weights_quantization(w, with_scale: bool = False) -> Union[Any, Tuple[Any, float]]:
         """
         Quantizes the weights to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
 
@@ -108,14 +107,19 @@ class DenseMML(keras.Layer):
 
         Args:
             w: Array of weights.
+            with_scale: Whether the scale value should be returned along with the quantized values.
 
         Returns:
-            A tuple. The first is the quantized weights. The second is the scaling factor needed.
+            The quantized weights. If the scaling factor is to be returned as well, the weights are
+            **not** pre-scaled.
         """
 
         scale = 1.0 / ops.clip(ops.mean(ops.abs(w)), EPSILON, HUGE)
         u = ops.clip(ops.round(w * scale), -1, 1)
-        return u, scale
+
+        if with_scale:
+            return u, scale
+        return u / scale
 
     # Public methods
     def build(self, input_shape: Tuple[int, int]):
@@ -152,20 +156,18 @@ class DenseMML(keras.Layer):
         input_dim = ops.shape(inputs)[1]
         x_norm = RMSNorm(input_dim)(inputs)
 
-        # Then get the quantized activations and weights
-        x_quantized, x_scale = self._activations_quantization(x_norm)
+        # Get the quantized activations and weights
+        x_quantized = self._activations_quantization(x_norm)
 
         if self._weight_scale:
             # Weights should have been pre-quantized
-            w_quantized, w_scale = self.w, self._weight_scale
+            w_quantized = self.w / self._weight_scale
         else:
-            w_quantized, w_scale = self._weights_quantization(self.w)
-
-        scaling = w_scale * x_scale
+            w_quantized = self._weights_quantization(self.w)
 
         # Perform kernel operation
         # TODO: Make this more efficient when we are doing inference only
-        x = ops.matmul(x_quantized, w_quantized) / scaling  # The `matmul` should just involve addition and subtraction
+        x = ops.matmul(x_quantized, w_quantized)  # The `matmul` should just involve addition and subtraction
 
         # Then apply activation
         if self.activation is not None:
@@ -214,8 +216,8 @@ class DenseMML(keras.Layer):
         """
 
         # Pre-quantize the weights
-        w_quantized, w_scale = self._weights_quantization(self.w)
-        
+        w_quantized, w_scale = self._weights_quantization(self.w, with_scale=True)
+
         # Encode the ternary weights efficiently
         shape, encoded = encode_ternary_array(as_numpy(w_quantized))
 
@@ -242,7 +244,7 @@ class DenseMML(keras.Layer):
             scale = store["scale"][()]
         except ValueError:  # pragma: no cover
             raise ValueError("DenseMML layer missing values when loading from file")
-        
+
         # Then recover the weights
-        self.w = decode_ternary_array(shape, encoded)
+        self.w.assign(decode_ternary_array(shape, encoded))
         self._weight_scale = scale
