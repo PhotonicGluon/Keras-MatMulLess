@@ -170,3 +170,5 @@ experiments/models
 **/jupyter_execute
 
 *.keras
+
+xtra_commands.txt
