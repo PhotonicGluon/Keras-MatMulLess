@@ -60,6 +60,10 @@ html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 
 # -- Options for extensions --------------------------------------------------
+doctest_global_setup = """
+import numpy as np
+"""
+
 napoleon_include_init_with_doc = True
 napoleon_numpy_docstring = False
 napoleon_use_rtype = False
