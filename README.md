@@ -9,7 +9,7 @@
 <!-- start summary -->
 Keras layers without using matrix multiplications.
 
-This is a Keras based implementation of some layers mentioned in the papers ["BitNet: Scaling 1-bit Transformers for Large Language Models"](https://arxiv.org/pdf/2310.11453) and ["Scalable MatMul-free Language Modeling"](https://arxiv.org/pdf/2406.02528). <!-- end summary --> Find the documentation [here](https://keras-matmulless.readthedocs.io/en/latest/).
+This is a Keras based implementation of some layers mentioned in the papers ["BitNet: Scaling 1-bit Transformers for Large Language Models"](https://arxiv.org/pdf/2310.11453), ["The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits"](https://arxiv.org/pdf/2402.17764), and ["Scalable MatMul-free Language Modeling"](https://arxiv.org/pdf/2406.02528). <!-- end summary --> Find the documentation [here](https://keras-matmulless.readthedocs.io/en/latest/).
 
 ## Rationale
 <!-- start rationale -->
@@ -80,6 +80,7 @@ If you have not installed a backend (i.e., [Tensorflow](https://www.tensorflow.o
 ```bash
 poetry install --with dev,BACKEND_NAME
 ```
+
 Note that the `BACKEND_NAME` to be specified here is
 
 - `tensorflow` for the Tensorflow backend;

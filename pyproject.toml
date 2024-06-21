@@ -28,10 +28,6 @@ python = "^3.9"
 keras = "~3.3.3"
 numpy = "~1.26.4"
 
-# HOTFIXES
-# TODO: Remove once the issues have been resolved
-filelock = "3.15.1"
-
 # Others
 poetry-dynamic-versioning = { extras = ["plugin"], version = "~1.4.0" }
 
