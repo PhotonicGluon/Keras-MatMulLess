@@ -10,6 +10,11 @@ try:
 except ModuleNotFoundError:
     pytest.skip("PyTorch not installed; skipping", allow_module_level=True)
 
+import keras
+
+if keras.config.backend() != "torch":
+    pytest.skip("Somehow PyTorch was not selected as backend; skipping", allow_module_level=True)
+
 from keras_mml.layers._dense_impl.torch_dense import TorchDenseMML
 from keras_mml.layers.dense import DenseMML
 from keras_mml.utils.array import as_numpy
