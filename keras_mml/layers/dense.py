@@ -5,9 +5,11 @@ Implements a matmul-less Dense layer.
 from typing import Any, Dict, Optional, Tuple
 
 import keras
+import numpy as np
 from keras import activations, initializers, ops
 
 from keras_mml.layers.rms_norm import RMSNorm
+from keras_mml.utils.array import as_numpy, decode_ternary_array, encode_ternary_array
 
 EPSILON = 1e-5
 HUGE = 1e9
@@ -213,9 +215,13 @@ class DenseMML(keras.Layer):
 
         # Pre-quantize the weights
         w_quantized, w_scale = self._weights_quantization(self.w)
+        
+        # Encode the ternary weights efficiently
+        shape, encoded = encode_ternary_array(as_numpy(w_quantized))
 
-        # TODO: Develop more efficient weight saving method than this simple method
-        store["weights"] = w_quantized
+        # Then store the variables
+        store["encoded"] = np.frombuffer(encoded, dtype="uint8")
+        store["shape"] = shape
         store["scale"] = w_scale
 
     def load_own_variables(self, store: Dict):
@@ -229,9 +235,14 @@ class DenseMML(keras.Layer):
             ValueError: If the layer is missing variables when loading from a file.
         """
 
-        # TODO: Develop more efficient weight loading method than this simple method
+        # Get the variables from the store first
         try:
-            self.w = store["weights"][()]
-            self._weight_scale = store["scale"][()]
+            encoded = store["encoded"][()].tobytes()
+            shape = store["shape"][()]
+            scale = store["scale"][()]
         except ValueError:  # pragma: no cover
             raise ValueError("DenseMML layer missing values when loading from file")
+        
+        # Then recover the weights
+        self.w = decode_ternary_array(shape, encoded)
+        self._weight_scale = scale
