@@ -100,7 +100,8 @@ def encode_ternary_array(x: np.ndarray) -> Tuple[Tuple[int, int], bytes]:
 
             temp_bits = ""
 
-    if len(temp_bits) != 0:
+    if len(temp_bits) != 0 or len(remainder) != 0:
+        temp_bits = temp_bits + remainder
         temp_bits = temp_bits + "0" * (8 - len(temp_bits))
         byte = int(temp_bits, 2)
         output.append(byte)
@@ -142,14 +143,14 @@ def decode_ternary_array(shape: Tuple[int, int], encoded: bytes) -> np.ndarray:
     byte_num = 0
     remaining = list(int_to_bin(encoded[0], pad_len=8))  # Trim off the first byte
     while True:
-        if len(remaining) == 0 or (len(remaining) == 1 and remaining[0] == "1"):  # Can't decode lone "1"
-            byte_num += 1
-            remaining += list(int_to_bin(encoded[byte_num], pad_len=8))
-
         i += 1
         
         if i == total:
             break
+        
+        if len(remaining) == 0 or (len(remaining) == 1 and remaining[0] == "1"):  # Can't decode lone "1"
+            byte_num += 1
+            remaining += list(int_to_bin(encoded[byte_num], pad_len=8))
         
         if remaining.pop(0) == "0":
             # Should be a zero, but since the array is already all zeroes, we can skip
