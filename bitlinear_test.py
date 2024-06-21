@@ -1,9 +1,10 @@
 import torch
-from torch import nn, Tensor
 import torch.nn.functional as F
+from torch import Tensor, nn
+
 
 def activation_quant(x):
-    """ Per−token quantization to 8 bits. No grouping is needed for quantization.
+    """Per-token quantization to 8 bits. No grouping is needed for quantization.
     Args:
     x: an activation tensor with shape [n, d]
     Returns:
@@ -13,8 +14,9 @@ def activation_quant(x):
     y = (x * scale).round().clamp_(-128, 127) / scale
     return y
 
+
 def weight_quant(w):
-    """ Per−tensor quantization to 1.58 bits. No grouping is needed for quantization.
+    """Per-tensor quantization to 1.58 bits. No grouping is needed for quantization.
     Args:
     w: a weight tensor with shape [d, k]
     Returns:
@@ -54,15 +56,15 @@ class RMSNorm(nn.Module):
         """
         # computation is in fp32
         x_fp32 = x.float()
-        x_normed = (
-            x_fp32 * torch.rsqrt(x_fp32.pow(2).mean(-1, keepdim=True) + self.eps)
-        ).type_as(x)
+        x_normed = (x_fp32 * torch.rsqrt(x_fp32.pow(2).mean(-1, keepdim=True) + self.eps)).type_as(x)
         return x_normed * self.scale
-    
+
+
 class BitLinear(nn.Linear):
     """
     This is only for training, and kernel optimization is needed for efficiency.
     """
+
     def forward(self, x):
         """
         Args:
@@ -74,28 +76,29 @@ class BitLinear(nn.Linear):
         w = torch.tensor(np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]], dtype="float32"))
         x_norm = RMSNorm(self.in_features)(x)
         # y = F.linear(x_norm, w)
-                
-        # A trick for implementing Straight−Through−Estimator (STE) using detach()
+
+        # A trick for implementing Straight-Through-Estimator (STE) using detach()
         # x_quant = x_norm + (activation_quant(x_norm) - x_norm).detach()
         x_quant = x_norm + activation_quant(x_norm).detach() - x_norm.detach()
         w_quant = w + weight_quant(w).detach() - w.detach()
         # x_quant = x_norm
         # w_quant = w
         y = F.linear(x_quant, w_quant)
-        
+
         # print(torch.gradient(x_norm))
         # print(torch.gradient(w))
         # print()
-        
+
         # print(torch.gradient(x_quant))
         # print(torch.gradient(w_quant))
         # print(torch.gradient(y))
 
         return y
 
+
 if __name__ == "__main__":
     import numpy as np
-    
+
     # Input
     x = torch.tensor(np.array([[1.2, 2.3, 3.4], [4.5, 5.6, 6.7]], dtype="float32"), requires_grad=True)
 
