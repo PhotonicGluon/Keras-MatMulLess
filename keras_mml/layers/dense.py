@@ -59,6 +59,7 @@ class DenseMML(BackendDenseMML):
             activation: Activation function to use. If you don't specify anything, no activation is
                 applied (i.e. "linear" activation: :math:`\\sigma(\\mathbf{x}) = \\mathbf{x}`).
             weights_initializer: Initializer for the weights matrix.
+            **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
             ValueError: If the units provided is not a positive integer.

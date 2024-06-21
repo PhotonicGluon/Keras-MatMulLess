@@ -36,7 +36,6 @@ class FallbackDenseMML(BaseDenseMML):
 
         Args:
             w: Array of weights.
-            with_scale: Whether the scale value should be returned along with the quantized values.
 
         Returns:
             The quantized weights.

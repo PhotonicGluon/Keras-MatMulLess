@@ -2,9 +2,7 @@
 PyTorch implementation of the core algorithm in the matmul-less Dense layer.
 """
 
-# TODO: Add docstrings?
-
-from typing import Tuple, Union
+from typing import Tuple
 
 import torch
 from overrides import override
@@ -21,12 +19,32 @@ class TorchDenseMML(BaseDenseMML):
 
     @staticmethod
     def _activations_quantization(x: torch.Tensor) -> torch.Tensor:
+        """
+        Quantizes the activations to 8-bit precision using absmax quantization.
+
+        Args:
+            x: Tensor of quantization values.
+
+        Returns:
+            The quantized activation values.
+        """
+
         scale = 127.0 / x.abs().max(dim=-1, keepdim=True).values.clamp_(min=EPSILON)
         y = (x * scale).round().clamp_(-128, 127) / scale
         return y
 
     @staticmethod
-    def _weights_quantization(w: torch.Tensor) -> Union[torch.Tensor, Tuple[torch.Tensor, float]]:
+    def _weights_quantization(w: torch.Tensor) -> torch.Tensor:
+        """
+        Quantizes the weights to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
+
+        Args:
+            w: Array of weights.
+
+        Returns:
+            The quantized weights.
+        """
+
         scale = 1.0 / w.abs().mean().clamp_(min=EPSILON)
         u = (w * scale).round().clamp_(-1, 1) / scale
         return u

@@ -53,6 +53,7 @@ class GLUMML(keras.Layer):
                 :math:`\\frac23 lr` where :math:`l` is the hidden shape given by the input into the
                 layer and :math:`r` is the :py:attr:`~GLUMML.hidden_ratio`.
             activation: GLU activation function.
+            **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
             ValueError: If the units provided is not a positive integer.

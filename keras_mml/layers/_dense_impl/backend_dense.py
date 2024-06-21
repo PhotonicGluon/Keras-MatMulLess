@@ -33,8 +33,8 @@ class BackendDenseMML(keras.Layer, backend_class):
     def __init__(self, *args, **kwargs):
         """
         Args:
-            *args: Arguments for :py:class:`keras.Layer`
-            **kwargs: Keyword arguments for :py:class:`keras.Layer`
+            *args: Arguments for :py:class:`keras.Layer`.
+            **kwargs: Keyword arguments for :py:class:`keras.Layer`.
         """
 
         keras.Layer.__init__(self, *args, **kwargs)

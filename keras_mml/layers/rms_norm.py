@@ -21,6 +21,7 @@ class RMSNorm(keras.Layer):
 
         Args:
             dim: Embedding size. Will be the square of the scaling factor (i.e., :py:attr:`~scale`).
+            **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
             ValueError: If the given embedding size is not a positive integer.

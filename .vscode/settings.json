@@ -15,6 +15,7 @@
         "docstrings",
         "dollarmath",
         "dtype",
+        "elem",
         "fieldlist",
         "figsize",
         "fillchar",
