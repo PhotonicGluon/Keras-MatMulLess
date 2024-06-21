@@ -17,9 +17,9 @@ WEIGHTS_NAME = "weights"
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
-class DenseMML(keras.Layer):
+class BaseDenseMML(keras.Layer):
     """
-    Dense layer without matrix multiplication.
+    Base Dense layer without matrix multiplication.
 
     The core of the layer is the ``BitLinear`` layer described in https://arxiv.org/pdf/2310.11453
     and https://arxiv.org/pdf/2402.17764. It uses bit quantization to reduce matrix multiplication
@@ -117,6 +117,24 @@ class DenseMML(keras.Layer):
         u = ops.clip(ops.round(w * scale), -1, 1)
         return u, scale
 
+    def _call(self, x_norm):
+        # TODO: ADD DOCS
+        # Then get the quantized activations and weights
+        x_quantized, x_scale = self._activations_quantization(x_norm)
+
+        if self._weight_scale:
+            # Weights should have been pre-quantized
+            w_quantized, w_scale = self.w, self._weight_scale
+        else:
+            w_quantized, w_scale = self._weights_quantization(self.w)
+
+        scaling = w_scale * x_scale
+
+        # Perform kernel operation
+        # TODO: Make this more efficient when we are doing inference only
+        x = ops.matmul(x_quantized, w_quantized) / scaling  # The `matmul` should just involve addition and subtraction
+        return x
+            
     # Public methods
     def build(self, input_shape: Tuple[int, int]):
         """
@@ -152,20 +170,8 @@ class DenseMML(keras.Layer):
         input_dim = ops.shape(inputs)[1]
         x_norm = RMSNorm(input_dim)(inputs)
 
-        # Then get the quantized activations and weights
-        x_quantized, x_scale = self._activations_quantization(x_norm)
-
-        if self._weight_scale:
-            # Weights should have been pre-quantized
-            w_quantized, w_scale = self.w, self._weight_scale
-        else:
-            w_quantized, w_scale = self._weights_quantization(self.w)
-
-        scaling = w_scale * x_scale
-
-        # Perform kernel operation
-        # TODO: Make this more efficient when we are doing inference only
-        x = ops.matmul(x_quantized, w_quantized) / scaling  # The `matmul` should just involve addition and subtraction
+        # Call backend-dependent calculation
+        x = self._call(x_norm)
 
         # Then apply activation
         if self.activation is not None:
