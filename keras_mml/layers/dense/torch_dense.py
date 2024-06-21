@@ -26,5 +26,6 @@ class TorchDenseMML(BaseDenseMML):
 
         # Perform kernel operation
         # TODO: Make this more efficient when we are doing inference only
-        y = F.linear(x_quantized, w_quantized) / scaling  # The `matmul` should just involve addition and subtraction
+        # FIXME: This little transposing maneuver's gonna cost us 51 years
+        y = F.linear(x_quantized, w_quantized.T) / scaling  # The `matmul` should just involve addition and subtraction
         return y
