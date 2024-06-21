@@ -119,7 +119,7 @@ class BaseDenseMML(keras.Layer):
 
     def _call(self, x_norm):
         # TODO: ADD DOCS
-        # Then get the quantized activations and weights
+        # Get the quantized activations and weights
         x_quantized, x_scale = self._activations_quantization(x_norm)
 
         if self._weight_scale:
@@ -134,7 +134,7 @@ class BaseDenseMML(keras.Layer):
         # TODO: Make this more efficient when we are doing inference only
         x = ops.matmul(x_quantized, w_quantized) / scaling  # The `matmul` should just involve addition and subtraction
         return x
-            
+
     # Public methods
     def build(self, input_shape: Tuple[int, int]):
         """
@@ -221,7 +221,7 @@ class BaseDenseMML(keras.Layer):
 
         # Pre-quantize the weights
         w_quantized, w_scale = self._weights_quantization(self.w)
-        
+
         # Encode the ternary weights efficiently
         shape, encoded = encode_ternary_array(as_numpy(w_quantized))
 
@@ -248,7 +248,7 @@ class BaseDenseMML(keras.Layer):
             scale = store["scale"][()]
         except ValueError:  # pragma: no cover
             raise ValueError("DenseMML layer missing values when loading from file")
-        
+
         # Then recover the weights
         self.w = decode_ternary_array(shape, encoded)
         self._weight_scale = scale

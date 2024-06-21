@@ -4,18 +4,17 @@ Handles the selection of the actual, backend-*dependent* ``DenseMML` class.
 
 import keras
 
-from keras_mml.layers.dense.base import BaseDenseMML
+from keras_mml.layers.dense.base_dense import BaseDenseMML
+from keras_mml.layers.dense.torch_dense import TorchDenseMML
 
 BACKEND = keras.config.backend()
 
 # TODO: Do backend selection
 if BACKEND == "tensorflow":
-    pass
+    DenseMML = BaseDenseMML  # TODO: Change according to backend
 elif BACKEND == "torch":
-    pass
+    DenseMML = TorchDenseMML
 elif BACKEND == "jax":
-    pass
+    DenseMML = BaseDenseMML  # TODO: Change according to backend
 else:
     raise ImportError(f"Invalid backend '{BACKEND}'")
-
-DenseMML = BaseDenseMML  # TODO: Change according to backend
