@@ -1,5 +1,5 @@
 """
-Implements a matmul-less Dense layer, for when the backend is not usable.
+Fallback implementation of the core algorithm in the matmul-less Dense layer.
 
 TODO: REMOVE ONCE ALL BACKENDS ARE SETTLED
 """
@@ -9,7 +9,7 @@ from typing import Any, Tuple
 from keras import ops
 from overrides import override
 
-from keras_mml.layers.dense.base_dense import EPSILON, HUGE, BaseDenseMML
+from keras_mml.layers._dense_impl.base_dense import EPSILON, HUGE, BaseDenseMML
 
 
 class FallbackDenseMML(BaseDenseMML):

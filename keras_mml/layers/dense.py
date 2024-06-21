@@ -10,13 +10,14 @@ from keras import activations, initializers, ops
 
 from keras_mml.layers.rms_norm import RMSNorm
 from keras_mml.utils.array import as_numpy, decode_ternary_array, encode_ternary_array
+from keras_mml.layers._dense_impl import BackendDenseMML
 
 EPSILON = 1e-5
 HUGE = 1e9
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
-class BaseDenseMML(keras.Layer):
+class DenseMML(BackendDenseMML):
     """
     Base Dense layer without matrix multiplication.
 
@@ -76,8 +77,6 @@ class BaseDenseMML(keras.Layer):
         self.activation = activations.get(activation)
         self.weights_initializer = initializers.get(weights_initializer)
 
-        self._weight_scale = None  # Used for when the layer is loaded from file
-
     # Properties
     @property
     def _quantized_weights_for_saving(self) -> Tuple[Any, float]:
@@ -89,21 +88,6 @@ class BaseDenseMML(keras.Layer):
         u = ops.clip(ops.round(self.w * scale), -1, 1)
 
         return u, scale
-
-    # Helper methods
-    def _get_quantized_arrays(self, x_norm) -> Tuple[Any, Any]:
-        """
-        Gets the quantized activation and weight values.
-
-        Args:
-            x_norm: Normalized activation values.
-
-        Returns:
-            A tuple. The first value is the quantized activation values. The second is the quantized
-            weight values.
-        """
-
-        raise NotImplementedError
 
     # Public methods
     def build(self, input_shape: Tuple[int, int]):

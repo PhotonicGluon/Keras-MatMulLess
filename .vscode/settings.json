@@ -12,6 +12,7 @@
         "copybutton",
         "crossentropy",
         "dmath",
+        "docstrings",
         "dollarmath",
         "dtype",
         "fieldlist",

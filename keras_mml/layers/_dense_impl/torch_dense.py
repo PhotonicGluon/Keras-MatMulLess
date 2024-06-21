@@ -1,13 +1,15 @@
 """
-Implements a matmul-less Dense layer, with PyTorch optimizations.
+PyTorch implementation of the core algorithm in the matmul-less Dense layer.
 """
+
+# TODO: Add docstrings?
 
 from typing import Tuple, Union
 
 import torch
 from overrides import override
 
-from keras_mml.layers.dense.base_dense import EPSILON, BaseDenseMML
+from keras_mml.layers._dense_impl.base_dense import EPSILON, BaseDenseMML
 
 
 class TorchDenseMML(BaseDenseMML):
