@@ -10,16 +10,15 @@ from keras import activations, initializers, ops
 
 from keras_mml.layers.rms_norm import RMSNorm
 from keras_mml.utils.array import as_numpy, decode_ternary_array, encode_ternary_array
-from keras_mml.layers._dense_impl import BackendDenseMML
 
 EPSILON = 1e-5
 HUGE = 1e9
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
-class DenseMML(BackendDenseMML):
+class DenseMML(keras.Layer):
     """
-    Base Dense layer without matrix multiplication.
+    Dense layer without matrix multiplication.
 
     The core of the layer is the ``BitLinear`` layer described in https://arxiv.org/pdf/2310.11453
     and https://arxiv.org/pdf/2402.17764. It uses bit quantization to reduce matrix multiplication
@@ -78,6 +77,8 @@ class DenseMML(BackendDenseMML):
         self.activation = activations.get(activation)
         self.weights_initializer = initializers.get(weights_initializer)
 
+        self._weight_scale = None  # Used for when the layer is loaded from file
+
     # Properties
     @property
     def _quantized_weights_for_saving(self) -> Tuple[Any, float]:
@@ -89,6 +90,64 @@ class DenseMML(BackendDenseMML):
         u = ops.clip(ops.round(self.w * scale), -1, 1)
 
         return u, scale
+
+    # Helper methods
+    @staticmethod
+    def _activations_quantization(x):
+        """
+        Quantizes the activations to 8-bit precision using absmax quantization.
+
+        Args:
+            x: Array of quantization values.
+
+        Returns:
+            The quantized activation values.
+        """
+
+        scale = 127.0 / ops.clip(ops.max(ops.abs(x), axis=-1, keepdims=True), EPSILON, HUGE)
+        y = ops.clip(ops.round(x * scale), -128, 127) / scale
+        return y
+
+    @staticmethod
+    def _weights_quantization(w) -> Any:
+        """
+        Quantizes the weights to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
+
+        Args:
+            w: Array of weights.
+
+        Returns:
+            The quantized weights.
+        """
+
+        scale = 1.0 / ops.clip(ops.mean(ops.abs(w)), EPSILON, HUGE)
+        u = ops.clip(ops.round(w * scale), -1, 1) / scale
+        return u
+
+    def _get_quantized_arrays(self, x_norm) -> Tuple[Any, Any]:
+        """
+        Gets the quantized activation and weight values.
+
+        Args:
+            x_norm: Normalized activation values.
+
+        Returns:
+            A tuple. The first value is the quantized activation values. The second is the quantized
+            weight values.
+        """
+
+        # Get the quantized activations and weights
+        # (We use a Straight-Through Estimator (STE) trick by stopping gradient propagation)
+        x_quantized = x_norm + ops.stop_gradient(self._activations_quantization(x_norm) - x_norm)
+
+        if self._weight_scale:
+            # Weights should have been pre-quantized
+            w_quantized = self.w / self._weight_scale
+        else:
+            w = self.w
+            w_quantized = w + ops.stop_gradient(self._weights_quantization(w) - w)
+
+        return x_quantized, w_quantized
 
     # Public methods
     def build(self, input_shape: Tuple[int, int]):
