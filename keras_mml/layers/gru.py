@@ -15,7 +15,7 @@ from keras_mml.layers.rms_norm import RMSNorm
 @keras.saving.register_keras_serializable(package="keras_mml")
 class GRUCellMML(keras.Layer):
     """
-    Based on HGRU/HGRN...
+    Based on HGRU/HGRN...?
 
     TODO: ADD DOCS
     """
@@ -58,21 +58,13 @@ class GRUCellMML(keras.Layer):
 
         super().build(input_shape)
 
-        input_dim = input_shape[-1]
+        self.kernel_dense = DenseMML(self.units * 3, name="kernel")  # Will be used for $W_{xr}$, $W_{xf}$, and $W_{xc}$
+        self.kernel_dense.build(input_shape)
 
-        self.f_dense = DenseMML(self.units, name="forget")
-        self.f_dense.build(input_shape)
-
-        self.c_dense = DenseMML(self.units, name="candidate_hidden")
-        self.c_dense.build(input_shape)
-
-        self.g_dense = DenseMML(self.units, name="output_gate")
-        self.g_dense.build(input_shape)
-        self.g_norm = RMSNorm(input_dim, name="output_gate_norm")
-        self.g_norm.build(input_shape)
-
-        self.o_dense = DenseMML(self.units, name="final_output")
-        self.o_dense.build((None, self.units))
+        self.recurrent_dense = DenseMML(
+            self.units * 3, name="recurrent"
+        )  # Will be used for $W_{hr}$, $W_{hf}$, and $W_{cc}$
+        self.recurrent_dense.build((None, self.units))
 
         self.built = True
 
@@ -83,33 +75,26 @@ class GRUCellMML(keras.Layer):
 
         h_tm1 = states[0] if keras.tree.is_nested(states) else states  # Previous state
 
-        # Assign inputs
-        # (Hopefully this allows for parallel processing?)
-        inputs_f = inputs
-        inputs_c = inputs
-        inputs_g = inputs
+        # Inputs and hidden states projected by all appropriate matrices at once
+        matrix_x = self.kernel_dense(inputs)
+        matrix_h = self.recurrent_dense(h_tm1)
 
-        # Forget gate output
-        x_f = self.f_dense(inputs_f)
-        f = self.recurrent_activation(x_f)
+        x_r, x_f, x_c = ops.split(matrix_x, 3, axis=-1)
+        h_r, h_f, h_c = ops.split(matrix_h, 3, axis=-1)
 
-        # Output gate output
-        x_g = self.g_dense(inputs_g)
-        g = self.recurrent_activation(x_g)
-        g = self.g_norm(g)
+        # Apply recurrent activations
+        r = self.recurrent_activation(x_r + h_r)
+        f = self.recurrent_activation(x_f + h_f)
 
-        # Candidate hidden state
-        x_c = self.c_dense(inputs_c)
-        c = self.activation(x_c)
+        # Form candidate state, c
+        h_c = r * h_c
+        c = self.activation(x_c + h_c)
 
-        # Compute new hidden state
+        # Previous and candidate states are mixed by the update gate
         h = f * h_tm1 + (1 - f) * c
         new_state = [h] if keras.tree.is_nested(states) else h
 
-        # Generate final output
-        o_prime = g * h
-        o = self.o_dense(o_prime)
-        return o, new_state
+        return h, new_state
 
     def get_config(self):
         """
