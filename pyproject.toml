@@ -72,6 +72,9 @@ optional = true
 [tool.poetry.group.notebook.dependencies]
 jupyter = "^1.0.0"
 notebook = "~7.2.1"
+pandas = "~2.2.2"
+seaborn = "~0.13.2"
+matplotlib = "~3.9.0"
 
 [tool.poetry-dynamic-versioning]
 enable = true
