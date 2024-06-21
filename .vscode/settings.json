@@ -30,6 +30,7 @@
         "intercal",
         "intersphinx",
         "ipynb",
+        "keepdim",
         "keepdims",
         "keras",
         "lineplot",

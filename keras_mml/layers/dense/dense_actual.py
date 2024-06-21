@@ -1,22 +1,25 @@
 """
-Handles the selection of the actual, backend-*dependent* ``DenseMML` class.
+Handles the selection of the actual, backend-*dependent* ``DenseMML`` class.
 """
 
 import keras
 
-from keras_mml.layers.dense.base_dense import BaseDenseMML
-
 BACKEND = keras.config.backend()
 
-# TODO: Do backend selection
 if BACKEND == "tensorflow":
-    the_class = BaseDenseMML  # TODO: Change according to backend
+    # TODO: Change according to backend
+    from keras_mml.layers.dense.fallback_dense import FallbackDenseMML
+
+    the_class = FallbackDenseMML
 elif BACKEND == "torch":
     from keras_mml.layers.dense.torch_dense import TorchDenseMML
 
     the_class = TorchDenseMML
 elif BACKEND == "jax":
-    the_class = BaseDenseMML  # TODO: Change according to backend
+    # TODO: Change according to backend
+    from keras_mml.layers.dense.fallback_dense import FallbackDenseMML
+
+    the_class = FallbackDenseMML
 else:
     raise ImportError(f"Invalid backend '{BACKEND}'")
 

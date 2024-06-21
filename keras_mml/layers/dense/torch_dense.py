@@ -2,15 +2,35 @@
 Implements a matmul-less Dense layer, with PyTorch optimizations.
 """
 
-import torch
-import torch.nn.functional as F
+from typing import Tuple, Union
 
-from keras_mml.layers.dense.base_dense import BaseDenseMML
+import torch
+from overrides import override
+
+from keras_mml.layers.dense.base_dense import EPSILON, BaseDenseMML
 
 
 class TorchDenseMML(BaseDenseMML):
-    # TODO: ADD DOCS
-    def _call(self, x_norm: torch.Tensor) -> torch.Tensor:
+    """
+    Dense layer without matrix multiplication, implemented in PyTorch.
+
+    Implementation largely follows https://github.com/microsoft/unilm/tree/master/bitnet.
+    """
+
+    @staticmethod
+    def _activations_quantization(x: torch.Tensor) -> torch.Tensor:
+        scale = 127.0 / x.abs().max(dim=-1, keepdim=True).values.clamp_(min=EPSILON)
+        y = (x * scale).round().clamp_(-128, 127) / scale
+        return y
+
+    @staticmethod
+    def _weights_quantization(w: torch.Tensor) -> Union[torch.Tensor, Tuple[torch.Tensor, float]]:
+        scale = 1.0 / w.abs().mean().clamp_(min=EPSILON)
+        u = (w * scale).round().clamp_(-1, 1) / scale
+        return u
+
+    @override(check_signature=False)
+    def _get_quantized_arrays(self, x_norm: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         # Get the quantized activations and weights
         x_quantized = (
             x_norm + (self._activations_quantization(x_norm) - x_norm).detach()
@@ -20,10 +40,7 @@ class TorchDenseMML(BaseDenseMML):
             # Weights should have been pre-quantized
             w_quantized = self.w / self._weight_scale
         else:
-            w_quantized = self.w + (self._weights_quantization(self.w) - self.w).detach()
+            w: torch.Tensor = self.w.value
+            w_quantized = w + (self._weights_quantization(w) - w).detach()
 
-        # Perform kernel operation
-        # TODO: Make this more efficient when we are doing inference only
-        # FIXME: This little transposing maneuver's gonna cost us 51 years
-        y = F.linear(x_quantized, w_quantized.T)  # The `matmul` should just involve addition and subtraction
-        return y
+        return x_quantized, w_quantized
