@@ -13,7 +13,6 @@ from keras_mml.utils.array import as_numpy, decode_ternary_array, encode_ternary
 
 EPSILON = 1e-5
 HUGE = 1e9
-WEIGHTS_NAME = "weights"
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
@@ -59,6 +58,7 @@ class DenseMML(keras.Layer):
             activation: Activation function to use. If you don't specify anything, no activation is
                 applied (i.e. "linear" activation: :math:`\\sigma(\\mathbf{x}) = \\mathbf{x}`).
             weights_initializer: Initializer for the weights matrix.
+            **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
             ValueError: If the units provided is not a positive integer.
@@ -79,43 +79,75 @@ class DenseMML(keras.Layer):
 
         self._weight_scale = None  # Used for when the layer is loaded from file
 
+    # Properties
+    @property
+    def _quantized_weights_for_saving(self) -> Tuple[Any, float]:
+        """
+        Returns a tuple. The first value is the quantized weights, and the second is the scale.
+        """
+
+        scale = 1.0 / ops.clip(ops.mean(ops.abs(self.w)), EPSILON, HUGE)
+        u = ops.clip(ops.round(self.w * scale), -1, 1)
+
+        return u, scale
+
     # Helper methods
     @staticmethod
-    def _activations_quantization(x) -> Tuple[Any, Any]:
+    def _activations_quantization(x):
         """
         Quantizes the activations to 8-bit precision using absmax quantization.
-
-        This is equation (4) in the aforementioned paper.
 
         Args:
             x: Array of quantization values.
 
         Returns:
-            A tuple. The first value is the quantized activation values. The second is the scaling
-            factor needed for equation (11) in the paper.
+            The quantized activation values.
         """
 
         scale = 127.0 / ops.clip(ops.max(ops.abs(x), axis=-1, keepdims=True), EPSILON, HUGE)
-        y = ops.clip(ops.round(x * scale), -128, 127)
-        return y, scale
+        y = ops.clip(ops.round(x * scale), -128, 127) / scale
+        return y
 
     @staticmethod
-    def _weights_quantization(w) -> Tuple[Any, Any]:
+    def _weights_quantization(w) -> Any:
         """
         Quantizes the weights to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
-
-        This is equation (1) in the aforementioned paper.
 
         Args:
             w: Array of weights.
 
         Returns:
-            A tuple. The first is the quantized weights. The second is the scaling factor needed.
+            The quantized weights.
         """
 
         scale = 1.0 / ops.clip(ops.mean(ops.abs(w)), EPSILON, HUGE)
-        u = ops.clip(ops.round(w * scale), -1, 1)
-        return u, scale
+        u = ops.clip(ops.round(w * scale), -1, 1) / scale
+        return u
+
+    def _get_quantized_arrays(self, x_norm) -> Tuple[Any, Any]:
+        """
+        Gets the quantized activation and weight values.
+
+        Args:
+            x_norm: Normalized activation values.
+
+        Returns:
+            A tuple. The first value is the quantized activation values. The second is the quantized
+            weight values.
+        """
+
+        # Get the quantized activations and weights
+        # (We use a Straight-Through Estimator (STE) trick by stopping gradient propagation)
+        x_quantized = x_norm + ops.stop_gradient(self._activations_quantization(x_norm) - x_norm)
+
+        if self._weight_scale:
+            # Weights should have been pre-quantized
+            w_quantized = self.w / self._weight_scale
+        else:
+            w = self.w
+            w_quantized = w + ops.stop_gradient(self._weights_quantization(w) - w)
+
+        return x_quantized, w_quantized
 
     # Public methods
     def build(self, input_shape: Tuple[int, int]):
@@ -131,7 +163,7 @@ class DenseMML(keras.Layer):
         """
 
         self.w = self.add_weight(
-            name=WEIGHTS_NAME,
+            name="weights",
             shape=(input_shape[-1], self.units),
             initializer=self.weights_initializer,
             trainable=True,
@@ -152,20 +184,12 @@ class DenseMML(keras.Layer):
         input_dim = ops.shape(inputs)[1]
         x_norm = RMSNorm(input_dim)(inputs)
 
-        # Then get the quantized activations and weights
-        x_quantized, x_scale = self._activations_quantization(x_norm)
-
-        if self._weight_scale:
-            # Weights should have been pre-quantized
-            w_quantized, w_scale = self.w, self._weight_scale
-        else:
-            w_quantized, w_scale = self._weights_quantization(self.w)
-
-        scaling = w_scale * x_scale
+        # Get the quantized arrays
+        x_quantized, w_quantized = self._get_quantized_arrays(x_norm)
 
         # Perform kernel operation
         # TODO: Make this more efficient when we are doing inference only
-        x = ops.matmul(x_quantized, w_quantized) / scaling  # The `matmul` should just involve addition and subtraction
+        x = ops.matmul(x_quantized, w_quantized)  # The `matmul` should just involve addition and subtraction
 
         # Then apply activation
         if self.activation is not None:
@@ -214,8 +238,8 @@ class DenseMML(keras.Layer):
         """
 
         # Pre-quantize the weights
-        w_quantized, w_scale = self._weights_quantization(self.w)
-        
+        w_quantized, w_scale = self._quantized_weights_for_saving
+
         # Encode the ternary weights efficiently
         shape, encoded = encode_ternary_array(as_numpy(w_quantized))
 
@@ -242,7 +266,7 @@ class DenseMML(keras.Layer):
             scale = store["scale"][()]
         except ValueError:  # pragma: no cover
             raise ValueError("DenseMML layer missing values when loading from file")
-        
+
         # Then recover the weights
-        self.w = decode_ternary_array(shape, encoded)
+        self.w.assign(decode_ternary_array(shape, encoded))
         self._weight_scale = scale

@@ -2,7 +2,6 @@
 Utilities for handing numpy arrays.
 """
 
-import os
 from typing import Any, Tuple
 
 import numpy as np
@@ -27,7 +26,9 @@ def as_numpy(x: Any) -> np.ndarray:
     try:
         return x.numpy()
     except RuntimeError:
-        if os.environ["KERAS_BACKEND"] == "torch":
+        import keras
+
+        if keras.config.backend() == "torch":
             return as_numpy(x.detach())
     except AttributeError:
         pass
@@ -38,13 +39,13 @@ def as_numpy(x: Any) -> np.ndarray:
 def encode_ternary_array(x: np.ndarray) -> Tuple[Tuple[int, int], bytes]:
     """
     Encodes a ternary array into a more space efficient format.
-    
+
     For a given ternary matrix, we convert the individual elements into bit sequences. Specifically,
-    
+
     - ``0`` becomes ``0``;
     - ``1`` becomes ``10``; and
     - ``-1`` becomes ``11``.
-    
+
     We then convert these bit sequences into bytes. These are the bytes that are returned.
 
     Args:
@@ -56,7 +57,7 @@ def encode_ternary_array(x: np.ndarray) -> Tuple[Tuple[int, int], bytes]:
     Returns:
         A tuple. The first element is the shape of the array. The second element is the encoded
         representation of the array.
-    
+
     Examples:
         >>> x = np.array([[0, 1, -1], [-1, 0, 1]])
         >>> shape, encoded = encode_ternary_array(x)
@@ -123,44 +124,44 @@ def decode_ternary_array(shape: Tuple[int, int], encoded: bytes) -> np.ndarray:
 
     Returns:
         The decoded ternary array.
-    
+
     Examples:
         >>> decode_ternary_array((2, 3), b"^\\x80")
         array([[ 0,  1, -1],
                [-1,  0,  1]])
     """
-    
+
     if len(shape) != 2:
         raise ValueError("Shape must be of rank 2")
 
     if len(encoded) == 0:
         raise ValueError("Cannot decode empty encoded array")
-    
+
     total = shape[0] * shape[1]
     flattened = np.zeros((total,), dtype=int)
-    
+
     i = -1  # We'll increment this right at the start
     byte_num = 0
     remaining = list(int_to_bin(encoded[0], pad_len=8))  # Trim off the first byte
     while True:
         i += 1
-        
+
         if i == total:
             break
-        
+
         if len(remaining) == 0 or (len(remaining) == 1 and remaining[0] == "1"):  # Can't decode lone "1"
             byte_num += 1
             remaining += list(int_to_bin(encoded[byte_num], pad_len=8))
-        
+
         if remaining.pop(0) == "0":
             # Should be a zero, but since the array is already all zeroes, we can skip
             continue
-        
+
         if remaining.pop(0) == "0":
             # The full sequence is "10" -> 1
             flattened[i] = 1
         else:
             # The full sequence is "11" -> -1
             flattened[i] = -1
-           
+
     return flattened.reshape(shape)
