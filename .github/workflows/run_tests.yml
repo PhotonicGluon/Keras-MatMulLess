@@ -8,14 +8,46 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-tests:
+  run-backend-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
         backend: ["tensorflow", "torch", "jax"]
     env:
       KERAS_BACKEND: ${{ matrix.backend }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"  # This is the lowest supported version
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2
+      - name: Install Project Dependencies
+        run: poetry install --with dev,${{ matrix.backend }}
+      - name: Test with Pytest
+        run: poetry run pytest --doctest-modules --cov=keras_mml --cov-report=xml:coverage-${{ matrix.backend }}.xml
+      - name: Upload Coverage Reports to Codecov
+        uses: codecov/codecov-action@v4.4.1
+        with:
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Upload Pytest Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-results-${{ matrix.backend }}
+          path: coverage-${{ matrix.backend }}.xml
+        # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
+  
+  run-version-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]  # Already using 3.9 above
+    env:
+      KERAS_BACKEND: "jax"  # This seems to run the fastest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -26,18 +58,6 @@ jobs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
       - name: Install Project Dependencies
-        run: poetry install --with dev,${{ matrix.backend }}
+        run: poetry install --with dev,jax
       - name: Test with Pytest
-        run: poetry run pytest --doctest-modules --cov=keras_mml --cov-report=xml:coverage-${{ matrix.backend }}-${{ matrix.python-version }}.xml
-      - name: Upload Coverage Reports to Codecov
-        uses: codecov/codecov-action@v4.4.1
-        with:
-          verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Upload Pytest Test Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: pytest-results-${{ matrix.backend }}-${{ matrix.python-version }}
-          path: coverage-${{ matrix.backend }}-${{ matrix.python-version }}.xml
-        # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}
+        run: poetry run pytest --doctest-modules
