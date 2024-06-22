@@ -278,7 +278,8 @@ class DenseMML(keras.Layer):
         store["kernel_shape"] = shape
         store["kernel_scale"] = w_scale
 
-        store["bias"] = self._bias
+        if self.use_bias:
+            store["bias"] = self._bias
 
     def load_own_variables(self, store: Dict):
         """
@@ -297,7 +298,10 @@ class DenseMML(keras.Layer):
             shape = store["kernel_shape"][()]
             scale = store["kernel_scale"][()]
 
-            bias = store["bias"][()]
+            if self.use_bias:
+                bias = store["bias"][()]
+            else:
+                bias = None
         except ValueError:  # pragma: no cover
             raise ValueError("DenseMML layer missing values when loading from file")
 
