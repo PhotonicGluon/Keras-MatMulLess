@@ -18,17 +18,18 @@ HUGE = 1e9
 @keras.saving.register_keras_serializable(package="keras_mml")
 class DenseMML(keras.Layer):
     """
-    Dense layer without matrix multiplication.
+    Dense layer without matrix multiplications.
 
     The core of the layer is the ``BitLinear`` layer described in https://arxiv.org/pdf/2310.11453
-    and https://arxiv.org/pdf/2402.17764. It uses bit quantization to reduce matrix multiplication
-    operations to simple addition and subtraction.
+    and https://arxiv.org/pdf/2402.17764. It uses ternary quantization to reduce matrix
+    multiplication operations to simple addition and subtraction.
 
     This implementation differs from ``BitLinear`` by allowing an activation function to be
     specified. More precisely, :py:class:`~DenseMML` implements the operation
-    :math:`\\mathbf{y} = \\sigma\\left(\\mathbf{x}\\mathbf{W}^\\intercal\\right)` where
-    :math:`\\mathbf{x}` is the quantized input vector, :math:`\\mathbf{W}` is the quantized weights
-    matrix, and :math:`\\sigma` is the element-wise activation function.
+    :math:`\\mathbf{y} = \\sigma\\left(\\mathbf{x}\\mathbf{W}^\\intercal + \\mathbf{b}\\right)`
+    where :math:`\\mathbf{x}` is the quantized input vector, :math:`\\mathbf{W}` is the quantized
+    weights matrix, :math:`\\mathbf{b}` is the bias vector, and :math:`\\sigma` is the element-wise
+    activation function.
 
     This implementation only allows the layer to have a rank of 2. That is, the input to this layer
     must be of the form ``(batch_size, d0)``.
@@ -38,15 +39,18 @@ class DenseMML(keras.Layer):
 
     Attributes:
         units: Dimensionality of the output space.
-        activation: Activation function.
-        weights_initializer: Initializer for the weights matrix.
+        use_bias: Whether the layer uses a bias vector.
+        kernel_initializer: Initializer for the weights matrix.
+        bias_initializer: Initializer for the bias vector.
     """
 
     def __init__(
         self,
         units: int,
         activation: Optional[str] = None,
-        weights_initializer: str = "glorot_uniform",
+        use_bias: bool = True,
+        kernel_initializer: str = "glorot_uniform",
+        bias_initializer: str = "zeros",
         **kwargs,
     ):
         """
@@ -56,7 +60,9 @@ class DenseMML(keras.Layer):
             units: Dimensionality of the output space.
             activation: Activation function to use. If you don't specify anything, no activation is
                 applied (i.e. "linear" activation: :math:`\\sigma(\\mathbf{x}) = \\mathbf{x}`).
-            weights_initializer: Initializer for the weights matrix.
+            use_bias: Whether the layer uses a bias vector.
+            kernel_initializer: Initializer for the weights matrix.
+            bias_initializer: Initializer for the bias vector.
             **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
@@ -74,7 +80,9 @@ class DenseMML(keras.Layer):
 
         self.units = units
         self.activation = activations.get(activation)
-        self.weights_initializer = initializers.get(weights_initializer)
+        self.use_bias = use_bias
+        self.kernel_initializer = initializers.get(kernel_initializer)
+        self.bias_initializer = initializers.get(bias_initializer)
 
         self._weight_scale = None  # Used for when the layer is loaded from file
 
@@ -158,9 +166,17 @@ class DenseMML(keras.Layer):
         self.w = self.add_weight(
             name="weights",
             shape=(input_shape[-1], self.units),
-            initializer=self.weights_initializer,
+            initializer=self.kernel_initializer,
             trainable=True,
         )
+        if self.use_bias:
+            self.bias = self.add_weight(
+                name="bias", shape=(self.units,), initializer=self.bias_initializer, trainable=True
+            )
+        else:
+            self.bias = None
+
+        self.built = True
 
     def call(self, inputs):
         """
@@ -184,7 +200,9 @@ class DenseMML(keras.Layer):
         # TODO: Make this more efficient when we are doing inference only
         x = ops.matmul(x_quantized, w_quantized)  # The `matmul` should just involve addition and subtraction
 
-        # Then apply activation
+        # Then apply bias and activation
+        if self.bias is not None:
+            x = ops.add(x, self.bias)
         if self.activation is not None:
             x = self.activation(x)
         return x
@@ -204,24 +222,6 @@ class DenseMML(keras.Layer):
         output_shape[-1] = self.units
         return tuple(output_shape)
 
-    def get_config(self) -> Dict[str, Any]:
-        """
-        Gets the configuration for the layer.
-
-        Returns:
-            Layer configuration.
-        """
-
-        config = super().get_config()
-        config.update(
-            {
-                "units": self.units,
-                "activation": activations.serialize(self.activation),
-                "weights_initializer": initializers.serialize(self.weights_initializer),
-            }
-        )
-        return config
-
     def save_own_variables(self, store: Dict):
         """
         Saves the state of the layer.
@@ -237,9 +237,10 @@ class DenseMML(keras.Layer):
         shape, encoded = encode_ternary_array(as_numpy(w_quantized))
 
         # Then store the variables
-        store["encoded"] = np.frombuffer(encoded, dtype="uint8")
-        store["shape"] = shape
-        store["scale"] = w_scale
+        store["kernel_encoded"] = np.frombuffer(encoded, dtype="uint8")
+        store["kernel_shape"] = shape
+        store["kernel_scale"] = w_scale
+        store["bias"] = self.bias
 
     def load_own_variables(self, store: Dict):
         """
@@ -254,12 +255,15 @@ class DenseMML(keras.Layer):
 
         # Get the variables from the store first
         try:
-            encoded = store["encoded"][()].tobytes()
-            shape = store["shape"][()]
-            scale = store["scale"][()]
+            encoded = store["kernel_encoded"][()].tobytes()
+            shape = store["kernel_shape"][()]
+            scale = store["kernel_scale"][()]
+            bias = store["bias"][()]
         except ValueError:  # pragma: no cover
             raise ValueError("DenseMML layer missing values when loading from file")
 
         # Then recover the weights
         self.w.assign(decode_ternary_array(shape, encoded))
         self._weight_scale = scale
+
+        self.bias = bias
