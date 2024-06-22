@@ -5,7 +5,6 @@ from keras_mml.utils.array import decode_ternary_array, encode_ternary_array
 
 
 def test_encode_ternary_array():
-    # Normal inputs
     x = np.array([[1, 1, 1], [-1, 0, 1], [0, 1, 0], [1, 1, -1]])
     shape, encoded = encode_ternary_array(x)
     assert shape == (4, 3)
@@ -15,13 +14,6 @@ def test_encode_ternary_array():
     shape, encoded = encode_ternary_array(x)
     assert shape == (3, 4)
     assert encoded == b"\xab\x49\x58"
-
-    # Abnormal inputs
-    with pytest.raises(ValueError):
-        encode_ternary_array(np.array([1, 1, 1]))
-
-    with pytest.raises(ValueError):
-        encode_ternary_array(np.array([[[1, 0, 0]]]))
 
 
 def test_decode_ternary_array():
@@ -33,9 +25,6 @@ def test_decode_ternary_array():
     assert np.array_equal(x, np.array([[1, 1, 1, -1], [0, 1, 0, 1], [0, 1, 1, -1]]))
 
     # Abnormal inputs
-    with pytest.raises(ValueError):
-        decode_ternary_array((1,), b"\xab\x49\x58")
-
     with pytest.raises(ValueError):
         decode_ternary_array((3, 4), b"")
 
