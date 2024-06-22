@@ -60,6 +60,27 @@ def test_save_load():
 
         assert np.allclose(model1_output, model2_output)
 
+    # 2D array, but no bias
+    with tempfile.TemporaryDirectory() as tmpdir:
+        mock_data = np.array([[1.0, 2.0, 3.0]])
+
+        # Check saving
+        model_path = os.path.join(tmpdir, "test_save_dense_mml.keras")
+        model1 = models.Sequential(
+            layers=[layers.Input(shape=(3,)), DenseMML(8, use_bias=False), DenseMML(16), layers.Dense(5)]
+        )
+        model1_output = as_numpy(model1(mock_data))
+
+        model1.save(model_path)
+        assert os.path.isfile(model_path)
+
+        # Check loading
+        backend.clear_session()
+        model2 = models.load_model(model_path)
+        model2_output = as_numpy(model2(mock_data))
+
+        assert np.allclose(model1_output, model2_output)
+
 
 def test_invalid_units():
     with pytest.raises(ValueError):
