@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, Tuple, Union
 
 import keras
 import numpy as np
-from keras import activations, initializers, ops
+from keras import activations, constraints, initializers, ops, regularizers
 
 from keras_mml.layers.rms_norm import RMSNorm
 from keras_mml.utils.array import as_numpy, decode_ternary_array, encode_ternary_array
@@ -52,6 +52,10 @@ class DenseMML(keras.Layer):
         use_bias: Whether the layer uses a bias vector.
         kernel_initializer: Initializer for the kernel matrix.
         bias_initializer: Initializer for the bias vector.
+        kernel_regularizer: Regularizer function applied to the kernel matrix.
+        bias_regularizer: Regularizer function applied to the bias vector.
+        kernel_constraint: Constraint function applied to the kernel matrix.
+        bias_constraint: Constraint function applied to the bias vector.
 
     .. |1.58 Bit LLMs| replace:: *The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits*
     .. _1.58 Bit LLMs: https://arxiv.org/pdf/2402.17764
@@ -64,6 +68,11 @@ class DenseMML(keras.Layer):
         use_bias: bool = True,
         kernel_initializer: str = "glorot_uniform",
         bias_initializer: str = "zeros",
+        kernel_regularizer: Optional[str] = None,
+        bias_regularizer: Optional[str] = None,
+        activity_regularizer: Optional[str] = None,
+        kernel_constraint: Optional[str] = None,
+        bias_constraint: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -76,13 +85,19 @@ class DenseMML(keras.Layer):
             use_bias: Whether the layer uses a bias vector.
             kernel_initializer: Initializer for the kernel matrix.
             bias_initializer: Initializer for the bias vector.
+            kernel_regularizer: Regularizer function applied to the kernel matrix.
+            bias_regularizer: Regularizer function applied to the bias vector.
+            activity_regularizer: Regularizer function applied to the output of the layer (i.e., its
+                activation).
+            kernel_constraint: Constraint function applied to the kernel matrix.
+            bias_constraint: Constraint function applied to the bias vector.
             **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
             ValueError: If the units provided is not a positive integer.
         """
 
-        super().__init__(**kwargs)
+        super().__init__(activity_regularizer=activity_regularizer, **kwargs)
 
         if units <= 0:
             raise ValueError(
@@ -94,6 +109,13 @@ class DenseMML(keras.Layer):
         self.use_bias = use_bias
         self.kernel_initializer = initializers.get(kernel_initializer)
         self.bias_initializer = initializers.get(bias_initializer)
+        self.kernel_regularizer = regularizers.get(kernel_regularizer)
+        self.bias_regularizer = regularizers.get(bias_regularizer)
+        self.kernel_constraint = constraints.get(kernel_constraint)
+        self.bias_constraint = constraints.get(bias_constraint)
+
+        self.input_spec = keras.layers.InputSpec(min_ndim=2)
+        self.supports_masking = True
 
         self._kernel_scale = None  # Used for when the layer is loaded from file
 
@@ -176,11 +198,16 @@ class DenseMML(keras.Layer):
             name="kernel",
             shape=(input_dim, self.units),
             initializer=self.kernel_initializer,
-            trainable=True,
+            regularizer=self.kernel_regularizer,
+            constraint=self.kernel_constraint,
         )
         if self.use_bias:
             self._bias = self.add_weight(
-                name="bias", shape=(self.units,), initializer=self.bias_initializer, trainable=True
+                name="bias",
+                shape=(self.units,),
+                initializer=self.bias_initializer,
+                regularizer=self.bias_regularizer,
+                constraint=self.bias_constraint,
             )
         else:
             self._bias = None
