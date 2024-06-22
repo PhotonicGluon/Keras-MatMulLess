@@ -20,13 +20,15 @@ class DenseMML(keras.Layer):
     """
     Dense layer without matrix multiplications.
 
-    The core of the layer is the ``BitLinear`` layer described in https://arxiv.org/pdf/2310.11453
-    and https://arxiv.org/pdf/2402.17764. It uses ternary quantization to reduce matrix
-    multiplication operations to simple addition and subtraction.
+    The core of the layer is the ``BitLinear`` layer described in |1.58 Bit LLMs|_. It uses ternary
+    quantization to reduce matrix multiplication operations to simple addition and subtraction.
 
     This implementation differs from ``BitLinear`` by allowing an activation function to be
     specified. More precisely, :py:class:`~DenseMML` implements the operation
-    :math:`\\mathbf{y} = \\sigma\\left(\\mathbf{x}\\mathbf{W}^\\intercal + \\mathbf{b}\\right)`
+
+    .. math::
+        \\mathbf{y} = \\sigma\\left(\\mathbf{x}\\mathbf{W}^\\intercal + \\mathbf{b}\\right)
+
     where :math:`\\mathbf{x}` is the quantized input vector, :math:`\\mathbf{W}` is the quantized
     weights matrix, :math:`\\mathbf{b}` is the bias vector, and :math:`\\sigma` is the element-wise
     activation function.
@@ -42,6 +44,9 @@ class DenseMML(keras.Layer):
         use_bias: Whether the layer uses a bias vector.
         kernel_initializer: Initializer for the weights matrix.
         bias_initializer: Initializer for the bias vector.
+
+    .. |1.58 Bit LLMs| replace:: *The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits*
+    .. _1.58 Bit LLMs: https://arxiv.org/pdf/2402.17764
     """
 
     def __init__(

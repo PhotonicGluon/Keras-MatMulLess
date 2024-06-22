@@ -9,10 +9,13 @@ from keras import ops
 @keras.saving.register_keras_serializable(package="keras_mml")
 class RMSNorm(keras.Layer):
     """
-    Implements Root Mean Square Normalization introduced in https://arxiv.org/pdf/1910.07467.pdf.
+    Implements Root Mean Square Normalization in |RMSNorm Paper|_.
 
     Attributes:
         scale: Scaling factor.
+
+    .. |RMSNorm Paper| replace:: *Root Mean Square Layer Normalization*
+    .. _RMSNorm Paper: https://arxiv.org/pdf/1910.07467.pdf
     """
 
     def __init__(self, dim: int, **kwargs):

@@ -18,12 +18,13 @@ class GLUMML(keras.Layer):
     """
     Gated Linear Unit (GLU) without matrix multiplication.
 
-    This is a modified implementation of ``HGRNBitMLP`` from `MatMulFreeLLM`_ where, instead of just
+    This is a modified implementation of ``HGRNBitMLP`` from the `GitHub repository
+    <https://github.com/ridgerchu/matmulfreellm>`_ of |MatMulFreeLLM|_ where, instead of just
     permitting the Swish activation, we permit other activations via the
     :py:attr:`~GLUMML.activation` attribute.
 
-    See https://arxiv.org/pdf/2406.02528, section 3.3.2, for the notation used in the implementation
-    of the code.
+    See section 3.3.2 of the aforementioned paper for the notation used in the implementation of the
+    code.
 
     Attributes:
         units: Dimensionality of the output space.
@@ -32,7 +33,8 @@ class GLUMML(keras.Layer):
             intermediate size is determined.
         activation: GLU activation function.
 
-    .. _MatMulFreeLLM: https://github.com/ridgerchu/matmulfreellm
+    .. |MatMulFreeLLM| replace:: *Scalable MatMul-free Language Modeling*
+    .. _MatMulFreeLLM: https://arxiv.org/pdf/2406.02528
     """
 
     def __init__(
