@@ -2,7 +2,7 @@
 Implements a matmul-less Dense layer.
 """
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 import keras
 import numpy as np
@@ -31,8 +31,7 @@ class DenseMML(keras.Layer):
     matrix, and :math:`\\sigma` is the element-wise activation function.
 
     This implementation only allows the layer to have a rank of 2. That is, the input to this layer
-    must be of the form ``(batch_size, d0)``. An input shape that does not conform to this will
-    raise a :py:exc:`ValueError`.
+    must be of the form ``(batch_size, d0)``.
 
     .. WARNING::
        Once a model that uses this layer is loaded from a file, it **cannot** be retrained.
@@ -79,18 +78,6 @@ class DenseMML(keras.Layer):
 
         self._weight_scale = None  # Used for when the layer is loaded from file
 
-    # Properties
-    @property
-    def _quantized_weights_for_saving(self) -> Tuple[Any, float]:
-        """
-        Returns a tuple. The first value is the quantized weights, and the second is the scale.
-        """
-
-        scale = 1.0 / ops.clip(ops.mean(ops.abs(self.w)), EPSILON, HUGE)
-        u = ops.clip(ops.round(self.w * scale), -1, 1)
-
-        return u, scale
-
     # Helper methods
     @staticmethod
     def _activations_quantization(x):
@@ -109,20 +96,26 @@ class DenseMML(keras.Layer):
         return y
 
     @staticmethod
-    def _weights_quantization(w) -> Any:
+    def _weights_quantization(w, for_saving: bool = False) -> Union[Any, Tuple[Any, float]]:
         """
         Quantizes the weights to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
 
         Args:
             w: Array of weights.
+            for_saving: Whether this should output values in preparation for saving.
 
         Returns:
-            The quantized weights.
+            The quantized weights with the scaling applied. If the quantization is for saving, then
+            both the quantized weights and the scale will be returned, with the scale **not**
+            applied to the quantized weights.
         """
 
         scale = 1.0 / ops.clip(ops.mean(ops.abs(w)), EPSILON, HUGE)
-        u = ops.clip(ops.round(w * scale), -1, 1) / scale
-        return u
+        u = ops.clip(ops.round(w * scale), -1, 1)
+
+        if for_saving:
+            return u, scale
+        return u / scale
 
     def _get_quantized_arrays(self, x_norm) -> Tuple[Any, Any]:
         """
@@ -238,7 +231,7 @@ class DenseMML(keras.Layer):
         """
 
         # Pre-quantize the weights
-        w_quantized, w_scale = self._quantized_weights_for_saving
+        w_quantized, w_scale = self._weights_quantization(self.w, for_saving=True)
 
         # Encode the ternary weights efficiently
         shape, encoded = encode_ternary_array(as_numpy(w_quantized))
