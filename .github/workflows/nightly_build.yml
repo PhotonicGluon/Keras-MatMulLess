@@ -34,6 +34,7 @@ jobs:
     uses: ./.github/workflows/publish_to_testpypi.yml
     with:
       continue_on_error: true
+      is_nightly_build: true
     secrets: inherit
   push-to-nightly:
     needs: [run-tests]
