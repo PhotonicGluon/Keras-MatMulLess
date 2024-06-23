@@ -29,9 +29,10 @@ class LRUCellMML(keras.Layer):
     TODO: ADD
 
     References:
-    - https://arxiv.org/pdf/2303.06349
+    - https://arxiv.org/pdf/2303.06349 (Appendix A)
     - https://github.com/Gothos/LRU-pytorch/blob/main/LRU_pytorch/LRU.py
     - https://github.com/sustcsonglin/flash-linear-rnn/blob/master/linear_rnn/layers/lru.py
+    - https://github.com/NicolasZucchet/minimal-LRU/blob/main/lru/model.py
     """
 
     def __init__(
@@ -55,7 +56,7 @@ class LRUCellMML(keras.Layer):
         self.r_max = r_max
         self.max_phase = max_phase
 
-        self.state_size = state_size
+        self.state_size = (state_size, state_size)  # Real and imaginary parts
         self.output_size = units
 
     # Helper methods
@@ -146,6 +147,52 @@ class LRUCellMML(keras.Layer):
             name="gamma_log", shape=(self.state_size), initializer=_GammaLogInitializer(self.nu_log)
         )
 
+    def call(self, inputs, states, training=False):
+        """
+        TODO: ADD
+        """
+
+        state_re, state_im = states
+
+        # Compute real and imaginary parts of the diagonal lambda matrix
+        lambda_mod = ops.exp(-ops.exp(self.nu_log))
+        lambda_re = lambda_mod * ops.cos(ops.exp(self.theta_log))
+        lambda_im = lambda_mod * ops.sin(ops.exp(self.theta_log))
+
+        # Get the normalization factor, gamma
+        gamma = ops.exp(self.gamma_log)
+
+        # Compute new state
+        # TODO: is u_k === inputs?
+        new_state_re = lambda_re * state_re - lambda_im * state_im + ops.matmul(gamma * self.B_re, inputs)
+        new_state_im = lambda_re * state_im + lambda_im * state_re + ops.matmul(gamma * self.B_im, inputs)
+        new_state = [new_state_re, new_state_im]
+
+        # Compute output
+        # TODO: is u_k === inputs?
+        output = ops.matmul(self.C_re, new_state_re) - ops.matmul(self.C_im, new_state_im) + self.D * inputs
+        return output, new_state
+
+    def get_config(self):
+        """
+        Gets the configuration for the layer.
+
+        Returns:
+            Layer configuration.
+        """
+
+        config = super().get_config()
+        config.update(
+            {
+                "units": self.units,
+                "state_size": self.state_size[0],  # The real and complex sizes are the same, so just take the real part
+                "r_min": self.r_min,
+                "r_max": self.r_max,
+                "max_phase": self.max_phase,
+            }
+        )
+        return config
+
     def get_initial_state(self, batch_size: Optional[int] = None) -> List[np.ndarray]:
         """
         Gets the initial states.
@@ -157,8 +204,7 @@ class LRUCellMML(keras.Layer):
             Initial states.
         """
 
-        # TODO: Check if we need to make this work with complex
-        return [ops.zeros((batch_size, self.state_size), dtype=self.compute_dtype)]
+        return [ops.zeros((batch_size, self.state_size), dtype=self.compute_dtype) for _ in range(2)]
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
@@ -167,12 +213,16 @@ class LRUMML(keras.layers.RNN):
     TODO: ADD DOCS
     """
 
-    def __init__(self, **kwargs):  # TODO: ADD MORE
+    def __init__(
+        self, units: int, state_size: int, r_min: float = 0, r_max: float = 1, max_phase: float = 6.283, **kwargs
+    ):
         """
         TODO: ADD DOCS
         """
 
-        cell = LRUCellMML(name="lrumml_cell")
+        cell = LRUCellMML(
+            name="lrumml_cell", units=units, state_size=state_size, r_min=r_min, r_max=r_max, max_phase=max_phase
+        )
         super().__init__(cell, **kwargs)
 
         self.input_spec = keras.layers.InputSpec(ndim=3)
