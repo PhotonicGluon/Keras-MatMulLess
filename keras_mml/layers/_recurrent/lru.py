@@ -28,13 +28,18 @@ class _GammaLogInitializer(keras.initializers.Initializer):
 @keras.saving.register_keras_serializable(package="keras_mml")
 class LRUCellMML(keras.Layer):
     """
-    TODO: ADD
+    Cell class for the :py:class:`~LRUMML` layer.
 
-    References:
-    - https://arxiv.org/pdf/2303.06349 (Appendix A)
-    - https://github.com/Gothos/LRU-pytorch/blob/main/LRU_pytorch/LRU.py
-    - https://github.com/sustcsonglin/flash-linear-rnn/blob/master/linear_rnn/layers/lru.py
-    - https://github.com/NicolasZucchet/minimal-LRU/blob/main/lru/model.py
+    This class processes one step within the whole time sequence input, whereas :py:class:`~LRUMML`
+    processes the whole sequence.
+
+    Attributes:
+        units: Dimensionality of the output space.
+        state_dim: Dimensionality of the internal state space.
+        fully_mml: Whether to use matmul-free operations for all the layers.
+        r_min: Minimum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
+        r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
+        max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
     """
 
     def __init__(
@@ -48,7 +53,20 @@ class LRUCellMML(keras.Layer):
         **kwargs,
     ):
         """
-        TODO: ADD
+        Initializes a new instance of the layer.
+
+        Args:
+            units: Dimensionality of the output space.
+            state_dim: Dimensionality of the internal state space.
+            fully_mml: Whether to use matmul-free operations for all the layers.
+            r_min: Minimum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
+            r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
+            max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
+            **kwargs: Keyword arguments for :py:class:`keras.Layer`.
+
+        Raises:
+            ValueError: If the units provided is not a positive integer.
+            ValueError: If the state dimensionality provided is not a positive integer.
         """
 
         if units <= 0:
@@ -139,7 +157,10 @@ class LRUCellMML(keras.Layer):
     # Public methods
     def build(self, input_shape: Tuple[int, int]):
         """
-        TODO: Add
+        Create layer weights.
+
+        Args:
+            input_shape: Shape of the input.
         """
 
         super().build(input_shape)
@@ -175,7 +196,15 @@ class LRUCellMML(keras.Layer):
 
     def call(self, inputs, states, training=False):
         """
-        TODO: ADD
+        Calling method of the cell.
+
+        Args:
+            inputs: Inputs into the layer. Has shape ``(batch, features)``.
+            states: State(s) from the previous timestep. Has shape ``(batch, units)``.
+            training: Whether the layer should behave in training mode or in inference mode.
+
+        Returns:
+            Transformed inputs.
         """
 
         # Get previous state
@@ -229,7 +258,7 @@ class LRUCellMML(keras.Layer):
         Gets the initial states.
 
         Args:
-            batch_size: Batch size for the cell. Defaults to None.
+            batch_size: Batch size for the cell.
 
         Returns:
             Initial states.
@@ -241,7 +270,25 @@ class LRUCellMML(keras.Layer):
 @keras.saving.register_keras_serializable(package="keras_mml")
 class LRUMML(keras.layers.RNN):
     """
-    TODO: ADD DOCS
+    Linear Recurrent Unit (LRU) layer, mostly without matrix multiplications.
+
+    The core algorithm of this layer mostly follows the implementation in |LinearRU|_ (see Appendix
+    A), with a few modifications from |LRU-PyTorch|_. We replace some matrix multiplications with
+    ternary weights, although the option to use it as fully matrix multiplication free is available
+    using the :py:attr:`~fully_mml` attribute.
+
+    Attributes:
+        units: Dimensionality of the output space.
+        state_dim: Dimensionality of the internal state space.
+        fully_mml: Whether to use matmul-free operations for all the layers.
+        r_min: Minimum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
+        r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
+        max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
+
+    .. |LinearRU| replace:: *Resurrecting Recurrent Neural Networks for Long Sequences*
+    .. _LinearRU: https://arxiv.org/pdf/2303.06349v1
+    .. |LRU-PyTorch| replace:: the ``LRU-pytorch`` GitHub repository
+    .. _LRU-PyTorch: https://github.com/Gothos/LRU-pytorch/blob/e250d5a5/LRU_pytorch/LRU.py
     """
 
     def __init__(
@@ -255,7 +302,20 @@ class LRUMML(keras.layers.RNN):
         **kwargs,
     ):
         """
-        TODO: ADD DOCS
+        Initializes a new instance of the layer.
+
+        Args:
+            units: Dimensionality of the output space.
+            state_dim: Dimensionality of the internal state space.
+            fully_mml: Whether to use matmul-free operations for all the layers.
+            r_min: Minimum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
+            r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
+            max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
+            **kwargs: Keyword arguments for :py:class:`keras.Layer`.
+
+        Raises:
+            ValueError: If the units provided is not a positive integer.
+            ValueError: If the state dimensionality provided is not a positive integer.
         """
 
         cell = LRUCellMML(
@@ -274,39 +334,85 @@ class LRUMML(keras.layers.RNN):
     # Properties
     @property
     def units(self):
+        """
+        :meta private:
+        """
         return self.cell.units
 
     @property
     def state_dim(self):
+        """
+        :meta private:
+        """
         return self.cell.state_dim
 
     @property
     def fully_mml(self):
+        """
+        :meta private:
+        """
         return self.cell.fully_mml
 
     @property
     def r_min(self):
+        """
+        :meta private:
+        """
         return self.cell.r_min
 
     @property
     def r_max(self):
+        """
+        :meta private:
+        """
         return self.cell.r_max
 
     @property
     def max_phase(self):
+        """
+        :meta private:
+        """
         return self.cell.max_phase
 
     # Public methods
-    def call(self, sequences, initial_state: Optional[Any] = None, mask: Optional[Any] = None, training: bool = False):
+    def call(self, sequences, initial_state: Optional[List] = None, mask: Optional[Any] = None, training: bool = False):
         """
-        TODO: ADD DOCS
+        Calling method of the layer.
+
+        Args:
+            inputs: Inputs into the layer, with shape ``(batch, timesteps, features)``.
+            initial_state: List of initial state tensors to be passed to the first call of the cell.
+                If not provided, will cause creation of zero-filled initial state tensors.
+            mask: Binary tensor of shape ``(samples, timesteps)`` indicating whether a given
+                timestep should be masked. An individual True entry indicates that the corresponding
+                timestep should be utilized, while a False entry indicates that the corresponding
+                timestep should be ignored.
+            training: Indicates whether the layer should behave in training mode or in inference
+                mode. This argument is passed to the cell when calling it.
+
+        Returns:
+            Transformed inputs.
         """
 
         return super().call(sequences, initial_state=initial_state, mask=mask, training=training)
 
     def inner_loop(self, sequences, initial_state, mask, training: bool = False):
         """
-        TODO: ADD DOCS
+        Handles the execution of the recurrent loop of the recurrent neural network.
+
+        Args:
+            sequences: Inputs into the layer, with shape ``(batch, timesteps, features)``.
+            initial_state: List of initial state tensors to be passed to the first call of the cell.
+                If not provided, will cause creation of zero-filled initial state tensors.
+            mask: Binary tensor of shape ``(samples, timesteps)`` indicating whether a given
+                timestep should be masked. An individual True entry indicates that the corresponding
+                timestep should be utilized, while a False entry indicates that the corresponding
+                timestep should be ignored.
+            training: Indicates whether the layer should behave in training mode or in inference
+                mode. This argument is passed to the cell when calling it.
+
+        Returns:
+            Transformed inputs.
         """
 
         if keras.tree.is_nested(initial_state):
