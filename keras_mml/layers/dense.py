@@ -58,7 +58,7 @@ class DenseMML(keras.Layer):
         bias_constraint: Constraint function applied to the bias vector.
 
     .. |1.58 Bit LLMs| replace:: *The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits*
-    .. _1.58 Bit LLMs: https://arxiv.org/pdf/2402.17764
+    .. _1.58 Bit LLMs: https://arxiv.org/pdf/2402.17764v1
     """
 
     def __init__(

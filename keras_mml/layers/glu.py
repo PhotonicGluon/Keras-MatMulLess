@@ -34,7 +34,7 @@ class GLUMML(keras.Layer):
         activation: GLU activation function.
 
     .. |MatMulFreeLLM| replace:: *Scalable MatMul-free Language Modeling*
-    .. _MatMulFreeLLM: https://arxiv.org/pdf/2406.02528
+    .. _MatMulFreeLLM: https://arxiv.org/pdf/2406.02528v5
     """
 
     def __init__(
