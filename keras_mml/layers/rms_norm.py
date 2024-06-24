@@ -15,7 +15,7 @@ class RMSNorm(keras.Layer):
         scale: Scaling factor.
 
     .. |RMSNorm Paper| replace:: *Root Mean Square Layer Normalization*
-    .. _RMSNorm Paper: https://arxiv.org/pdf/1910.07467.pdf
+    .. _RMSNorm Paper: https://arxiv.org/pdf/1910.07467v1
     """
 
     def __init__(self, dim: int, **kwargs):
