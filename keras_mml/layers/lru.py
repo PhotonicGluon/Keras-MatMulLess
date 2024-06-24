@@ -8,6 +8,8 @@ import keras
 import numpy as np
 from keras import ops
 
+from keras_mml.layers.dense import DenseMML
+
 
 @keras.saving.register_keras_serializable(package="keras_mml")
 class _GammaLogInitializer(keras.initializers.Initializer):
@@ -139,13 +141,8 @@ class LRUCellMML(keras.Layer):
         self.theta_log = self.add_weight(name="theta_log", shape=(self.state_dim,), initializer=self._theta_log_init)
 
         # Glorot initialized Input/Output projection matrices
-        # self.B_re = self.add_weight(name="B_re", shape=(self.state_dim, input_dim), initializer=self._B_init)
-        # self.B_im = self.add_weight(name="B_im", shape=(self.state_dim, input_dim), initializer=self._B_init)
-        # self.C_re = self.add_weight(name="C_re", shape=(self.units, self.state_dim), initializer=self._C_init)
-        # self.C_im = self.add_weight(name="C_im", shape=(self.units, self.state_dim), initializer=self._C_init)
-        # self.D = self.add_weight(name="D", shape=(self.units, input_dim), initializer="glorot_normal")
-        self.B_re = keras.layers.Dense(self.state_dim, kernel_initializer=self._B_init, name="B_re")
-        self.B_im = keras.layers.Dense(self.state_dim, kernel_initializer=self._B_init, name="B_im")
+        self.B_re = DenseMML(self.state_dim, kernel_initializer=self._B_init, name="B_re")
+        self.B_im = DenseMML(self.state_dim, kernel_initializer=self._B_init, name="B_im")
         self.C_re = keras.layers.Dense(self.units, kernel_initializer=self._C_init, name="C_re")
         self.C_im = keras.layers.Dense(self.units, kernel_initializer=self._C_init, name="C_im")
         self.D = keras.layers.Dense(self.units, kernel_initializer="glorot_normal", name="D")
@@ -250,7 +247,7 @@ class LRUMML(keras.layers.RNN):
     @property
     def units(self):
         return self.cell.units
-    
+
     @property
     def state_dim(self):
         return self.cell.state_dim
