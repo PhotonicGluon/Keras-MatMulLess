@@ -14,7 +14,7 @@ class _GammaLogInitializer(keras.initializers.Initializer):
     def __init__(self, nu_log: np.ndarray):
         self.nu_log = nu_log
 
-    def __call__(self, **kwargs):
+    def __call__(self, *args, **kwargs):
         lambda_mod = ops.exp(ops.exp(self.nu_log))
         gamma_log = ops.log(ops.sqrt(ops.ones_like(lambda_mod) - ops.square(lambda_mod)))
         return gamma_log
@@ -56,7 +56,7 @@ class LRUCellMML(keras.Layer):
         self.r_max = r_max
         self.max_phase = max_phase
 
-        self.state_size = (state_size, state_size)  # Real and imaginary parts
+        self.state_size = state_size
         self.output_size = units
 
     # Helper methods
@@ -104,8 +104,8 @@ class LRUCellMML(keras.Layer):
             Weight values.
         """
 
-        _, units = shape
-        return keras.random.normal(shape, dtype=dtype) / ops.sqrt(2 * units)
+        input_dim, _ = shape
+        return keras.random.normal(shape, dtype=dtype) / ops.sqrt(2 * input_dim)
 
     def _C_init(self, shape: Tuple[int, int], dtype: str = None) -> np.ndarray:
         """
@@ -136,23 +136,39 @@ class LRUCellMML(keras.Layer):
         self.theta_log = self.add_weight(name="theta_log", shape=(self.state_size,), initializer=self._theta_log_init)
 
         # Glorot initialized Input/Output projection matrices
-        self.B_re = self.add_weight(name="B_re", shape=(self.state_size, self.units), initializer=self._B_init)
-        self.B_im = self.add_weight(name="B_im", shape=(self.state_size, self.units), initializer=self._B_init)
-        self.C_re = self.add_weight(name="C_re", shape=(self.state_size, self.units), initializer=self._C_init)
-        self.C_im = self.add_weight(name="C_im", shape=(self.state_size, self.units), initializer=self._C_init)
-        self.D = self.add_weight(name="D", shape=(self.units,), initializer="glorot_normal")
+        # self.B_re = self.add_weight(name="B_re", shape=(self.state_size, input_dim), initializer=self._B_init)
+        # self.B_im = self.add_weight(name="B_im", shape=(self.state_size, input_dim), initializer=self._B_init)
+        # self.C_re = self.add_weight(name="C_re", shape=(self.units, self.state_size), initializer=self._C_init)
+        # self.C_im = self.add_weight(name="C_im", shape=(self.units, self.state_size), initializer=self._C_init)
+        # self.D = self.add_weight(name="D", shape=(self.units, input_dim), initializer="glorot_normal")
+        self.B_re = keras.layers.Dense(self.state_size, kernel_initializer=self._B_init, name="B_re")
+        self.B_im = keras.layers.Dense(self.state_size, kernel_initializer=self._B_init, name="B_im")
+        self.C_re = keras.layers.Dense(self.units, kernel_initializer=self._C_init, name="C_re")
+        self.C_im = keras.layers.Dense(self.units, kernel_initializer=self._C_init, name="C_im")
+        self.D = keras.layers.Dense(self.units, kernel_initializer="glorot_normal", name="D")
+
+        self.B_re.build(input_shape)
+        self.B_im.build(input_shape)
+        self.C_re.build((None, self.state_size))
+        self.C_im.build((None, self.state_size))
+        self.D.build(input_shape)
 
         # Normalization factor
         self.gamma_log = self.add_weight(
-            name="gamma_log", shape=(self.state_size), initializer=_GammaLogInitializer(self.nu_log)
+            name="gamma_log", shape=(self.state_size,), initializer=_GammaLogInitializer(self.nu_log)
         )
 
     def call(self, inputs, states, training=False):
         """
         TODO: ADD
         """
+        print(inputs.values)
 
-        state_re, state_im = states
+        # Get previous state
+        state = states[0] if keras.tree.is_nested(states) else states
+        state_re, state_im = ops.split(state, 2, axis=1)
+        state_re = ops.squeeze(state_re, axis=1)
+        state_im = ops.squeeze(state_im, axis=1)
 
         # Compute real and imaginary parts of the diagonal lambda matrix
         lambda_mod = ops.exp(-ops.exp(self.nu_log))
@@ -163,14 +179,16 @@ class LRUCellMML(keras.Layer):
         gamma = ops.exp(self.gamma_log)
 
         # Compute new state
-        # TODO: is u_k === inputs?
-        new_state_re = lambda_re * state_re - lambda_im * state_im + ops.matmul(gamma * self.B_re, inputs)
-        new_state_im = lambda_re * state_im + lambda_im * state_re + ops.matmul(gamma * self.B_im, inputs)
-        new_state = [new_state_re, new_state_im]
+        new_state_re = lambda_re * state_re - lambda_im * state_im + gamma * self.B_re(inputs)
+        new_state_im = lambda_re * state_im + lambda_im * state_re + gamma * self.B_im(inputs)
+
+        new_state = ops.stack([new_state_re, new_state_im], axis=1)
+        new_state = [new_state] if keras.tree.is_nested(states) else new_state
 
         # Compute output
         # TODO: is u_k === inputs?
-        output = ops.matmul(self.C_re, new_state_re) - ops.matmul(self.C_im, new_state_im) + self.D * inputs
+        output = self.C_re(new_state_re) - self.C_im(new_state_im) + self.D(inputs)
+        print(output.values)
         return output, new_state
 
     def get_config(self):
@@ -185,7 +203,7 @@ class LRUCellMML(keras.Layer):
         config.update(
             {
                 "units": self.units,
-                "state_size": self.state_size[0],  # The real and complex sizes are the same, so just take the real part
+                "state_size": self.state_size,
                 "r_min": self.r_min,
                 "r_max": self.r_max,
                 "max_phase": self.max_phase,
@@ -204,7 +222,7 @@ class LRUCellMML(keras.Layer):
             Initial states.
         """
 
-        return [ops.zeros((batch_size, self.state_size), dtype=self.compute_dtype) for _ in range(2)]
+        return [ops.zeros((batch_size, 2, self.state_size), dtype=self.compute_dtype)]
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
@@ -232,6 +250,7 @@ class LRUMML(keras.layers.RNN):
         """
         TODO: ADD DOCS
         """
+
         return super().call(sequences, initial_state=initial_state, mask=mask, training=training)
 
     def inner_loop(self, sequences, initial_state, mask, training: bool = False):
