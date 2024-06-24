@@ -60,17 +60,12 @@ class GRUCellMML(keras.Layer):
 
         super().build(input_shape)
 
-        self.f_gate = keras.layers.Dense(
-            self.units, activation=self.recurrent_activation, use_bias=True, name="forget_gate"
-        )
+        self.f_gate = DenseMML(self.units, activation=self.recurrent_activation, use_bias=True, name="forget_gate")
         self.f_gate.build(input_shape)
 
-        self.c_gate = keras.layers.Dense(
-            self.units, activation=self.activation, use_bias=True, name="candidate_state_gate"
-        )
+        self.c_gate = DenseMML(self.units, activation=self.activation, use_bias=True, name="candidate_state_gate")
         self.c_gate.build(input_shape)
 
-        self.g_norm = RMSNorm(input_shape[-1], name="data_norm")
         self.g_gate = keras.layers.Dense(
             self.units, activation=self.recurrent_activation, use_bias=True, name="data_gate"
         )
@@ -92,7 +87,7 @@ class GRUCellMML(keras.Layer):
         # Get main gate outputs
         f = self.f_gate(inputs)
         c = self.c_gate(inputs)
-        g = self.g_gate(self.g_norm(inputs))
+        g = self.g_gate(inputs)
 
         # Compute new state
         h = f * h_tm1 + (1 - f) * c
