@@ -32,6 +32,7 @@ extensions = [
     "sphinx.ext.duration",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
@@ -63,6 +64,8 @@ html_css_files = ["custom.css"]
 doctest_global_setup = """
 import numpy as np
 """
+
+autosectionlabel_prefix_document = True
 
 napoleon_include_init_with_doc = True
 napoleon_numpy_docstring = False

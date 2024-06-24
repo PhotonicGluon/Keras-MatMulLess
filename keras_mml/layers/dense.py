@@ -33,6 +33,9 @@ class DenseMML(keras.Layer):
     weights matrix (i.e., the *kernel* matrix), :math:`\\mathbf{b}` is the bias vector, and
     :math:`\\sigma` is the element-wise activation function.
 
+    .. IMPORTANT::
+       See the :ref:`pitfalls <explanations/dense:pitfalls>` when using this layer.
+
     .. NOTE::
        If the input to the layer (say :math:`\\mathbf{x}`) has a rank greater than 2, then this
        computes the dot product of :math:`\\mathbf{x}` and :math:`\\mathbf{W}` along the last axis
