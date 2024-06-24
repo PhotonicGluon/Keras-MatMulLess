@@ -181,7 +181,7 @@ class GRUMML(keras.layers.RNN):
             \\mathbf{f}_t &= \\sigma(\\mathbf{x}_t\\mathbf{W}_f + \\mathbf{b}_f)\\\\
             \\mathbf{c}_t &= \\tau(\\mathbf{x}_t\\mathbf{W}_c + \\mathbf{b}_c)\\\\
             \\mathbf{h}_t &= \\mathbf{f}_t\\odot\\mathbf{h}_{t-1} 
-                                + (1-\mathbf{f}_t)\\odot\\mathbf{c}_t \\\\
+                                + (1-\\mathbf{f}_t)\\odot\\mathbf{c}_t \\\\
             \\mathbf{g}_t &= \\sigma(\\mathbf{x}_t\\mathbf{W}_g + \\mathbf{b}_g)\\\\
             \\mathbf{o}_t' &= \\mathbf{g}_t\\odot\\mathbf{h}_t\\\\
             \\mathbf{o}_t &= \\mathbf{o}_t'\\mathbf{W}_o + \\mathbf{b}_o\\\\

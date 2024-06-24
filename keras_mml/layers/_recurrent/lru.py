@@ -21,9 +21,6 @@ class _GammaLogInitializer(keras.initializers.Initializer):
         gamma_log = ops.log(ops.sqrt(ops.ones_like(lambda_mod) - ops.square(lambda_mod)))
         return gamma_log
 
-    def get_config(self):
-        return {"nu_log": self.nu_log}
-
 
 @keras.saving.register_keras_serializable(package="keras_mml")
 class LRUCellMML(keras.Layer):
