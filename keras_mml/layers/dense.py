@@ -47,6 +47,9 @@ class DenseMML(keras.Layer):
     .. WARNING::
        Once a model that uses this layer is loaded from a file, it **cannot** be retrained.
 
+    .. IMPORTANT::
+       See the :ref:`pitfalls <explanations/dense:pitfalls>` when using this layer.
+
     Attributes:
         units: Dimensionality of the output space.
         use_bias: Whether the layer uses a bias vector.

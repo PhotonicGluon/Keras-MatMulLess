@@ -7,6 +7,7 @@
 Home Page <self>
 Getting Started <getting-started/index>
 Code Examples <examples/index>
+Explanations <explanations/index>
 API Reference <api/keras_mml>
 ```
 
