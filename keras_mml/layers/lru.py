@@ -15,7 +15,7 @@ class _GammaLogInitializer(keras.initializers.Initializer):
         self.nu_log = nu_log
 
     def __call__(self, *args, **kwargs):
-        lambda_mod = ops.exp(ops.exp(self.nu_log))
+        lambda_mod = ops.exp(-ops.exp(self.nu_log))
         gamma_log = ops.log(ops.sqrt(ops.ones_like(lambda_mod) - ops.square(lambda_mod)))
         return gamma_log
 
@@ -36,7 +36,7 @@ class LRUCellMML(keras.Layer):
     """
 
     def __init__(
-        self, units: int, state_size: int, r_min: float = 0, r_max: float = 1, max_phase: float = 6.283, **kwargs
+        self, units: int, state_dim: int, r_min: float = 0, r_max: float = 1, max_phase: float = 6.283, **kwargs
     ):
         """
         TODO: ADD
@@ -44,19 +44,20 @@ class LRUCellMML(keras.Layer):
 
         if units <= 0:
             raise ValueError(f"Invalid number of units. Expected a positive integer, got {units}.")
-        if state_size <= 0:
-            raise ValueError(f"Invalid state size. Expected a positive integer, got {state_size}.")
+        if state_dim <= 0:
+            raise ValueError(f"Invalid state dimensionality. Expected a positive integer, got {state_dim}.")
 
         super().__init__(**kwargs)
 
         self.input_spec = keras.layers.InputSpec(ndim=2)
 
         self.units = units
+        self.state_dim = state_dim
         self.r_min = r_min
         self.r_max = r_max
         self.max_phase = max_phase
 
-        self.state_size = state_size
+        self.state_size = state_dim
         self.output_size = units
 
     # Helper methods
@@ -105,7 +106,8 @@ class LRUCellMML(keras.Layer):
         """
 
         input_dim, _ = shape
-        return keras.random.normal(shape, dtype=dtype) / ops.sqrt(2 * input_dim)
+        values = keras.random.normal(shape, dtype=dtype) / ops.sqrt(2 * input_dim)
+        return values
 
     def _C_init(self, shape: Tuple[int, int], dtype: str = None) -> np.ndarray:
         """
@@ -119,8 +121,9 @@ class LRUCellMML(keras.Layer):
             Weight values.
         """
 
-        state_size, _ = shape
-        return keras.random.normal(shape, dtype=dtype) / ops.sqrt(state_size)
+        state_dim, _ = shape
+        values = keras.random.normal(shape, dtype=dtype) / ops.sqrt(state_dim)
+        return values
 
     # Public methods
     def build(self, input_shape: Tuple[int, int]):
@@ -132,37 +135,36 @@ class LRUCellMML(keras.Layer):
 
         # Initialization of Lambda is complex valued distributed uniformly on a ring between r_min and r_max, with the
         # phase in the interval $[0, max_phase]$ (See lemma 3.2 for initialization details)
-        self.nu_log = self.add_weight(name="nu_log", shape=(self.state_size,), initializer=self._nu_log_init)
-        self.theta_log = self.add_weight(name="theta_log", shape=(self.state_size,), initializer=self._theta_log_init)
+        self.nu_log = self.add_weight(name="nu_log", shape=(self.state_dim,), initializer=self._nu_log_init)
+        self.theta_log = self.add_weight(name="theta_log", shape=(self.state_dim,), initializer=self._theta_log_init)
 
         # Glorot initialized Input/Output projection matrices
-        # self.B_re = self.add_weight(name="B_re", shape=(self.state_size, input_dim), initializer=self._B_init)
-        # self.B_im = self.add_weight(name="B_im", shape=(self.state_size, input_dim), initializer=self._B_init)
-        # self.C_re = self.add_weight(name="C_re", shape=(self.units, self.state_size), initializer=self._C_init)
-        # self.C_im = self.add_weight(name="C_im", shape=(self.units, self.state_size), initializer=self._C_init)
+        # self.B_re = self.add_weight(name="B_re", shape=(self.state_dim, input_dim), initializer=self._B_init)
+        # self.B_im = self.add_weight(name="B_im", shape=(self.state_dim, input_dim), initializer=self._B_init)
+        # self.C_re = self.add_weight(name="C_re", shape=(self.units, self.state_dim), initializer=self._C_init)
+        # self.C_im = self.add_weight(name="C_im", shape=(self.units, self.state_dim), initializer=self._C_init)
         # self.D = self.add_weight(name="D", shape=(self.units, input_dim), initializer="glorot_normal")
-        self.B_re = keras.layers.Dense(self.state_size, kernel_initializer=self._B_init, name="B_re")
-        self.B_im = keras.layers.Dense(self.state_size, kernel_initializer=self._B_init, name="B_im")
+        self.B_re = keras.layers.Dense(self.state_dim, kernel_initializer=self._B_init, name="B_re")
+        self.B_im = keras.layers.Dense(self.state_dim, kernel_initializer=self._B_init, name="B_im")
         self.C_re = keras.layers.Dense(self.units, kernel_initializer=self._C_init, name="C_re")
         self.C_im = keras.layers.Dense(self.units, kernel_initializer=self._C_init, name="C_im")
         self.D = keras.layers.Dense(self.units, kernel_initializer="glorot_normal", name="D")
 
         self.B_re.build(input_shape)
         self.B_im.build(input_shape)
-        self.C_re.build((None, self.state_size))
-        self.C_im.build((None, self.state_size))
+        self.C_re.build((None, self.state_dim))
+        self.C_im.build((None, self.state_dim))
         self.D.build(input_shape)
 
         # Normalization factor
         self.gamma_log = self.add_weight(
-            name="gamma_log", shape=(self.state_size,), initializer=_GammaLogInitializer(self.nu_log)
+            name="gamma_log", shape=(self.state_dim,), initializer=_GammaLogInitializer(self.nu_log)
         )
 
     def call(self, inputs, states, training=False):
         """
         TODO: ADD
         """
-        print(inputs.values)
 
         # Get previous state
         state = states[0] if keras.tree.is_nested(states) else states
@@ -188,7 +190,6 @@ class LRUCellMML(keras.Layer):
         # Compute output
         # TODO: is u_k === inputs?
         output = self.C_re(new_state_re) - self.C_im(new_state_im) + self.D(inputs)
-        print(output.values)
         return output, new_state
 
     def get_config(self):
@@ -203,7 +204,7 @@ class LRUCellMML(keras.Layer):
         config.update(
             {
                 "units": self.units,
-                "state_size": self.state_size,
+                "state_dim": self.state_dim,
                 "r_min": self.r_min,
                 "r_max": self.r_max,
                 "max_phase": self.max_phase,
@@ -232,18 +233,39 @@ class LRUMML(keras.layers.RNN):
     """
 
     def __init__(
-        self, units: int, state_size: int, r_min: float = 0, r_max: float = 1, max_phase: float = 6.283, **kwargs
+        self, units: int, state_dim: int, r_min: float = 0, r_max: float = 1, max_phase: float = 6.283, **kwargs
     ):
         """
         TODO: ADD DOCS
         """
 
         cell = LRUCellMML(
-            name="lrumml_cell", units=units, state_size=state_size, r_min=r_min, r_max=r_max, max_phase=max_phase
+            name="lrumml_cell", units=units, state_dim=state_dim, r_min=r_min, r_max=r_max, max_phase=max_phase
         )
         super().__init__(cell, **kwargs)
 
         self.input_spec = keras.layers.InputSpec(ndim=3)
+
+    # Properties
+    @property
+    def units(self):
+        return self.cell.units
+    
+    @property
+    def state_dim(self):
+        return self.cell.state_dim
+
+    @property
+    def r_min(self):
+        return self.cell.r_min
+
+    @property
+    def r_max(self):
+        return self.cell.r_max
+
+    @property
+    def max_phase(self):
+        return self.cell.max_phase
 
     # Public methods
     def call(self, sequences, initial_state: Optional[Any] = None, mask: Optional[Any] = None, training: bool = False):
@@ -272,7 +294,13 @@ class LRUMML(keras.layers.RNN):
             Layer configuration.
         """
 
-        config = {}
+        config = {
+            "units": self.units,
+            "state_dim": self.state_dim,
+            "r_min": self.r_min,
+            "r_max": self.r_max,
+            "max_phase": self.max_phase,
+        }
         base_config = super().get_config()
         del base_config["cell"]
 
