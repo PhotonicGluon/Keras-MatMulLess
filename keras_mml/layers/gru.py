@@ -60,21 +60,24 @@ class GRUCellMML(keras.Layer):
 
         super().build(input_shape)
 
-        self.kernel_dense = keras.layers.Dense(
-            self.units * 3, name="kernel", use_bias=False
-        )  # Will be used for $W_{xr}$, $W_{xf}$, and $W_{xc}$
-        self.kernel_dense.build(input_shape)
-
-        self.recurrent_dense = keras.layers.Dense(
-            self.units * 3, name="recurrent", use_bias=False
-        )  # Will be used for $W_{hr}$, $W_{hf}$, and $W_{cc}$
-        self.recurrent_dense.build((None, self.units))
-
-        # TODO: Add more config
-        self.bias = self.add_weight(
-            name="biases",
-            shape=(self.units * 3,),
+        self.f_gate = keras.layers.Dense(
+            self.units, activation=self.recurrent_activation, use_bias=True, name="forget_gate"
         )
+        self.f_gate.build(input_shape)
+
+        self.c_gate = keras.layers.Dense(
+            self.units, activation=self.activation, use_bias=True, name="candidate_state_gate"
+        )
+        self.c_gate.build(input_shape)
+
+        self.g_norm = RMSNorm(input_shape[-1], name="data_norm")
+        self.g_gate = keras.layers.Dense(
+            self.units, activation=self.recurrent_activation, use_bias=True, name="data_gate"
+        )
+        self.g_gate.build(input_shape)
+
+        self.o_gate = keras.layers.Dense(self.units, use_bias=True, name="output_gate")
+        self.o_gate.build((None, self.units))
 
         self.built = True
 
@@ -83,31 +86,23 @@ class GRUCellMML(keras.Layer):
         TODO: ADD DOCS
         """
 
-        h_tm1 = states[0] if keras.tree.is_nested(states) else states  # Previous state
+        # Get the previous state
+        h_tm1 = states[0] if keras.tree.is_nested(states) else states
 
-        # Get the biases
-        b_r, b_f, b_c = ops.split(self.bias, 3, axis=-1)
+        # Get main gate outputs
+        f = self.f_gate(inputs)
+        c = self.c_gate(inputs)
+        g = self.g_gate(self.g_norm(inputs))
 
-        # Inputs and hidden states projected by all appropriate matrices at once
-        matrix_x = self.kernel_dense(inputs)
-        matrix_h = self.recurrent_dense(h_tm1)
-
-        x_r, x_f, x_c = ops.split(matrix_x, 3, axis=-1)
-        h_r, h_f, h_c = ops.split(matrix_h, 3, axis=-1)
-
-        # Apply recurrent activations
-        r = self.recurrent_activation(x_r + h_r + b_r)
-        f = self.recurrent_activation(x_f + h_f + b_f)
-
-        # Form candidate state, c
-        h_c = r * h_c
-        c = self.activation(x_c + h_c + b_c)
-
-        # Previous and candidate states are mixed by the update gate
+        # Compute new state
         h = f * h_tm1 + (1 - f) * c
         new_state = [h] if keras.tree.is_nested(states) else h
 
-        return h, new_state
+        # Get output
+        o_prime = g * h
+        output = self.o_gate(o_prime)
+
+        return output, new_state
 
     def get_config(self):
         """
