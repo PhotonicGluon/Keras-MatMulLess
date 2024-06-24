@@ -1,5 +1,5 @@
 """
-Implements a matmul-less Gated Recurrent Unit (GRU) layer.
+Implements an almost matmul-less Gated Recurrent Unit (GRU) layer.
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -9,7 +9,6 @@ import numpy as np
 from keras import activations, ops
 
 from keras_mml.layers.dense import DenseMML
-from keras_mml.layers.rms_norm import RMSNorm
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
@@ -25,9 +24,9 @@ class GRUCellMML(keras.Layer):
     def __init__(
         self,
         units: int,
+        fully_mml: bool = False,
         activation: str = "silu",
         recurrent_activation: str = "sigmoid",
-        seed: Optional[int] = None,
         **kwargs,
     ):  # TODO: Add more
         """
@@ -44,11 +43,10 @@ class GRUCellMML(keras.Layer):
         self.input_spec = keras.layers.InputSpec(ndim=2)
 
         self.units = units
+        self.fully_mml = fully_mml
+
         self.activation = activations.get(activation)
         self.recurrent_activation = activations.get(recurrent_activation)
-
-        self.seed = seed
-        self.seed_generator = keras.random.SeedGenerator(seed=seed)
 
         self.state_size = self.units
         self.output_size = self.units
@@ -60,18 +58,25 @@ class GRUCellMML(keras.Layer):
 
         super().build(input_shape)
 
+        # Decide what layer class to use for the output-adjacent layers
+        if self.fully_mml:
+            output_layer_class = DenseMML
+        else:
+            output_layer_class = keras.layers.Dense
+
+        # Define gates
         self.f_gate = DenseMML(self.units, activation=self.recurrent_activation, use_bias=True, name="forget_gate")
         self.f_gate.build(input_shape)
 
         self.c_gate = DenseMML(self.units, activation=self.activation, use_bias=True, name="candidate_state_gate")
         self.c_gate.build(input_shape)
 
-        self.g_gate = keras.layers.Dense(
+        self.g_gate = output_layer_class(
             self.units, activation=self.recurrent_activation, use_bias=True, name="data_gate"
         )
         self.g_gate.build(input_shape)
 
-        self.o_gate = keras.layers.Dense(self.units, use_bias=True, name="output_gate")
+        self.o_gate = output_layer_class(self.units, use_bias=True, name="output_gate")
         self.o_gate.build((None, self.units))
 
         self.built = True
@@ -111,9 +116,9 @@ class GRUCellMML(keras.Layer):
         config.update(
             {
                 "units": self.units,
+                "fully_mml": self.fully_mml,
                 "activation": activations.serialize(self.activation),
                 "recurrent_activation": activations.serialize(self.recurrent_activation),
-                "seed": self.seed,
             }
         )
         return config
@@ -139,13 +144,24 @@ class GRUMML(keras.layers.RNN):
     """
 
     def __init__(
-        self, units: int, activation: str = "silu", recurrent_activation: str = "sigmoid", **kwargs
+        self,
+        units: int,
+        fully_mml: bool = False,
+        activation: str = "silu",
+        recurrent_activation: str = "sigmoid",
+        **kwargs,
     ):  # TODO: ADD MORE
         """
         TODO: ADD DOCS
         """
 
-        cell = GRUCellMML(units, activation=activation, recurrent_activation=recurrent_activation, name="grumml_cell")
+        cell = GRUCellMML(
+            name="grumml_cell",
+            units=units,
+            fully_mml=fully_mml,
+            activation=activation,
+            recurrent_activation=recurrent_activation,
+        )
         super().__init__(cell, **kwargs)
 
         self.input_spec = keras.layers.InputSpec(ndim=3)
@@ -154,6 +170,10 @@ class GRUMML(keras.layers.RNN):
     @property
     def units(self):
         return self.cell.units
+
+    @property
+    def fully_mml(self):
+        return self.cell.fully_mml
 
     @property
     def activation(self):
@@ -168,6 +188,7 @@ class GRUMML(keras.layers.RNN):
         """
         TODO: ADD DOCS
         """
+
         return super().call(sequences, initial_state=initial_state, mask=mask, training=training)
 
     def inner_loop(self, sequences, initial_state, mask, training: bool = False):
@@ -191,6 +212,7 @@ class GRUMML(keras.layers.RNN):
 
         config = {
             "units": self.units,
+            "fully_mml": self.fully_mml,
             "activation": activations.serialize(self.activation),
             "recurrent_activation": activations.serialize(self.recurrent_activation),
         }

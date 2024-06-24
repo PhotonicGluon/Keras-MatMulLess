@@ -1,5 +1,5 @@
 """
-Implements a matmul-less Linear Recurrent Unit (LRU) layer.
+Implements an almost matmul-less Linear Recurrent Unit (LRU) layer.
 """
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -38,7 +38,14 @@ class LRUCellMML(keras.Layer):
     """
 
     def __init__(
-        self, units: int, state_dim: int, r_min: float = 0, r_max: float = 1, max_phase: float = 6.283, **kwargs
+        self,
+        units: int,
+        state_dim: int,
+        fully_mml: bool = False,
+        r_min: float = 0,
+        r_max: float = 1,
+        max_phase: float = 6.283,
+        **kwargs,
     ):
         """
         TODO: ADD
@@ -55,6 +62,8 @@ class LRUCellMML(keras.Layer):
 
         self.units = units
         self.state_dim = state_dim
+        self.fully_mml = fully_mml
+
         self.r_min = r_min
         self.r_max = r_max
         self.max_phase = max_phase
@@ -135,6 +144,12 @@ class LRUCellMML(keras.Layer):
 
         super().build(input_shape)
 
+        # Decide what layer class to use for the output-adjacent layers
+        if self.fully_mml:
+            output_layer_class = DenseMML
+        else:
+            output_layer_class = keras.layers.Dense
+
         # Initialization of Lambda is complex valued distributed uniformly on a ring between r_min and r_max, with the
         # phase in the interval $[0, max_phase]$ (See lemma 3.2 for initialization details)
         self.nu_log = self.add_weight(name="nu_log", shape=(self.state_dim,), initializer=self._nu_log_init)
@@ -143,9 +158,9 @@ class LRUCellMML(keras.Layer):
         # Glorot initialized Input/Output projection matrices
         self.B_re = DenseMML(self.state_dim, kernel_initializer=self._B_init, name="B_re")
         self.B_im = DenseMML(self.state_dim, kernel_initializer=self._B_init, name="B_im")
-        self.C_re = keras.layers.Dense(self.units, kernel_initializer=self._C_init, name="C_re")
-        self.C_im = keras.layers.Dense(self.units, kernel_initializer=self._C_init, name="C_im")
-        self.D = keras.layers.Dense(self.units, kernel_initializer="glorot_normal", name="D")
+        self.C_re = output_layer_class(self.units, kernel_initializer=self._C_init, name="C_re")
+        self.C_im = output_layer_class(self.units, kernel_initializer=self._C_init, name="C_im")
+        self.D = output_layer_class(self.units, kernel_initializer="glorot_normal", name="D")
 
         self.B_re.build(input_shape)
         self.B_im.build(input_shape)
@@ -185,7 +200,6 @@ class LRUCellMML(keras.Layer):
         new_state = [new_state] if keras.tree.is_nested(states) else new_state
 
         # Compute output
-        # TODO: is u_k === inputs?
         output = self.C_re(new_state_re) - self.C_im(new_state_im) + self.D(inputs)
         return output, new_state
 
@@ -202,6 +216,7 @@ class LRUCellMML(keras.Layer):
             {
                 "units": self.units,
                 "state_dim": self.state_dim,
+                "fully_mml": self.fully_mml,
                 "r_min": self.r_min,
                 "r_max": self.r_max,
                 "max_phase": self.max_phase,
@@ -230,14 +245,27 @@ class LRUMML(keras.layers.RNN):
     """
 
     def __init__(
-        self, units: int, state_dim: int, r_min: float = 0, r_max: float = 1, max_phase: float = 6.283, **kwargs
+        self,
+        units: int,
+        state_dim: int,
+        fully_mml: bool = False,
+        r_min: float = 0,
+        r_max: float = 1,
+        max_phase: float = 6.283,
+        **kwargs,
     ):
         """
         TODO: ADD DOCS
         """
 
         cell = LRUCellMML(
-            name="lrumml_cell", units=units, state_dim=state_dim, r_min=r_min, r_max=r_max, max_phase=max_phase
+            name="lrumml_cell",
+            units=units,
+            state_dim=state_dim,
+            fully_mml=fully_mml,
+            r_min=r_min,
+            r_max=r_max,
+            max_phase=max_phase,
         )
         super().__init__(cell, **kwargs)
 
@@ -251,6 +279,10 @@ class LRUMML(keras.layers.RNN):
     @property
     def state_dim(self):
         return self.cell.state_dim
+
+    @property
+    def fully_mml(self):
+        return self.cell.fully_mml
 
     @property
     def r_min(self):
@@ -294,6 +326,7 @@ class LRUMML(keras.layers.RNN):
         config = {
             "units": self.units,
             "state_dim": self.state_dim,
+            "fully_mml": self.fully_mml,
             "r_min": self.r_min,
             "r_max": self.r_max,
             "max_phase": self.max_phase,
