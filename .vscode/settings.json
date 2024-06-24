@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "absmax",
+        "absmean",
         "allclose",
         "arange",
         "astype",
@@ -9,6 +10,7 @@
         "autoencoders",
         "autosectionlabel",
         "autosummary",
+        "backpropagation",
         "convolutional",
         "copybutton",
         "crossentropy",
