@@ -78,12 +78,12 @@ class RMSNorm(keras.Layer):
             input_shape: Shape of the input.
         """
 
-        dim = len(input_shape)
-        self.scale = dim**-0.5
+        dim = input_shape[-1]
+        self.scale = dim**0.5
 
         if self.has_learnable_weights:
             self.gain = self.add_weight(
-                (dim,),
+                input_shape[1:],
                 initializer=self.gain_initializer,
                 regularizer=self.gain_regularizer,
                 constraint=self.gain_constraint,
@@ -91,7 +91,7 @@ class RMSNorm(keras.Layer):
             )
             if self.use_bias:
                 self.bias = self.add_weight(
-                    (dim,),
+                    input_shape[1:],
                     initializer=self.bias_initializer,
                     regularizer=self.bias_regularizer,
                     constraint=self.bias_constraint,
