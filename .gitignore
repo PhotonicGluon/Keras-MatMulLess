@@ -164,11 +164,8 @@ cython_debug/
 .DS_Store
 .Trash-*
 
-experiments/data
-experiments/models
-
+docs/source/examples/data
 **/jupyter_execute
-experiments/
 
 *.keras
 
