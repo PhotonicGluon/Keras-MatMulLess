@@ -197,6 +197,9 @@ class DenseMML(keras.Layer):
 
         input_dim = input_shape[-1]
 
+        self.activation_norm = RMSNorm()
+        self.activation_norm.build(input_shape)
+
         self._kernel = self.add_weight(
             name="kernel",
             shape=(input_dim, self.units),
@@ -230,8 +233,7 @@ class DenseMML(keras.Layer):
         """
 
         # First normalize the inputs
-        input_dim = ops.shape(inputs)[1]
-        x_norm = RMSNorm(input_dim)(inputs)
+        x_norm = self.activation_norm(inputs)
 
         # Get the quantized arrays
         x_quantized, w_quantized = self._get_quantized_arrays(x_norm)
