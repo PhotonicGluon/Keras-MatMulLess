@@ -391,7 +391,16 @@ class LRUMML(keras.layers.RNN):
             Transformed inputs.
         """
 
-        return super().call(sequences, initial_state=initial_state, mask=mask, training=training)
+        output = super().call(sequences, initial_state=initial_state, mask=mask, training=training)
+
+        if keras.config.backend() == "jax" and mask is not None:
+            # FIXME:
+            #   I have no idea why, but when using the Jax backend along with masking, a second copy of the outputs is
+            #   returned along with the first. The following code just takes the first output and ignores the rest.
+
+            output = output[0]
+
+        return output
 
     def inner_loop(self, sequences, initial_state, mask, training: bool = False):
         """
