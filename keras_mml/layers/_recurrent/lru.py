@@ -8,7 +8,7 @@ import keras
 import numpy as np
 from keras import ops
 
-from keras_mml.layers.dense import DenseMML
+from keras_mml.layers.core import DenseMML
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")

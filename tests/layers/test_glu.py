@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from keras import backend, layers, models, ops
 
-from keras_mml.layers.glu import GLUMML
+from keras_mml.layers import GLUMML
 from keras_mml.utils.array import as_numpy
 
 

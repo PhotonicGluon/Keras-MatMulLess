@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from keras_mml.layers.rms_norm import RMSNorm
+from keras_mml.layers import RMSNorm
 from keras_mml.utils import as_numpy
 
 

@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional, Tuple
 import keras
 from keras import activations, ops
 
-from keras_mml.layers.dense import DenseMML
+from keras_mml.layers.core import DenseMML
 
 #: Set of activations that can be used with :py:class:`~GLUMML`.
 PERMITTED_ACTIVATIONS = {"linear", "relu", "gelu", "silu", "selu"}

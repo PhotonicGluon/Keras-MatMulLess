@@ -8,7 +8,7 @@ import keras
 import numpy as np
 from keras import activations, constraints, initializers, ops, regularizers
 
-from keras_mml.layers.rms_norm import RMSNorm
+from keras_mml.layers._normalizations.rms_norm import RMSNorm
 from keras_mml.utils.array import as_numpy, decode_ternary_array, encode_ternary_array
 
 EPSILON = 1e-5
@@ -34,7 +34,7 @@ class DenseMML(keras.Layer):
     :math:`\\sigma` is the element-wise activation function.
 
     .. IMPORTANT::
-       See the :ref:`pitfalls <explanations/dense:pitfalls>` when using this layer.
+       See the :ref:`pitfalls <explanations/dense/dense:pitfalls>` when using this layer.
 
     .. NOTE::
        If the input to the layer (say :math:`\\mathbf{x}`) has a rank greater than 2, then this
