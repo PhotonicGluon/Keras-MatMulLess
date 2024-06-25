@@ -62,6 +62,7 @@
         "Shazeer",
         "silu",
         "softmax",
+        "swiglu",
         "tensorflow",
         "timestep",
         "timesteps",

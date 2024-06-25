@@ -46,7 +46,7 @@ class GLUMML(keras.Layer):
         **kwargs,
     ):
         """
-        Initializes a new :py:class:`~GLUMML` layer.
+        Initializes a new instance of the layer.
 
         Args:
             units: Dimensionality of the output space.
