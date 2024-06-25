@@ -19,12 +19,12 @@ class TransformerBlockMML(keras.Layer):
 
     def __init__(
         self,
-        hidden_size: int = 2048,
+        embedding_dim: int,
         hidden_ratio: int = 4,
         rate: float = 0.1,
         intermediate_size: Optional[int] = None,
         activation: str = "sigmoid",
-        **kwargs
+        **kwargs,
     ):  # TODO: Add
         """
         TODO: ADD
@@ -32,14 +32,19 @@ class TransformerBlockMML(keras.Layer):
 
         super().__init__(**kwargs)
 
-        self.hidden_size = hidden_size
+        if embedding_dim <= 0:
+            raise ValueError(
+                f"Received an invalid value for embedding dimension, expected a positive integer, got {embedding_dim}"
+            )
 
-        self.attention = GRUMML(hidden_size, fully_mml=True)
+        self.embedding_dim = embedding_dim
+
+        self.attention = GRUMML(embedding_dim, fully_mml=True)
         self.attention_dropout = keras.layers.Dropout(rate)
         self.attention_norm = RMSNorm()
 
         self.ffn = SwiGLUMML(
-            hidden_size, hidden_ratio=hidden_ratio, intermediate_size=intermediate_size, activation=activation
+            embedding_dim, hidden_ratio=hidden_ratio, intermediate_size=intermediate_size, activation=activation
         )
         self.ffn_dropout = keras.layers.Dropout(rate)
         self.ffn_norm = RMSNorm()
