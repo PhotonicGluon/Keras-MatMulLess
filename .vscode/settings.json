@@ -17,6 +17,7 @@
         "dollarmath",
         "dtype",
         "elem",
+        "elementwise",
         "fieldlist",
         "figsize",
         "fillchar",
