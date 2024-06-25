@@ -82,5 +82,6 @@ intersphinx_mapping = {"python": ("https://docs.python.org/3", None), "numpy": (
 
 myst_enable_extensions = ["colon_fence", "fieldlist", "dollarmath", "attrs_block"]
 myst_dmath_double_inline = True
+myst_words_per_minute = 100
 
 nb_execution_mode = "off"
