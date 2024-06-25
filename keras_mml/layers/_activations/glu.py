@@ -10,7 +10,7 @@ from keras import activations, ops
 from keras_mml.layers.core import DenseMML
 
 #: Set of activations that can be used with :py:class:`~GLUMML`.
-PERMITTED_ACTIVATIONS = {"linear", "relu", "gelu", "silu", "selu"}
+PERMITTED_ACTIVATIONS = {"sigmoid", "linear", "relu", "gelu", "silu", "selu"}
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
@@ -42,11 +42,11 @@ class GLUMML(keras.Layer):
         units: int,
         hidden_ratio: int = 4,
         intermediate_size: Optional[int] = None,
-        activation: str = "silu",  # swish is another name for silu
+        activation: str = "sigmoid",
         **kwargs,
     ):
         """
-        Initializes a new :py:class:`~GLUMML` layer.
+        Initializes a new instance of the layer.
 
         Args:
             units: Dimensionality of the output space.

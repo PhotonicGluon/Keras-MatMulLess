@@ -4,7 +4,7 @@
 [![ReadTheDocs](https://readthedocs.org/projects/keras-matmulless/badge/?version=latest)](https://keras-matmulless.readthedocs.io/en/latest/?badge=latest)
 
 > We offer no explanation as to why these architectures seem to work; we attribute their success, as all else, to divine benevolence.
-> <div style="text-align: right">&mdash; Noam Shazeer, in <a href="https://arxiv.org/pdf/2002.05202"><em>GLU Variants Improve Transformer</em></a></div>
+> <div style="text-align: right">&mdash; Noam Shazeer, in <a href="https://arxiv.org/pdf/2002.05202v1"><em>GLU Variants Improve Transformer</em></a></div>
 
 <!-- start summary -->
 Keras layers without using matrix multiplications.

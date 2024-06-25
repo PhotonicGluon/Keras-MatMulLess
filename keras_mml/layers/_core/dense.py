@@ -34,7 +34,7 @@ class DenseMML(keras.Layer):
     :math:`\\sigma` is the element-wise activation function.
 
     .. IMPORTANT::
-       See the :ref:`pitfalls <explanations/dense/dense:pitfalls>` when using this layer.
+       See the :ref:`pitfalls <explanations/dense:pitfalls>` when using this layer.
 
     .. NOTE::
        If the input to the layer (say :math:`\\mathbf{x}`) has a rank greater than 2, then this
