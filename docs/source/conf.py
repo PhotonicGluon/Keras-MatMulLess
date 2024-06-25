@@ -42,6 +42,7 @@ extensions = [
     "myst_nb",
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinx_automodapi.automodapi",
 ]
 
 source_suffix = {
@@ -85,3 +86,6 @@ myst_dmath_double_inline = True
 myst_words_per_minute = 100
 
 nb_execution_mode = "off"
+
+automodapi_inheritance_diagram = False
+automodapi_toctreedirnm = "api/generated"
