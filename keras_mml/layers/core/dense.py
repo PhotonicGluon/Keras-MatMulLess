@@ -8,7 +8,7 @@ import keras
 import numpy as np
 from keras import activations, constraints, initializers, ops, regularizers
 
-from keras_mml.layers._normalizations.rms_norm import RMSNorm
+from keras_mml.layers.normalizations.rms_norm import RMSNorm
 from keras_mml.utils.array import as_numpy, decode_ternary_array, encode_ternary_array
 
 EPSILON = 1e-5

@@ -2,6 +2,6 @@
 Core layers implemented by Keras-MML.
 """
 
-from ._core import DenseMML
+from .dense import DenseMML
 
 __all__ = ["DenseMML"]

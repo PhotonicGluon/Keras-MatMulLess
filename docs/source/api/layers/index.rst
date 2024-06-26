@@ -1,5 +1,5 @@
 Layers
-===========
+======
 
 .. currentmodule:: keras_mml.layers
 
@@ -9,3 +9,6 @@ Layers
     :recursive:
 
     activations
+    core
+    normalizations
+    recurrent

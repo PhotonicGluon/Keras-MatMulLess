@@ -9,7 +9,9 @@ from keras import ops
 @keras.saving.register_keras_serializable(package="keras_mml")
 class RMSNorm(keras.Layer):
     """
-    Implements Root Mean Square Normalization in |RMSNorm Paper|_.
+    Implements Root Mean Square Normalization (RMSNorm).
+
+    The implementation of RMSNorm follows |RMSNorm Paper|_.
 
     Attributes:
         scale: Scaling factor.

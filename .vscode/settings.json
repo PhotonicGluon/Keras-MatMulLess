@@ -12,6 +12,7 @@
         "convolutional",
         "copybutton",
         "crossentropy",
+        "currentmodule",
         "dmath",
         "docstrings",
         "dollarmath",
