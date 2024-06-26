@@ -1,17 +1,17 @@
 """
-Implements a matmul-less SwiGLU layer.
+Implements a matmul-less GeGLU layer.
 """
 
 import keras
 from keras import activations
 
-from keras_mml.layers._activations.glu import GLUMML
+from keras_mml.layers.activations.glu import GLUMML
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
-class SwiGLUMML(GLUMML):
+class GeGLUMML(GLUMML):
     """
-    Swish (or silu) activated Gated Linear Unit (GLU) without matrix multiplication.
+    GELU activated Gated Linear Unit (GLU) without matrix multiplication.
 
     See :py:class:`~.GLUMML` for the full documentation.
     """
@@ -26,4 +26,4 @@ class SwiGLUMML(GLUMML):
         """
 
         super().__init__(*args, **kwargs)
-        self.activation = activations.get("silu")
+        self.activation = activations.get("gelu")

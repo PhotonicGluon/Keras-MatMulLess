@@ -2,6 +2,7 @@
 Recurrent layers implemented by Keras-MML.
 """
 
-from ._recurrent import GRUMML, LRUMML, GRUCellMML, LRUCellMML
+from .gru import GRUMML, GRUCellMML
+from .lru import LRUMML, LRUCellMML
 
 __all__ = ["GRUMML", "LRUMML", "GRUCellMML", "LRUCellMML"]

@@ -8,7 +8,7 @@ Home Page <self>
 Getting Started <getting-started/index>
 Code Examples <examples/index>
 Explanations <explanations/index>
-API Reference <api/keras_mml>
+API Reference <api/index>
 ```
 
 {attribution="Noam Shazeer, in [_GLU Variants Improve Transformer_](https://arxiv.org/pdf/2002.05202v1)"}
