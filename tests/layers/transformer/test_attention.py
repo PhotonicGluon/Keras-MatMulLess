@@ -49,7 +49,7 @@ def test_invalid_arguments():
 
     # Output dim invalid
     with pytest.raises(ValueError):
-        AttentionMML(num_heads=0, out_dim=2)
+        AttentionMML(num_heads=2, out_dim=0)
 
     with pytest.raises(ValueError):
-        AttentionMML(num_heads=-1, out_dim=2)
+        AttentionMML(num_heads=2, out_dim=-1)
