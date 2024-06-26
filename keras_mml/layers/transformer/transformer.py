@@ -6,9 +6,9 @@ from typing import Optional
 
 import keras
 
-from keras_mml.layers._activations import SwiGLUMML
-from keras_mml.layers._normalizations.rms_norm import RMSNorm
-from keras_mml.layers._recurrent.gru import GRUMML
+from keras_mml.layers.activations import SwiGLUMML
+from keras_mml.layers.normalizations.rms_norm import RMSNorm
+from keras_mml.layers.recurrent.gru import GRUMML
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
