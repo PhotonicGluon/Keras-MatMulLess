@@ -1,6 +1,8 @@
 Layers
 ======
 
+This page lists modules containing Keras-MML layers.
+
 .. currentmodule:: keras_mml.layers
 
 .. autosummary::
