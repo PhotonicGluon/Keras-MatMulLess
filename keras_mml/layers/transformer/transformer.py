@@ -2,7 +2,7 @@
 Implements a matmul-less transformer block.
 """
 
-from typing import Optional
+from typing import Tuple
 
 import keras
 
@@ -20,35 +20,65 @@ class TransformerBlockMML(keras.Layer):
     def __init__(
         self,
         embedding_dim: int,
-        num_heads: int,
         ffn_dim: int,
+        num_heads: int,
         hidden_ratio: int = 4,
         rate: float = 0.1,
-        intermediate_size: Optional[int] = None,
         **kwargs,
     ):  # TODO: Add
         """
         TODO: ADD
         """
 
-        super().__init__(**kwargs)
-
         if embedding_dim <= 0:
             raise ValueError(
                 f"Received an invalid value for embedding dimension, expected a positive integer, got {embedding_dim}"
             )
 
+        if ffn_dim <= 0:
+            raise ValueError(
+                "Received an invalid value for the feed forward network dimension, "
+                f"expected a positive integer, got {ffn_dim}"
+            )
+
+        if num_heads <= 0:
+            raise ValueError(
+                f"Received an invalid value for the number of heads, expected a positive integer, got {num_heads}"
+            )
+
+        if embedding_dim % num_heads != 0:
+            raise ValueError(
+                "Embedding dimension must be divisible by the number of heads. "
+                f"Got embedding dimension of {embedding_dim} but wanted to use {num_heads} heads."
+            )
+
+        super().__init__(**kwargs)
+
+        self.input_spec = keras.layers.InputSpec(ndim=3)
+
         self.embedding_dim = embedding_dim
-        self.num_heads = num_heads
         self.ffn_dim = ffn_dim
+        self.num_heads = num_heads
+        self.hidden_ratio = hidden_ratio
+        self.rate = rate
 
         self.attention = AttentionMML(num_heads, embedding_dim, fully_mml=True)
         self.attention_dropout = keras.layers.Dropout(rate)
         self.attention_norm = RMSNorm()
 
-        self.ffn = SwiGLUMML(ffn_dim, hidden_ratio=hidden_ratio, intermediate_size=intermediate_size)
+        self.ffn = SwiGLUMML(embedding_dim, hidden_ratio=hidden_ratio, intermediate_size=ffn_dim)
         self.ffn_dropout = keras.layers.Dropout(rate)
         self.ffn_norm = RMSNorm()
+
+    def build(self, input_shape: Tuple[int, int, int]):
+        """
+        Build the layer.
+
+        Args:
+            input_shape: Shape of the input.
+        """
+
+        super().build(input_shape)
 
     def call(self, inputs):
         """

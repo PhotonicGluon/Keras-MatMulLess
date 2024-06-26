@@ -6,32 +6,16 @@ import pytest
 from einops import asnumpy, rearrange
 from keras import backend, layers, models, ops
 
-from keras_mml.layers.recurrent import LRUMML
+from keras_mml.layers import AttentionMML
 
 
 def test_call():
     x = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
     x = rearrange(x, "b (h w) -> b h w", w=1)
 
-    # Partial MML
-    layer = LRUMML(4, 4)
+    layer = AttentionMML(num_heads=2, out_dim=4)
     y = layer(x)
-    assert ops.shape(y) == (2, 4)
-
-    # Full MML
-    layer = LRUMML(4, 4, fully_mml=True)
-    y = layer(x)
-    assert ops.shape(y) == (2, 4)
-
-    # Masked, flat
-    layer = LRUMML(4, 4)
-    y = layer(x, mask=np.array([[True, True, False]]))
-    assert ops.shape(y) == (2, 4)
-
-    # Masked, nested
-    layer = LRUMML(4, 4)
-    y = layer(x, mask=[np.array([[True, True, False]])])
-    assert ops.shape(y) == (2, 4)
+    assert ops.shape(y) == (2, 3, 4)
 
 
 def test_save_load():
@@ -40,8 +24,8 @@ def test_save_load():
 
     with tempfile.TemporaryDirectory() as tmpdir:
         # Check saving
-        model_path = os.path.join(tmpdir, "test_save_lru_mml.keras")
-        model1 = models.Sequential(layers=[layers.Input(shape=(3, 1)), LRUMML(4, 4), layers.Dense(2)])
+        model_path = os.path.join(tmpdir, "test_save_att_mml.keras")
+        model1 = models.Sequential(layers=[layers.Input(shape=(2, 1)), AttentionMML(num_heads=2, out_dim=4)])
         model1_output = asnumpy(model1(mock_data))
 
         model1.save(model_path)
@@ -56,16 +40,16 @@ def test_save_load():
 
 
 def test_invalid_arguments():
-    # Units invalid
+    # Number of heads invalid
     with pytest.raises(ValueError):
-        LRUMML(0, 2)
+        AttentionMML(num_heads=0, out_dim=2)
 
     with pytest.raises(ValueError):
-        LRUMML(-1, 2)
+        AttentionMML(num_heads=-1, out_dim=2)
 
-    # State dim invalid
+    # Output dim invalid
     with pytest.raises(ValueError):
-        LRUMML(2, 0)
+        AttentionMML(num_heads=0, out_dim=2)
 
     with pytest.raises(ValueError):
-        LRUMML(2, -1)
+        AttentionMML(num_heads=-1, out_dim=2)
