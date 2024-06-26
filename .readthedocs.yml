@@ -31,6 +31,7 @@ build:
       # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
       # VIRTUAL_ENV needs to be set manually for now.
       # See https://github.com/readthedocs/readthedocs.org/pull/11152/
+      - export KERAS_BACKEND=jax
       - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry install --with dev,jax
       # Update versioning
       - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry dynamic-versioning
