@@ -6,4 +6,5 @@ These pages list the API of Keras-MML.
 :maxdepth: 1
 
 Layers <layers/index>
+Utilities <utils/index>
 ```
