@@ -51,6 +51,12 @@ class DenseMML(keras.Layer):
     .. WARNING::
        Once a model that uses this layer is loaded from a file, it **cannot** be retrained.
 
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: ``(batch_size, d1, ..., dn)``, i.e., allows any shape.
+        - **Output Shape**: ``(batch_size, d1, ..., units)``
+
     Attributes:
         units: Dimensionality of the output space.
         use_bias: Whether the layer uses a bias vector.

@@ -26,6 +26,12 @@ class GLUMML(keras.Layer):
     See section 3.3.2 of the aforementioned paper for the notation used in the implementation of the
     code.
 
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: ``(batch_size, d1, ..., dn)``, i.e., allows any shape.
+        - **Output Shape**: ``(batch_size, d1, ..., units)``
+
     Attributes:
         units: Dimensionality of the output space.
         hidden_ratio: Ratio adjusting the intermediate size.
