@@ -19,6 +19,12 @@ class GRUCellMML(keras.Layer):
     This class processes one step within the whole time sequence input, whereas :py:class:`~GRUMML`
     processes the whole sequence.
 
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: 2D tensor of shape ``(batch_size, features)``
+        - **Output Shape**: ``(batch_size, units)``
+
     Attributes:
         units: Dimensionality of the output space.
         fully_mml: Whether to use matmul-free operations for all the layers.
@@ -104,8 +110,8 @@ class GRUCellMML(keras.Layer):
         Calling method of the cell.
 
         Args:
-            inputs: Inputs into the layer. Has shape ``(batch, features)``.
-            states: State(s) from the previous timestep. Has shape ``(batch, units)``.
+            inputs: Inputs into the layer.
+            states: State(s) from the previous timestep.
             training: Whether the layer should behave in training mode or in inference mode.
 
         Returns:
@@ -196,6 +202,13 @@ class GRUMML(keras.layers.RNN):
     - :math:`\\sigma` is the :py:attr:`~.recurrent_activation` (e.g., Sigmoid activation); and
     - :math:`\\tau` is the :py:attr:`~.activation` (e.g., Silu activation).
     
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: 3D tensor of shape ``(batch_size, timesteps, features)``
+            - Takes an optional mask of shape ``(batch_size, timesteps)``
+        - **Output Shape**: ``(batch_size, units)``
+        
     Attributes:
         units: Dimensionality of the output space.
         fully_mml: Whether to use matmul-free operations for all the layers.
@@ -274,13 +287,12 @@ class GRUMML(keras.layers.RNN):
         Calling method of the layer.
 
         Args:
-            inputs: Inputs into the layer, with shape ``(batch, timesteps, features)``.
+            inputs: Inputs into the layer.
             initial_state: List of initial state tensors to be passed to the first call of the cell.
                 If not provided, will cause creation of zero-filled initial state tensors.
-            mask: Binary tensor of shape ``(samples, timesteps)`` indicating whether a given
-                timestep should be masked. An individual True entry indicates that the corresponding
-                timestep should be utilized, while a False entry indicates that the corresponding
-                timestep should be ignored.
+            mask: Binary tensor indicating whether a given timestep should be masked. An individual
+                True entry indicates that the corresponding timestep should be utilized, while a
+                False entry indicates that the corresponding timestep should be ignored.
             training: Indicates whether the layer should behave in training mode or in inference
                 mode. This argument is passed to the cell when calling it.
 
@@ -295,13 +307,12 @@ class GRUMML(keras.layers.RNN):
         Handles the execution of the recurrent loop of the recurrent neural network.
 
         Args:
-            sequences: Inputs into the layer, with shape ``(batch, timesteps, features)``.
+            sequences: Inputs into the layer.
             initial_state: List of initial state tensors to be passed to the first call of the cell.
                 If not provided, will cause creation of zero-filled initial state tensors.
-            mask: Binary tensor of shape ``(samples, timesteps)`` indicating whether a given
-                timestep should be masked. An individual True entry indicates that the corresponding
-                timestep should be utilized, while a False entry indicates that the corresponding
-                timestep should be ignored.
+            mask: Binary tensor indicating whether a given timestep should be masked. An individual
+                True entry indicates that the corresponding timestep should be utilized, while a
+                False entry indicates that the corresponding timestep should be ignored.
             training: Indicates whether the layer should behave in training mode or in inference
                 mode. This argument is passed to the cell when calling it.
 
