@@ -2,6 +2,8 @@
 Transformer-related layers implemented by Keras-MML.
 """
 
-from ._transformer import AttentionMML, TokenAndPositionEmbedding, TransformerBlockMML
+from .attention import AttentionMML
+from .embedding import TokenAndPositionEmbedding
+from .transformer import TransformerBlockMML
 
 __all__ = ["AttentionMML", "TokenAndPositionEmbedding", "TransformerBlockMML"]
