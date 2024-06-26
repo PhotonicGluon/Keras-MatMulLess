@@ -19,6 +19,12 @@ class AttentionMML(keras.Layer):
     |MatMulFreeLLM|_ (see section 3.3.1), where we use
     :py:class:`~keras_mml.layers.recurrent.GRUMML` as the attention mechanism.
 
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: 3D tensor of shape ``(batch_size, sequence_length, features)``
+        - **Output Shape**: ``(batch_size, sequence_length, out_dim)``
+
     Attributes:
         num_heads: Number of attention heads.
         out_dim: Output dimension.

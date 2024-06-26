@@ -21,6 +21,12 @@ class TokenEmbedding(keras.layers.Layer):
     This layer could optionally include position information in the embeddings by enabling the
     :py:attr:`with_positions` attribute.
 
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: 2D tensor of shape ``(batch_size, sequence_length)``
+        - **Output Shape**: ``(batch_size, sequence_length, embedding_dim)``
+
     Attributes:
         max_len: Maximum length of a sentence.
         vocab_size: Size of the vocabulary. Typically this is one more than the maximum integer

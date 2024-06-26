@@ -21,6 +21,12 @@ class TransformerBlockMML(keras.Layer):
     custom :py:class:`~keras_mml.layers.transformer.AttentionMML` class for the attention mechanism
     and :py:class:`~keras_mml.layers.activations.SwiGLUMML` for the feed-forward network (FFN) part.
 
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: 3D tensor of shape ``(batch_size, sequence_length, features)``
+        - **Output Shape**: ``(batch_size, sequence_length, embedding_dim)``
+
     Attributes:
         embedding_dim: Dimension of the embeddings.
         ffn_dim: Dimension of the intermediate (i.e., hidden) layer of the feed-forward network.
