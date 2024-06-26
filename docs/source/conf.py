@@ -33,15 +33,16 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
-    "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
     # External extensions
     "myst_nb",
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinx_automodapi.automodapi",
 ]
 
 source_suffix = {
@@ -80,8 +81,13 @@ typehints_defaults = "comma"
 intersphinx_disabled_domains = ["std"]
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None), "numpy": ("https://numpy.org/doc/stable/", None)}
 
+autosummary_ignore_module_all = False
+
 myst_enable_extensions = ["colon_fence", "fieldlist", "dollarmath", "attrs_block"]
 myst_dmath_double_inline = True
 myst_words_per_minute = 100
 
 nb_execution_mode = "off"
+
+automodapi_inheritance_diagram = False
+automodapi_toctreedirnm = "api/generated"
