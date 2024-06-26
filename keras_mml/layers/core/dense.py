@@ -6,10 +6,11 @@ from typing import Any, Dict, Optional, Tuple, Union
 
 import keras
 import numpy as np
+from einops import asnumpy
 from keras import activations, constraints, initializers, ops, regularizers
 
 from keras_mml.layers.normalizations.rms_norm import RMSNorm
-from keras_mml.utils.array import as_numpy, decode_ternary_array, encode_ternary_array
+from keras_mml.utils.array import decode_ternary_array, encode_ternary_array
 
 EPSILON = 1e-5
 HUGE = 1e9
@@ -49,6 +50,12 @@ class DenseMML(keras.Layer):
 
     .. WARNING::
        Once a model that uses this layer is loaded from a file, it **cannot** be retrained.
+
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: ``(batch_size, d1, ..., dn)``, i.e., allows any shape.
+        - **Output Shape**: ``(batch_size, d1, ..., units)``
 
     Attributes:
         units: Dimensionality of the output space.
@@ -276,7 +283,7 @@ class DenseMML(keras.Layer):
         w_quantized, w_scale = self._kernel_quantization(self._kernel, for_saving=True)
 
         # Encode the ternary array efficiently
-        shape, encoded = encode_ternary_array(as_numpy(w_quantized))
+        shape, encoded = encode_ternary_array(asnumpy(w_quantized))
 
         # Then store the variables
         store["kernel_encoded"] = np.frombuffer(encoded, dtype="uint8")

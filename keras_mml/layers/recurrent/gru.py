@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import keras
 import numpy as np
+from einops import rearrange
 from keras import activations, ops
 
 from keras_mml.layers.core import DenseMML
@@ -19,6 +20,12 @@ class GRUCellMML(keras.Layer):
     This class processes one step within the whole time sequence input, whereas :py:class:`~GRUMML`
     processes the whole sequence.
 
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: 2D tensor of shape ``(batch_size, features)``
+        - **Output Shape**: ``(batch_size, units)``
+
     Attributes:
         units: Dimensionality of the output space.
         fully_mml: Whether to use matmul-free operations for all the layers.
@@ -30,6 +37,7 @@ class GRUCellMML(keras.Layer):
         self,
         units: int,
         fully_mml: bool = False,
+        num_heads: int = 1,
         activation: str = "silu",
         recurrent_activation: str = "sigmoid",
         **kwargs,
@@ -40,17 +48,30 @@ class GRUCellMML(keras.Layer):
         Args:
             units: Dimensionality of the output space.
             fully_mml: Whether to use matmul-free operations for all the layers.
+            num_heads: Number of heads to use when performing the recurrent step.
             activation: Activation function to use.
             recurrent_activation: Activation function to use for the recurrent step.
             **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
             ValueError: If the units provided is not a positive integer.
+            ValueError: If the number of heads to use is not a positive integer.
+            ValueError: If the number of heads does not divide the units provided.
         """
 
         if units <= 0:
             raise ValueError(
-                f"Received an invalid value for argument `units`, expected a positive integer, got {units}."
+                f"Received an invalid value for output dimension, expected a positive integer, got {units}."
+            )
+
+        if num_heads <= 0:
+            raise ValueError(
+                f"Received an invalid value for the number of heads, expected a positive integer, got {num_heads}."
+            )
+        elif units % num_heads != 0:
+            raise ValueError(
+                "Output dimension must be divisible by number of heads. "
+                f"Got output dimension of {units} but wanted to use {num_heads} heads."
             )
 
         super().__init__(**kwargs)
@@ -59,6 +80,7 @@ class GRUCellMML(keras.Layer):
 
         self.units = units
         self.fully_mml = fully_mml
+        self.num_heads = num_heads
 
         self.activation = activations.get(activation)
         self.recurrent_activation = activations.get(recurrent_activation)
@@ -74,7 +96,7 @@ class GRUCellMML(keras.Layer):
             input_shape: Shape of the input.
         """
 
-        super().build(input_shape)
+        self.head_dim = max(1, self.units // self.num_heads)  # Ensure that head dimension is at least 1
 
         # Decide what layer class to use for the output-adjacent layers
         if self.fully_mml:
@@ -104,8 +126,8 @@ class GRUCellMML(keras.Layer):
         Calling method of the cell.
 
         Args:
-            inputs: Inputs into the layer. Has shape ``(batch, features)``.
-            states: State(s) from the previous timestep. Has shape ``(batch, units)``.
+            inputs: Inputs into the layer.
+            states: State(s) from the previous timestep.
             training: Whether the layer should behave in training mode or in inference mode.
 
         Returns:
@@ -118,14 +140,19 @@ class GRUCellMML(keras.Layer):
         # Get main gate outputs
         f = self.f_gate(inputs)
         c = self.c_gate(inputs)
-        g = self.g_gate(inputs)
+
+        # Split for multiple heads
+        f, c = map(
+            lambda x: rearrange(x, "batch (heads features) -> batch heads features", heads=self.num_heads), (f, c)
+        )
 
         # Compute new state
         h = f * h_tm1 + (1 - f) * c
         new_state = [h] if keras.tree.is_nested(states) else h
 
         # Get output
-        o_prime = g * h
+        g = self.g_gate(inputs)
+        o_prime = g * rearrange(h, "batch heads features -> batch (heads features)")
         output = self.o_gate(o_prime)
 
         return output, new_state
@@ -143,6 +170,7 @@ class GRUCellMML(keras.Layer):
             {
                 "units": self.units,
                 "fully_mml": self.fully_mml,
+                "num_heads": self.num_heads,
                 "activation": activations.serialize(self.activation),
                 "recurrent_activation": activations.serialize(self.recurrent_activation),
             }
@@ -160,7 +188,7 @@ class GRUCellMML(keras.Layer):
             Initial states.
         """
 
-        return [ops.zeros((batch_size, self.state_size), dtype=self.compute_dtype)]
+        return [ops.zeros((batch_size, self.num_heads, self.head_dim), dtype=self.compute_dtype)]
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
@@ -196,6 +224,13 @@ class GRUMML(keras.layers.RNN):
     - :math:`\\sigma` is the :py:attr:`~.recurrent_activation` (e.g., Sigmoid activation); and
     - :math:`\\tau` is the :py:attr:`~.activation` (e.g., Silu activation).
     
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: 3D tensor of shape ``(batch_size, timesteps, features)``
+            - Takes an optional mask of shape ``(batch_size, timesteps)``
+        - **Output Shape**: ``(batch_size, units)``
+        
     Attributes:
         units: Dimensionality of the output space.
         fully_mml: Whether to use matmul-free operations for all the layers.
@@ -210,6 +245,7 @@ class GRUMML(keras.layers.RNN):
         self,
         units: int,
         fully_mml: bool = False,
+        num_heads: int = 1,
         activation: str = "silu",
         recurrent_activation: str = "sigmoid",
         **kwargs,
@@ -220,18 +256,24 @@ class GRUMML(keras.layers.RNN):
         Args:
             units: Dimensionality of the output space.
             fully_mml: Whether to use matmul-free operations for all the layers.
+            num_heads: Number of heads to use for the recurrent step. See |HGRN2|_, section 3.2, for
+                details on the multi-headed variant.
             activation: Activation function to use.
             recurrent_activation: Activation function to use for the recurrent step.
             **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
             ValueError: If the units provided is not a positive integer.
+
+        .. |HGRN2| replace:: *HGRN2: Gated Linear RNNs with State Expansion*
+        .. _HGRN2: https://arxiv.org/pdf/2404.07904v1
         """
 
         cell = GRUCellMML(
             name="grumml_cell",
             units=units,
             fully_mml=fully_mml,
+            num_heads=num_heads,
             activation=activation,
             recurrent_activation=recurrent_activation,
         )
@@ -255,6 +297,13 @@ class GRUMML(keras.layers.RNN):
         return self.cell.fully_mml
 
     @property
+    def num_heads(self):
+        """
+        :meta private:
+        """
+        return self.cell.num_heads
+
+    @property
     def activation(self):
         """
         :meta private:
@@ -274,13 +323,12 @@ class GRUMML(keras.layers.RNN):
         Calling method of the layer.
 
         Args:
-            inputs: Inputs into the layer, with shape ``(batch, timesteps, features)``.
+            inputs: Inputs into the layer.
             initial_state: List of initial state tensors to be passed to the first call of the cell.
                 If not provided, will cause creation of zero-filled initial state tensors.
-            mask: Binary tensor of shape ``(samples, timesteps)`` indicating whether a given
-                timestep should be masked. An individual True entry indicates that the corresponding
-                timestep should be utilized, while a False entry indicates that the corresponding
-                timestep should be ignored.
+            mask: Binary tensor indicating whether a given timestep should be masked. An individual
+                True entry indicates that the corresponding timestep should be utilized, while a
+                False entry indicates that the corresponding timestep should be ignored.
             training: Indicates whether the layer should behave in training mode or in inference
                 mode. This argument is passed to the cell when calling it.
 
@@ -288,20 +336,28 @@ class GRUMML(keras.layers.RNN):
             Transformed inputs.
         """
 
-        return super().call(sequences, initial_state=initial_state, mask=mask, training=training)
+        output = super().call(sequences, initial_state=initial_state, mask=mask, training=training)
+
+        if keras.config.backend() == "jax" and mask is not None:
+            # FIXME:
+            #   I have no idea why, but when using the Jax backend along with masking, a second copy of the outputs is
+            #   returned along with the first. The following code just takes the first output and ignores the rest.
+
+            output = output[0]
+
+        return output
 
     def inner_loop(self, sequences, initial_state, mask, training: bool = False):
         """
         Handles the execution of the recurrent loop of the recurrent neural network.
 
         Args:
-            sequences: Inputs into the layer, with shape ``(batch, timesteps, features)``.
+            sequences: Inputs into the layer.
             initial_state: List of initial state tensors to be passed to the first call of the cell.
                 If not provided, will cause creation of zero-filled initial state tensors.
-            mask: Binary tensor of shape ``(samples, timesteps)`` indicating whether a given
-                timestep should be masked. An individual True entry indicates that the corresponding
-                timestep should be utilized, while a False entry indicates that the corresponding
-                timestep should be ignored.
+            mask: Binary tensor indicating whether a given timestep should be masked. An individual
+                True entry indicates that the corresponding timestep should be utilized, while a
+                False entry indicates that the corresponding timestep should be ignored.
             training: Indicates whether the layer should behave in training mode or in inference
                 mode. This argument is passed to the cell when calling it.
 
@@ -326,6 +382,7 @@ class GRUMML(keras.layers.RNN):
         config = {
             "units": self.units,
             "fully_mml": self.fully_mml,
+            "num_heads": self.num_heads,
             "activation": activations.serialize(self.activation),
             "recurrent_activation": activations.serialize(self.recurrent_activation),
         }

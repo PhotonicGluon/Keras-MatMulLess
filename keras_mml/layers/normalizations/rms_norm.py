@@ -15,6 +15,12 @@ class RMSNorm(keras.Layer):
 
     The implementation of RMSNorm follows |RMSNorm Paper|_.
 
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: ``(batch_size, d1, ..., dn)``, i.e., allows any shape.
+        - **Output Shape**: ``(batch_size, d1, ..., units)``
+
     Attributes:
         has_learnable_weights: Whether the layer has learnable per-element affine parameters.
         use_bias: Whether the layer uses a bias vector.

@@ -26,6 +26,12 @@ class GLUMML(keras.Layer):
     See section 3.3.2 of the aforementioned paper for the notation used in the implementation of the
     code.
 
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: ``(batch_size, d1, ..., dn)``, i.e., allows any shape.
+        - **Output Shape**: ``(batch_size, d1, ..., units)``
+
     Attributes:
         units: Dimensionality of the output space.
         hidden_ratio: Ratio adjusting the intermediate size.
@@ -50,7 +56,8 @@ class GLUMML(keras.Layer):
 
         Args:
             units: Dimensionality of the output space.
-            hidden_ratio: Ratio adjusting the intermediate size.
+            hidden_ratio: Ratio adjusting the intermediate size. Ignored if an intermediate size is
+                specified.
             intermediate_size: Intermediate size. If None, will choose a multiple of 256 closest to
                 :math:`\\frac23 lr` where :math:`l` is the hidden shape given by the input into the
                 layer and :math:`r` is the :py:attr:`~GLUMML.hidden_ratio`.
@@ -75,8 +82,6 @@ class GLUMML(keras.Layer):
                 f"GLU activation '{activation}' not allowed; permitted activations are {PERMITTED_ACTIVATIONS}"
             )
 
-        self.input_spec = keras.layers.InputSpec(ndim=2)
-
         self.units = units
         self.hidden_ratio = hidden_ratio
         self.intermediate_size = intermediate_size
@@ -91,10 +96,6 @@ class GLUMML(keras.Layer):
 
         Args:
             input_shape: Shape of the input.
-
-        Raises:
-            ValueError: If the input shape does not have a rank of 2 (i.e., something like
-                ``(batch_size, d0)``).
         """
 
         self.hidden_size = input_shape[-1]

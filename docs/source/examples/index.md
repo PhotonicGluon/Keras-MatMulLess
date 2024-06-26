@@ -9,4 +9,5 @@ MNIST Classification <mnist-classifier>
 Time Series Forecasting <time-series-forecasting>
 Autoencoders <autoencoders>
 Gated Linear Units (GLUs) <gated-linear-unit>
+Text Classification With Transformers <transformers>
 ```
