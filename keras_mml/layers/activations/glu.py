@@ -50,7 +50,8 @@ class GLUMML(keras.Layer):
 
         Args:
             units: Dimensionality of the output space.
-            hidden_ratio: Ratio adjusting the intermediate size.
+            hidden_ratio: Ratio adjusting the intermediate size. Ignored if an intermediate size is
+                specified.
             intermediate_size: Intermediate size. If None, will choose a multiple of 256 closest to
                 :math:`\\frac23 lr` where :math:`l` is the hidden shape given by the input into the
                 layer and :math:`r` is the :py:attr:`~GLUMML.hidden_ratio`.

@@ -11,17 +11,45 @@ from keras import ops
 @keras.saving.register_keras_serializable(package="keras_mml")
 class TokenEmbedding(keras.layers.Layer):
     """
-    TODO: ADD
+    Turns positive integers (indices) into vectors of fixed size.
+
+    For example, ``[[1, 2], [3, 4], [5, 6]]``, which could be interpreted as 3 sentences with 2
+    words each, could be embedded as ``[[[0.1, 0.2, 0.3], [0.3, 0.4, 0.5]], [[1.1, 1.2, 1.3],
+    [1.3, 1.4, 1.5]], [[2.1, 2.2, 2.3], [2.3, 2.4, 2.5]]]``, which has shape ``(3, 2, 3)`` and can
+    be interpreted as 3 sentences with 2 words each with an embedding dimension of 3.
+
+    This layer could optionally include position information in the embeddings by enabling the
+    :py:attr:`with_positions` attribute.
+
+    Attributes:
+        max_len: Maximum length of a sentence.
+        vocab_size: Size of the vocabulary. Typically this is one more than the maximum integer
+            index.
+        embedding_dim: Embedding dimension.
+        with_positions: Whether to include position information in the embeddings.
     """
 
     def __init__(self, max_len: int, vocab_size: int, embedding_dim: int, with_positions: bool = False, **kwargs):
         """
-        TODO: ADD
+        Initializes a new instance of the layer.
+
+        Args:
+            max_len: Maximum length of a sentence.
+            vocab_size: Size of the vocabulary. Typically this is one more than the maximum integer
+                index.
+            embedding_dim: Embedding dimension.
+            with_positions: Whether to include position information in the embeddings.
+            **kwargs: Keyword arguments for :py:class:`keras.Layer`.
+
+        Raises:
+            ValueError: If the maximum sentence length is not a positive integer.
+            ValueError: If the vocabulary size is not a positive integer.
+            ValueError: If the embedding dimension is not a positive integer.
         """
 
         if max_len <= 0:
             raise ValueError(
-                "Received an invalid value for the maximum sequence length. "
+                "Received an invalid value for the maximum sentence length. "
                 f"Expected a positive integer, but got {max_len} instead."
             )
 

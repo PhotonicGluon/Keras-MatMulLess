@@ -243,7 +243,7 @@ class GRUMML(keras.layers.RNN):
         Args:
             units: Dimensionality of the output space.
             fully_mml: Whether to use matmul-free operations for all the layers.
-            num_heads: Number of heads to use for the recurrent step. See |HRGN2|_, section 3.2 for
+            num_heads: Number of heads to use for the recurrent step. See |HGRN2|_, section 3.2, for
                 details on the multi-headed variant.
             activation: Activation function to use.
             recurrent_activation: Activation function to use for the recurrent step.
@@ -252,7 +252,7 @@ class GRUMML(keras.layers.RNN):
         Raises:
             ValueError: If the units provided is not a positive integer.
 
-        .. |HGRN2| replace::*HGRN2: Gated Linear RNNs with State Expansion*
+        .. |HGRN2| replace:: *HGRN2: Gated Linear RNNs with State Expansion*
         .. _HGRN2: https://arxiv.org/pdf/2404.07904v1
         """
 
