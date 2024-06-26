@@ -1,7 +1,6 @@
 import numpy as np
 import pytest
-
-from keras_mml.utils import as_numpy
+from einops import asnumpy
 
 
 def test_tf():
@@ -12,7 +11,7 @@ def test_tf():
 
     orig = np.array([1, 2, 3])
     converted = tf.convert_to_tensor(orig)
-    reverted = as_numpy(converted)
+    reverted = asnumpy(converted)
 
     assert np.array_equal(orig, reverted)
 
@@ -25,7 +24,7 @@ def test_pytorch():
 
     orig = np.array([1, 2, 3])
     converted = torch.tensor(orig)
-    reverted = as_numpy(converted)
+    reverted = asnumpy(converted)
 
     assert np.array_equal(orig, reverted)
 
@@ -38,6 +37,6 @@ def test_jax():
 
     orig = np.array([1, 2, 3])
     converted = jnp.array(orig)
-    reverted = as_numpy(converted)
+    reverted = asnumpy(converted)
 
     assert np.array_equal(orig, reverted)

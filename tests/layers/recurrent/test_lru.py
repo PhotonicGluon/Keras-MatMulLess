@@ -3,10 +3,10 @@ import tempfile
 
 import numpy as np
 import pytest
+from einops import asnumpy
 from keras import backend, layers, models, ops
 
 from keras_mml.layers.recurrent import LRUMML
-from keras_mml.utils.array import as_numpy
 
 
 def test_call():
@@ -39,7 +39,7 @@ def test_save_load():
         # Check saving
         model_path = os.path.join(tmpdir, "test_save_gru_mml.keras")
         model1 = models.Sequential(layers=[layers.Input(shape=(3, 1)), LRUMML(4, 4), layers.Dense(2)])
-        model1_output = as_numpy(model1(mock_data))
+        model1_output = asnumpy(model1(mock_data))
 
         model1.save(model_path)
         assert os.path.isfile(model_path)
@@ -47,7 +47,7 @@ def test_save_load():
         # Check loading
         backend.clear_session()
         model2 = models.load_model(model_path)
-        model2_output = as_numpy(model2(mock_data))
+        model2_output = asnumpy(model2(mock_data))
 
         assert np.allclose(model1_output, model2_output)
 
