@@ -165,6 +165,7 @@ cython_debug/
 .Trash-*
 
 docs/source/examples/data
+docs/source/**/generated
 **/jupyter_execute
 
 *.keras

@@ -33,10 +33,10 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.autosummary",
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
     "sphinx_autodoc_typehints",
-    "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
     # External extensions
     "myst_nb",
@@ -80,6 +80,8 @@ typehints_defaults = "comma"
 
 intersphinx_disabled_domains = ["std"]
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None), "numpy": ("https://numpy.org/doc/stable/", None)}
+
+autosummary_ignore_module_all = False
 
 myst_enable_extensions = ["colon_fence", "fieldlist", "dollarmath", "attrs_block"]
 myst_dmath_double_inline = True

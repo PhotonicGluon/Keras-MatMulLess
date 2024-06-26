@@ -1,0 +1,11 @@
+Layers
+===========
+
+.. currentmodule:: keras_mml.layers
+
+.. autosummary::
+    :toctree: generated
+    :template: custom-module-template.rst
+    :recursive:
+
+    activations
