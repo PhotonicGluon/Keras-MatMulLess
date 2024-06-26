@@ -35,7 +35,7 @@ build:
       # Update versioning
       - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry dynamic-versioning
       # Now we need to build the API stuff
-      - cd docs; KERAS_BACKEND=jax make clean html
+      - cd docs; make clean html
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
