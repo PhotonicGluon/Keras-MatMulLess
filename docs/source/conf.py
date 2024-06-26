@@ -42,7 +42,6 @@ extensions = [
     "myst_nb",
     "sphinx_copybutton",
     "sphinx_design",
-    "sphinx_automodapi.automodapi",
 ]
 
 source_suffix = {
