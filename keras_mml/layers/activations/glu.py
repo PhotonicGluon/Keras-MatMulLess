@@ -75,8 +75,6 @@ class GLUMML(keras.Layer):
                 f"GLU activation '{activation}' not allowed; permitted activations are {PERMITTED_ACTIVATIONS}"
             )
 
-        self.input_spec = keras.layers.InputSpec(ndim=2)
-
         self.units = units
         self.hidden_ratio = hidden_ratio
         self.intermediate_size = intermediate_size
@@ -91,10 +89,6 @@ class GLUMML(keras.Layer):
 
         Args:
             input_shape: Shape of the input.
-
-        Raises:
-            ValueError: If the input shape does not have a rank of 2 (i.e., something like
-                ``(batch_size, d0)``).
         """
 
         self.hidden_size = input_shape[-1]

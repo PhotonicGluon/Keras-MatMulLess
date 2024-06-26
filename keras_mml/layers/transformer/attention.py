@@ -4,14 +4,33 @@ Implements a matmul-less attention layer.
 
 import keras
 
+from keras_mml.layers.recurrent.gru import GRUMML
+
 
 @keras.saving.register_keras_serializable(package="keras_mml")
 class AttentionMML(keras.Layer):
     """
     TODO: Add
-
-    References:
-    - https://arxiv.org/pdf/2404.07904v1
-    - https://github.com/Doraemonzzz/hgru2-pytorch/blob/main/hgru2_pytorch/models/modeling_hgrn2.py
-    - https://github.com/ridgerchu/matmulfreellm/blob/master/mmfreelm/layers/hgrn_bit.py#L22
     """
+
+    def __init__(self, num_heads: int, out_dim: int, fully_mml: bool = True, **kwargs):
+        """
+        TODO: Add
+        """
+
+        super().__init__(**kwargs)
+
+        self.internal_layer = GRUMML(out_dim, fully_mml=fully_mml, num_heads=num_heads, return_sequences=True)
+
+    def call(self, inputs):
+        """
+        Calling method of the layer.
+
+        Args:
+            inputs: Inputs into the layer.
+
+        Returns:
+            Transformed inputs.
+        """
+
+        return self.internal_layer(inputs)

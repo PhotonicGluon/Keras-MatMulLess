@@ -8,7 +8,7 @@ import keras
 
 from keras_mml.layers.activations import SwiGLUMML
 from keras_mml.layers.normalizations.rms_norm import RMSNorm
-from keras_mml.layers.recurrent.gru import GRUMML
+from keras_mml.layers.transformer.attention import AttentionMML
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
@@ -20,10 +20,11 @@ class TransformerBlockMML(keras.Layer):
     def __init__(
         self,
         embedding_dim: int,
+        num_heads: int,
+        ffn_dim: int,
         hidden_ratio: int = 4,
         rate: float = 0.1,
         intermediate_size: Optional[int] = None,
-        activation: str = "sigmoid",
         **kwargs,
     ):  # TODO: Add
         """
@@ -38,14 +39,14 @@ class TransformerBlockMML(keras.Layer):
             )
 
         self.embedding_dim = embedding_dim
+        self.num_heads = num_heads
+        self.ffn_dim = ffn_dim
 
-        self.attention = GRUMML(embedding_dim, fully_mml=True)
+        self.attention = AttentionMML(num_heads, embedding_dim, fully_mml=True)
         self.attention_dropout = keras.layers.Dropout(rate)
         self.attention_norm = RMSNorm()
 
-        self.ffn = SwiGLUMML(
-            embedding_dim, hidden_ratio=hidden_ratio, intermediate_size=intermediate_size, activation=activation
-        )
+        self.ffn = SwiGLUMML(ffn_dim, hidden_ratio=hidden_ratio, intermediate_size=intermediate_size)
         self.ffn_dropout = keras.layers.Dropout(rate)
         self.ffn_norm = RMSNorm()
 
@@ -60,10 +61,11 @@ class TransformerBlockMML(keras.Layer):
             Transformed inputs.
         """
 
-        attn_output = self.attention(inputs, inputs)
-        attn_output = self.attention_dropout(attn_output)
-        attn_output = self.attention_norm(inputs + attn_output)
+        attention_output = self.attention(inputs)
+        attention_output = self.attention_dropout(attention_output)
+        attention_output = self.attention_norm(inputs + attention_output)
 
-        ffn_output = self.ffn(attn_output)
+        ffn_output = self.ffn(attention_output)
         ffn_output = self.ffn_dropout(ffn_output)
-        return self.ffn_norm(attn_output + ffn_output)
+        ffn_output = self.ffn_norm(attention_output + ffn_output)
+        return ffn_output
