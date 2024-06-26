@@ -33,6 +33,11 @@ def test_call():
     y = layer(x, mask=[np.array([[True, True, False]])])
     assert ops.shape(y) == (2, 4)
 
+    # Multi-headed
+    layer = GRUMML(6, num_heads=3)
+    y = layer(x)
+    assert ops.shape(y) == (2, 6)
+
 
 def test_save_load():
     mock_data = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
@@ -56,8 +61,20 @@ def test_save_load():
 
 
 def test_invalid_arguments():
+    # Units invalid
     with pytest.raises(ValueError):
         GRUMML(0)
 
     with pytest.raises(ValueError):
         GRUMML(-1)
+
+    # Number of heads invalid
+    with pytest.raises(ValueError):
+        GRUMML(4, num_heads=0)
+
+    with pytest.raises(ValueError):
+        GRUMML(4, num_heads=-1)
+
+    # Number of heads do not divide units
+    with pytest.raises(ValueError):
+        GRUMML(4, num_heads=3)
