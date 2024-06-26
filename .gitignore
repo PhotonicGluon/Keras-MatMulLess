@@ -70,7 +70,7 @@ instance/
 
 # Sphinx documentation
 docs/build/
-docs/source/api/
+docs/source/api/generated
 
 # PyBuilder
 .pybuilder/
@@ -165,6 +165,7 @@ cython_debug/
 .Trash-*
 
 docs/source/examples/data
+docs/source/**/generated
 **/jupyter_execute
 
 *.keras
