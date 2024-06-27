@@ -166,6 +166,7 @@ cython_debug/
 
 docs/source/examples/data
 docs/source/**/generated
+experiments/
 **/jupyter_execute
 
 *.keras
