@@ -1,4 +1,4 @@
-# Keras-MatMulLess
+# Keras-MatMulLess (Keras-MML)
 
 [![CodeCov](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess/graph/badge.svg?token=VKD0CJX1SD)](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess)
 [![ReadTheDocs](https://readthedocs.org/projects/keras-matmulless/badge/?version=latest)](https://keras-matmulless.readthedocs.io/en/latest/?badge=latest)
@@ -94,3 +94,17 @@ That's it! You should now have access to the `keras_mml` package.
 ## Quickstart
 
 See the [tutorial notebook](docs/source/getting-started/tutorial.ipynb).
+
+## Using Dev Containers
+
+[![CPU Dev Container](https://img.shields.io/static/v1?label=CPU%20Dev%20Container&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/PhotonicGluon/Keras-MatMulLess)
+
+If you already have VS Code and Docker installed, you can click the badge above or [here](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/PhotonicGluon/Keras-MatMulLess) to get started. Clicking these links will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
+
+### CUDA
+
+Keras-MML offers a `cuda` dev container for working with CUDA.
+
+> [!IMPORTANT]  
+> Edit the [`Dockerfile`](.devcontainer/cuda/Dockerfile) file to set up the architecture properly.
+> By default it is using `amd64`. So, if you are on a `arm64` system, **uncomment the appropriate lines in the file**!
