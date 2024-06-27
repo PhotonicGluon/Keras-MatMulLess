@@ -58,6 +58,7 @@
         "ndarray",
         "ndim",
         "Noam",
+        "numba",
         "numpy",
         "pred",
         "quickstart",
