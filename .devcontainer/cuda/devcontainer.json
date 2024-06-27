@@ -1,5 +1,5 @@
 {
-    "name": "Keras-MML",
+    "name": "Keras-MML-CUDA",
     "build": {
         "dockerfile": "Dockerfile"
     },
