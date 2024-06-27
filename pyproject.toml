@@ -117,7 +117,7 @@ seaborn = "~0.13.2"
 matplotlib = "~3.9.0"
 
 [tool.poetry-dynamic-versioning]
-enable = false
+enable = true
 vcs = "git"
 style = "pep440"
 format-jinja-imports = [{ module = "datetime", item = "datetime" }]
