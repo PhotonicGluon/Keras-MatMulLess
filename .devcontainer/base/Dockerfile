@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/python:1-3.10-bookworm as devcontainer
+FROM mcr.microsoft.com/devcontainers/python:1-3.10-bullseye as devcontainer
 
 # Install missing dependencies
 RUN apt-get update
