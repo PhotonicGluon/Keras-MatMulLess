@@ -48,25 +48,63 @@ sphinx-autodoc-typehints = "~2.1.1"
 sphinx-autobuild = "2024.4.16"
 myst-nb = "~1.1.0"
 
+[tool.poetry.group.nvidia-gpu]
+optional = true
+
+[tool.poetry.group.nvidia-gpu.dependencies]
+nvidia-cublas-cu12 = "~12.3.4.1"
+nvidia-cuda-cupti-cu12 = "~12.3.101"
+nvidia-cuda-nvcc-cu12 = "~12.3.107"
+nvidia-cuda-nvrtc-cu12 = "~12.3.107"
+nvidia-cuda-runtime-cu12 = "~12.3.101"
+nvidia-cudnn-cu12 = "~8.9.7.29"
+nvidia-cufft-cu12 = "~11.0.12.1"
+nvidia-curand-cu12 = "~10.3.4.107"
+nvidia-cusolver-cu12 = "~11.5.4.101"
+nvidia-cusparse-cu12 = "~12.2.0.103"
+nvidia-nccl-cu12 = "~2.19.3"
+nvidia-nvjitlink-cu12 = "~12.3.101"
+
 [tool.poetry.group.tensorflow]
 optional = true
 
 [tool.poetry.group.tensorflow.dependencies]
 tensorflow = "~2.16.1"
 
+[tool.poetry.group.tensorflow-gpu]
+optional = true
+
+[tool.poetry.group.tensorflow-gpu.dependencies]
+tensorflow = { version = "~2.16.1", extras = ["and-cuda"] }
+
 [tool.poetry.group.torch]
 optional = true
 
 [tool.poetry.group.torch.dependencies]
-torch = { version = "^2.3.1+cpu", source = "pytorch-cpu" }
-torchvision = { version = "^0.18.1+cpu", source = "pytorch-cpu" }
-torchaudio = { version = "^2.3.1+cpu", source = "pytorch-cpu" }
+torch = { version = "~2.3.1+cpu", source = "pytorch-cpu" }
+torchvision = { version = "~0.18.1+cpu", source = "pytorch-cpu" }
+torchaudio = { version = "~2.3.1+cpu", source = "pytorch-cpu" }
+
+[tool.poetry.group.torch-gpu]
+optional = true
+
+[tool.poetry.group.torch-gpu.dependencies]
+torch = "~2.3.1+cpu"
+torchvision = "~0.18.1+cpu"
+torchaudio = "~2.3.1+cpu"
+
 
 [tool.poetry.group.jax]
 optional = true
 
 [tool.poetry.group.jax.dependencies]
-jax = { version = "<0.4.29", extras = ["cpu"] }
+jax = "<0.4.29"
+
+[tool.poetry.group.jax-gpu]
+optional = true
+
+[tool.poetry.group.jax-gpu.dependencies]
+jax = { version = "<0.4.29", extras = ["cuda12"] }
 
 [tool.poetry.group.notebook]
 optional = true
@@ -79,7 +117,7 @@ seaborn = "~0.13.2"
 matplotlib = "~3.9.0"
 
 [tool.poetry-dynamic-versioning]
-enable = true
+enable = false
 vcs = "git"
 style = "pep440"
 format-jinja-imports = [{ module = "datetime", item = "datetime" }]

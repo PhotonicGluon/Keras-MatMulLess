@@ -10,7 +10,7 @@
     "postCreateCommand": [
         "/bin/sh",
         "-c",
-        "/bin/bash ./.devcontainer/postCreateCommand.sh"
+        "/bin/bash ./.devcontainer/base/postCreateCommand.sh"
     ],
     "customizations": {
         "vscode": {
