@@ -8,9 +8,11 @@ import keras
 import numpy as np
 from einops import asnumpy
 from keras import activations, constraints, initializers, ops, regularizers
+from numba import jit
 
 from keras_mml.layers.normalizations.rms_norm import RMSNorm
 from keras_mml.utils.array import decode_ternary_array, encode_ternary_array
+from keras_mml.utils.numba import max_for_last_axis
 
 EPSILON = 1e-5
 HUGE = 1e9
@@ -147,6 +149,23 @@ class DenseMML(keras.Layer):
         return y
 
     @staticmethod
+    @jit
+    def _optimized_activations_quantization(x):
+        """
+        Quantizes the activations to 8-bit precision using absmax quantization.
+
+        Args:
+            x: Array of quantization values.
+
+        Returns:
+            The quantized activation values.
+        """
+
+        scale = 127.0 / np.expand_dims(np.clip(max_for_last_axis(np.abs(x)), EPSILON, HUGE), -1)
+        y = np.clip(np.round(x * scale), -128, 127) / scale
+        return y
+
+    @staticmethod
     def _kernel_quantization(w, for_saving: bool = False) -> Union[Any, Tuple[Any, float]]:
         """
         Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
@@ -168,6 +187,43 @@ class DenseMML(keras.Layer):
             return u, scale
         return u / scale
 
+    @staticmethod
+    @jit
+    def _compute_kernel_scale(w) -> float:
+        mean = np.mean(np.abs(w))
+        if mean <= EPSILON:
+            mean = EPSILON
+        elif mean >= HUGE:
+            mean = HUGE
+        scale = 1.0 / mean
+        return scale
+
+    @staticmethod
+    @jit
+    def _compute_kernel_quantization(w, scale: float) -> np.ndarray:
+        return np.clip(np.round(w * scale), -1, 1)
+
+    def _optimized_kernel_quantization(self, w, for_saving: bool = False) -> Union[Any, Tuple[Any, float]]:
+        """
+        Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
+
+        Args:
+            w: Kernel matrix.
+            for_saving: Whether this should output values in preparation for saving.
+
+        Returns:
+            The quantized kernel with the scaling applied. If the quantization is for saving, then
+            both the quantized kernel and the scale will be returned, with the scale **not**
+            applied to the quantized kernel.
+        """
+
+        scale = self._compute_kernel_scale(w)
+        u = self._compute_kernel_quantization(w, scale)
+
+        if for_saving:
+            return u, scale
+        return u / scale
+
     def _get_quantized_arrays(self, x_norm) -> Tuple[Any, Any]:
         """
         Gets the quantized activation and kernel values.
@@ -182,14 +238,16 @@ class DenseMML(keras.Layer):
 
         # Get the quantized activations and kernel
         # (We use a Straight-Through Estimator (STE) trick by stopping gradient propagation)
-        x_quantized = x_norm + ops.stop_gradient(self._activations_quantization(x_norm) - x_norm)
+        # x_quantized = x_norm + ops.stop_gradient(self._activations_quantization(x_norm) - x_norm)
+        x_quantized = x_norm + ops.stop_gradient(self._optimized_activations_quantization(np.array(x_norm)) - x_norm)
 
         if self._kernel_scale:
             # Kernel values should have been pre-quantized
             w_quantized = self._kernel / self._kernel_scale
         else:
             w = self._kernel
-            w_quantized = w + ops.stop_gradient(self._kernel_quantization(w) - w)
+            # w_quantized = w + ops.stop_gradient(self._kernel_quantization(w) - w)
+            w_quantized = w + ops.stop_gradient(self._optimized_kernel_quantization(np.array(w)) - w)
 
         return x_quantized, w_quantized
 
