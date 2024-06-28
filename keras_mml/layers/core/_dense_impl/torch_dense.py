@@ -1,16 +1,15 @@
 """
-Tensorflow implementation of the core algorithm in the matmul-less Dense layer.
+PyTorch implementation of the core algorithm in the matmul-less Dense layer.
 """
 
 from typing import Tuple
 
-import tensorflow as tf
+import torch
 
-from keras_mml.layers.core._dense_impl.base_dense import EPSILON, HUGE, BaseDenseMML
+from keras_mml.layers.core._dense_impl.base_dense import EPSILON, BaseDenseMML
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32)], jit_compile=True)
-def _activations_quantization(x: tf.Tensor) -> tf.Tensor:
+def _activations_quantization(x: torch.Tensor) -> torch.Tensor:
     """
     Quantizes the activations to 8-bit precision using absmax quantization.
 
@@ -21,13 +20,12 @@ def _activations_quantization(x: tf.Tensor) -> tf.Tensor:
         The quantized activation values.
     """
 
-    scale = 127.0 / tf.clip_by_value(tf.reduce_max(tf.abs(x), axis=-1, keepdims=True), EPSILON, HUGE)
-    y = tf.clip_by_value(tf.round(x * scale), -128, 127) / scale
+    scale = 127.0 / torch.unsqueeze(torch.max(torch.abs(x), dim=-1).values.clamp_(EPSILON), -1)
+    y = torch.clip(torch.round(x * scale), -128, 127) / scale
     return y
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32)], jit_compile=True)
-def _compute_kernel_scale(w: tf.Tensor) -> float:
+def _compute_kernel_scale(w: torch.Tensor) -> float:
     """
     Computes the scale factor of the kernel matrix.
 
@@ -38,11 +36,10 @@ def _compute_kernel_scale(w: tf.Tensor) -> float:
         Scale factor.
     """
 
-    return 1.0 / tf.clip_by_value(tf.reduce_mean(tf.abs(w)), EPSILON, HUGE)
+    return 1.0 / torch.mean(torch.abs(w)).clamp_(EPSILON)
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32)], jit_compile=True)
-def _kernel_quantization_for_training(w: tf.Tensor) -> tf.Tensor:
+def _kernel_quantization_for_training(w: torch.Tensor) -> torch.Tensor:
     """
     Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
 
@@ -54,12 +51,11 @@ def _kernel_quantization_for_training(w: tf.Tensor) -> tf.Tensor:
     """
 
     scale = _compute_kernel_scale(w)
-    u = tf.clip_by_value(tf.round(w * scale), -1, 1)
+    u = torch.clip(torch.round(w * scale), -1, 1)
     return u / scale
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32)], jit_compile=True)
-def _kernel_quantization_for_saving(w: tf.Tensor) -> Tuple[tf.Tensor, float]:
+def _kernel_quantization_for_saving(w: torch.Tensor) -> Tuple[torch.Tensor, float]:
     """
     Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
 
@@ -72,12 +68,11 @@ def _kernel_quantization_for_saving(w: tf.Tensor) -> Tuple[tf.Tensor, float]:
     """
 
     scale = _compute_kernel_scale(w)
-    u = tf.clip_by_value(tf.round(w * scale), -1, 1)
+    u = torch.clip(torch.round(w * scale), -1, 1)
     return u, scale
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32)], jit_compile=True)
-def _get_x_quantized(x_norm: tf.Tensor) -> tf.Tensor:
+def _get_x_quantized(x_norm: torch.Tensor) -> torch.Tensor:
     """
     Gets the quantized activations, with support for the backward direction by using STE gradient
     bypass.
@@ -91,11 +86,10 @@ def _get_x_quantized(x_norm: tf.Tensor) -> tf.Tensor:
         Quantized activation values.
     """
 
-    return x_norm + tf.stop_gradient(_activations_quantization(x_norm) - x_norm)
+    return x_norm + (_activations_quantization(x_norm) - x_norm).detach()
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32)], jit_compile=True)
-def _get_w_quantized(w: tf.Tensor) -> tf.Tensor:
+def _get_w_quantized(w: torch.Tensor) -> torch.Tensor:
     """
     Gets the quantized kernel matrix, with support for the backward direction by using STE gradient
     bypass.
@@ -109,14 +103,10 @@ def _get_w_quantized(w: tf.Tensor) -> tf.Tensor:
         Quantized kernel matrix.
     """
 
-    return w + tf.stop_gradient(_kernel_quantization_for_training(w) - w)
+    return w + w + (_kernel_quantization_for_training(w) - w).detach()
 
 
-@tf.function(
-    input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32), tf.TensorSpec(shape=None, dtype=tf.float32)],
-    jit_compile=True,
-)
-def _get_quantized_arrays_for_training(x_norm: tf.Tensor, w: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+def _get_quantized_arrays_for_training(x_norm: torch.Tensor, w: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Gets the quantized activation and kernel values for training the model.
 
@@ -134,15 +124,9 @@ def _get_quantized_arrays_for_training(x_norm: tf.Tensor, w: tf.Tensor) -> Tuple
     return x_quantized, w_quantized
 
 
-@tf.function(
-    input_signature=[
-        tf.TensorSpec(shape=None, dtype=tf.float32),
-        tf.TensorSpec(shape=None, dtype=tf.float32),
-        tf.TensorSpec(shape=[], dtype=tf.float32),  # Single float value
-    ],
-    jit_compile=True,
-)
-def _get_quantized_arrays_for_inference(x_norm: tf.Tensor, w: tf.Tensor, w_scale: float) -> Tuple[tf.Tensor, tf.Tensor]:
+def _get_quantized_arrays_for_inference(
+    x_norm: torch.Tensor, w: torch.Tensor, w_scale: float
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Gets the quantized activation and kernel values for inference.
 
@@ -161,24 +145,22 @@ def _get_quantized_arrays_for_inference(x_norm: tf.Tensor, w: tf.Tensor, w_scale
     return x_quantized, w_quantized
 
 
-class TensorflowDenseMML(BaseDenseMML):
+class TorchDenseMML(BaseDenseMML):
     @staticmethod
-    def _activations_quantization(x: tf.Tensor):
+    def _activations_quantization(x: torch.Tensor):
         return _activations_quantization(x)
 
     @staticmethod
-    def _compute_kernel_scale(w: tf.Tensor) -> float:
+    def _compute_kernel_scale(w: torch.Tensor) -> float:
         return _compute_kernel_scale(w)
 
-    @staticmethod
-    def _kernel_quantization_for_training(w: tf.Tensor):
+    def _kernel_quantization_for_training(self, w: torch.Tensor) -> torch.Tensor:
         return _kernel_quantization_for_training(w)
 
-    @staticmethod
-    def _kernel_quantization_for_saving(w: tf.Tensor) -> Tuple[tf.Tensor, float]:
+    def _kernel_quantization_for_saving(self, w: torch.Tensor) -> Tuple[torch.Tensor, float]:
         return _kernel_quantization_for_saving(w)
 
-    def _get_quantized_arrays(self, x_norm: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+    def _get_quantized_arrays(self, x_norm: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         if self._kernel_scale:
             return _get_quantized_arrays_for_inference(x_norm, self._kernel, self._kernel_scale)
         else:

@@ -2,7 +2,7 @@
 Jax implementation of the core algorithm in the matmul-less Dense layer.
 """
 
-from typing import Any, Tuple
+from typing import Tuple
 
 import jax
 import jax.numpy as jnp

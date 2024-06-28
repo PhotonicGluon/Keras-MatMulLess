@@ -12,12 +12,9 @@ if BACKEND == "tensorflow":
 
     backend_class = TensorflowDenseMML
 elif BACKEND == "torch":
-    # from keras_mml.layers.core._dense_impl.torch_dense import TorchDenseMML
+    from keras_mml.layers.core._dense_impl.torch_dense import TorchDenseMML
 
-    # backend_class = TorchDenseMML
-    from keras_mml.layers.core._dense_impl.fallback_dense import FallbackDenseMML
-
-    backend_class = FallbackDenseMML
+    backend_class = TorchDenseMML
 elif BACKEND == "jax":
     from keras_mml.layers.core._dense_impl.jax_dense import JaxDenseMML
 

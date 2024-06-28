@@ -86,6 +86,7 @@
         "tobytes",
         "toctree",
         "typehints",
+        "unsqueeze",
         "usecols",
         "venv",
         "viewcode",
