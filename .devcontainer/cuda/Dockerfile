@@ -48,7 +48,7 @@ ENV CUDA_VERSION 12.2.2
 RUN apt-get update && apt-get install -y --no-install-recommends \
     cuda-cudart-dev-12-2=${NV_CUDA_CUDART_VERSION} \
     ${NV_CUDA_COMPAT_PACKAGE}
-RUN apt-get -o "Acquire::https::Verify-Peer=false" install -y --no-install-recommends \
+RUN apt-get install -y --no-install-recommends \
     cuda-command-line-tools-12-2=${NV_CUDA_LIB_VERSION} \
     cuda-minimal-build-12-2=${NV_CUDA_LIB_VERSION} \
     cuda-libraries-dev-12-2=${NV_CUDA_LIB_VERSION}
