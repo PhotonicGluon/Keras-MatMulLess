@@ -23,7 +23,6 @@ class BaseDenseMML:
         self._kernel: keras.Variable = None  #: Variable storing the kernel matrix.
         self._kernel_scale = None  #: Used for when the layer is loaded from file.
 
-    # Helper methods
     @staticmethod
     def _activations_quantization(x):
         """

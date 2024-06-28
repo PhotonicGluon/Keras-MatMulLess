@@ -26,7 +26,9 @@ elif BACKEND == "jax":
 
     backend_class = JaxDenseMML
 else:
-    raise ImportError(f"Invalid backend '{BACKEND}'")
+    from keras_mml.layers.core._dense_impl.fallback_dense import FallbackDenseMML
+
+    backend_class = FallbackDenseMML
 
 
 class BackendDenseMML(keras.Layer, backend_class):
