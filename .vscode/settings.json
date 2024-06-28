@@ -27,6 +27,7 @@
         "fieldlist",
         "figsize",
         "fillchar",
+        "flatiter",
         "frombuffer",
         "fullname",
         "furo",
