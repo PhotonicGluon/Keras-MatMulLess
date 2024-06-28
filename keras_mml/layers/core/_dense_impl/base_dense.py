@@ -52,7 +52,7 @@ class BaseDenseMML:
 
         raise NotImplementedError
 
-    def _kernel_quantization_for_training(self, w) -> Any:
+    def _kernel_quantization_for_training(self, w):
         """
         Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
 

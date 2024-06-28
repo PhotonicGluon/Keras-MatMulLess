@@ -22,12 +22,9 @@ elif BACKEND == "torch":
 
     backend_class = FallbackDenseMML
 elif BACKEND == "jax":
-    # from keras_mml.layers.core._dense_impl.jax_dense import JaxDenseMML
+    from keras_mml.layers.core._dense_impl.jax_dense import JaxDenseMML
 
-    # backend_class = JaxDenseMML
-    from keras_mml.layers.core._dense_impl.fallback_dense import FallbackDenseMML
-
-    backend_class = FallbackDenseMML
+    backend_class = JaxDenseMML
 else:
     raise ImportError(f"Invalid backend '{BACKEND}'")
 
