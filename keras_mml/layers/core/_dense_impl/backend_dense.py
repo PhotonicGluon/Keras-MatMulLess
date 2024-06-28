@@ -8,12 +8,9 @@ import keras
 BACKEND = keras.config.backend()
 
 if BACKEND == "tensorflow":
-    # from keras_mml.layers.core._dense_impl.tensorflow_dense import TensorflowDenseMML
+    from keras_mml.layers.core._dense_impl.tensorflow_dense import TensorflowDenseMML
 
-    # backend_class = TensorflowDenseMML
-    from keras_mml.layers.core._dense_impl.fallback_dense import FallbackDenseMML
-
-    backend_class = FallbackDenseMML
+    backend_class = TensorflowDenseMML
 elif BACKEND == "torch":
     # from keras_mml.layers.core._dense_impl.torch_dense import TorchDenseMML
 
