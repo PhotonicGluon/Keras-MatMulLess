@@ -142,7 +142,7 @@ class DenseMML(keras.Layer):
             The quantized activation values.
         """
 
-        scale = 127.0 / ops.clip(ops.max(ops.abs(x), axis=-1, keepdims=True), EPSILON, HUGE)
+        scale = 127.0 / ops.expand_dims(ops.clip(ops.max(ops.abs(x), axis=-1), EPSILON, HUGE), -1)
         y = ops.clip(ops.round(x * scale), -128, 127) / scale
         return y
 
