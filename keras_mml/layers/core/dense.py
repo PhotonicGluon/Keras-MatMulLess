@@ -8,6 +8,8 @@ import keras
 import numpy as np
 from einops import asnumpy
 from keras import activations, constraints, initializers, ops, regularizers
+import jax
+import jax.numpy as jnp
 
 from keras_mml.layers.normalizations.rms_norm import RMSNorm
 from keras_mml.utils.array import decode_ternary_array, encode_ternary_array
@@ -142,8 +144,8 @@ class DenseMML(keras.Layer):
             The quantized activation values.
         """
 
-        scale = 127.0 / ops.expand_dims(ops.clip(ops.max(ops.abs(x), axis=-1), EPSILON, HUGE), -1)
-        y = ops.clip(ops.round(x * scale), -128, 127) / scale
+        scale = 127.0 / jnp.expand_dims(jnp.clip(jnp.max(jnp.abs(x), axis=-1), EPSILON, HUGE), -1)
+        y = jnp.clip(jnp.round(x * scale), -128, 127) / scale
         return y
 
     @staticmethod
@@ -158,7 +160,7 @@ class DenseMML(keras.Layer):
             Scale factor.
         """
 
-        return 1.0 / ops.clip(ops.mean(ops.abs(w)), EPSILON, HUGE)
+        return 1.0 / jnp.clip(jnp.mean(jnp.abs(w)), EPSILON, HUGE)
 
     def _kernel_quantization_for_training(self, w) -> Any:
         """
@@ -172,7 +174,7 @@ class DenseMML(keras.Layer):
         """
 
         scale = self._compute_kernel_scale(w)
-        u = ops.clip(ops.round(w * scale), -1, 1)
+        u = jnp.clip(jnp.round(w * scale), -1, 1)
         return u / scale
 
     def _kernel_quantization_for_saving(self, w) -> Tuple[Any, float]:
@@ -188,8 +190,7 @@ class DenseMML(keras.Layer):
         """
 
         scale = self._compute_kernel_scale(w)
-        u = ops.clip(ops.round(w * scale), -1, 1)
-
+        u = jnp.clip(jnp.round(w * scale), -1, 1)
         return u, scale
 
     def _get_quantized_arrays(self, x_norm) -> Tuple[Any, Any]:
@@ -206,14 +207,14 @@ class DenseMML(keras.Layer):
 
         # Get the quantized activations and kernel
         # (We use a Straight-Through Estimator (STE) trick by stopping gradient propagation)
-        x_quantized = x_norm + ops.stop_gradient(self._activations_quantization(x_norm) - x_norm)
+        x_quantized = x_norm + jax.lax.stop_gradient(self._activations_quantization(x_norm) - x_norm)
 
         if self._kernel_scale:
             # Kernel values should have been pre-quantized
             w_quantized = self._kernel / self._kernel_scale
         else:
             w = self._kernel
-            w_quantized = w + ops.stop_gradient(self._kernel_quantization_for_training(w) - w)
+            w_quantized = w + jax.lax.stop_gradient(self._kernel_quantization_for_training(w) - w)
 
         return x_quantized, w_quantized
 
@@ -271,11 +272,11 @@ class DenseMML(keras.Layer):
 
         # Perform kernel operation
         # TODO: Make this more efficient when we are doing inference only
-        x = ops.matmul(x_quantized, w_quantized)  # The `matmul` should just involve addition and subtraction
+        x = jnp.matmul(x_quantized, w_quantized)  # The `matmul` should just involve addition and subtraction
 
         # Then apply bias and activation
         if self._bias is not None:
-            x = ops.add(x, self._bias)
+            x = jnp.add(x, self._bias)
         if self.activation is not None:
             x = self.activation(x)
         return x
