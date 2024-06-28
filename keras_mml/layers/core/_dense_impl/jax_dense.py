@@ -114,7 +114,7 @@ def _get_w_quantized(w: jax.Array) -> jax.Array:
 
 
 @jax.jit
-def _get_quantized_arrays_for_training(x_norm, w):
+def _get_quantized_arrays_for_training(x_norm: jax.Array, w: jax.Array) -> Tuple[jax.Array, jax.Array]:
     """
     Gets the quantized activation and kernel values for training the model.
 
@@ -133,7 +133,7 @@ def _get_quantized_arrays_for_training(x_norm, w):
 
 
 @jax.jit
-def _get_quantized_arrays_for_inference(x_norm, w, w_scale):
+def _get_quantized_arrays_for_inference(x_norm: jax.Array, w: jax.Array, w_scale: float) -> Tuple[jax.Array, jax.Array]:
     """
     Gets the quantized activation and kernel values for inference.
 
@@ -154,22 +154,22 @@ def _get_quantized_arrays_for_inference(x_norm, w, w_scale):
 
 class JaxDenseMML(BaseDenseMML):
     @staticmethod
-    def _activations_quantization(x):
+    def _activations_quantization(x: jax.Array):
         return _activations_quantization(x)
 
     @staticmethod
-    def _compute_kernel_scale(w) -> float:
+    def _compute_kernel_scale(w: jax.Array) -> float:
         return _compute_kernel_scale(w)
 
     @staticmethod
-    def _kernel_quantization_for_training(w):
+    def _kernel_quantization_for_training(w: jax.Array):
         return _kernel_quantization_for_training(w)
 
     @staticmethod
-    def _kernel_quantization_for_saving(w) -> Tuple[Any, float]:
+    def _kernel_quantization_for_saving(w: jax.Array) -> Tuple[jax.Array, float]:
         return _kernel_quantization_for_saving(w)
 
-    def _get_quantized_arrays(self, x_norm) -> Tuple[Any, Any]:
+    def _get_quantized_arrays(self, x_norm: jax.Array) -> Tuple[jax.Array, jax.Array]:
         if self._kernel_scale:
             return _get_quantized_arrays_for_inference(x_norm, self._kernel, self._kernel_scale)
         else:
