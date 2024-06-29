@@ -9,7 +9,7 @@ import tensorflow as tf
 from keras_mml.layers.core._dense_impl.base_dense import EPSILON, HUGE, BaseDenseMML
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32)], jit_compile=True)
+@tf.function(jit_compile=True)
 def _activations_quantization(x: tf.Tensor) -> tf.Tensor:
     """
     Quantizes the activations to 8-bit precision using absmax quantization.
@@ -26,7 +26,7 @@ def _activations_quantization(x: tf.Tensor) -> tf.Tensor:
     return y
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32)], jit_compile=True)
+@tf.function(jit_compile=True)
 def _compute_kernel_scale(w: tf.Tensor) -> float:
     """
     Computes the scale factor of the kernel matrix.
@@ -41,7 +41,7 @@ def _compute_kernel_scale(w: tf.Tensor) -> float:
     return 1.0 / tf.clip_by_value(tf.reduce_mean(tf.abs(w)), EPSILON, HUGE)
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32)], jit_compile=True)
+@tf.function(jit_compile=True)
 def _kernel_quantization_for_training(w: tf.Tensor) -> tf.Tensor:
     """
     Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
@@ -58,7 +58,7 @@ def _kernel_quantization_for_training(w: tf.Tensor) -> tf.Tensor:
     return u / scale
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32)], jit_compile=True)
+@tf.function(jit_compile=True)
 def _kernel_quantization_for_saving(w: tf.Tensor) -> Tuple[tf.Tensor, float]:
     """
     Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
@@ -76,7 +76,7 @@ def _kernel_quantization_for_saving(w: tf.Tensor) -> Tuple[tf.Tensor, float]:
     return u, scale
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32)], jit_compile=True)
+@tf.function(jit_compile=True)
 def _get_x_quantized(x_norm: tf.Tensor) -> tf.Tensor:
     """
     Gets the quantized activations, with support for the backward direction by using STE gradient
@@ -94,7 +94,7 @@ def _get_x_quantized(x_norm: tf.Tensor) -> tf.Tensor:
     return x_norm + tf.stop_gradient(_activations_quantization(x_norm) - x_norm)
 
 
-@tf.function(input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32)], jit_compile=True)
+@tf.function(jit_compile=True)
 def _get_w_quantized(w: tf.Tensor) -> tf.Tensor:
     """
     Gets the quantized kernel matrix, with support for the backward direction by using STE gradient
@@ -112,10 +112,7 @@ def _get_w_quantized(w: tf.Tensor) -> tf.Tensor:
     return w + tf.stop_gradient(_kernel_quantization_for_training(w) - w)
 
 
-@tf.function(
-    input_signature=[tf.TensorSpec(shape=None, dtype=tf.float32), tf.TensorSpec(shape=None, dtype=tf.float32)],
-    jit_compile=True,
-)
+@tf.function(jit_compile=True)
 def _get_quantized_arrays_for_training(x_norm: tf.Tensor, w: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
     """
     Gets the quantized activation and kernel values for training the model.
@@ -134,14 +131,7 @@ def _get_quantized_arrays_for_training(x_norm: tf.Tensor, w: tf.Tensor) -> Tuple
     return x_quantized, w_quantized
 
 
-@tf.function(
-    input_signature=[
-        tf.TensorSpec(shape=None, dtype=tf.float32),
-        tf.TensorSpec(shape=None, dtype=tf.float32),
-        tf.TensorSpec(shape=[], dtype=tf.float32),  # Single float value
-    ],
-    jit_compile=True,
-)
+@tf.function(jit_compile=True)
 def _get_quantized_arrays_for_inference(x_norm: tf.Tensor, w: tf.Tensor, w_scale: float) -> Tuple[tf.Tensor, tf.Tensor]:
     """
     Gets the quantized activation and kernel values for inference.
