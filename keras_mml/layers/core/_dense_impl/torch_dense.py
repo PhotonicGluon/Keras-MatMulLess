@@ -109,7 +109,7 @@ def _get_w_quantized(w: torch.Tensor) -> torch.Tensor:
         Quantized kernel matrix.
     """
 
-    return w + w + (_kernel_quantization_for_training(w) - w).detach()
+    return w + (_kernel_quantization_for_training(w) - w).detach()
 
 
 # @torch.compile(mode="reduce-overhead")

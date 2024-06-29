@@ -245,7 +245,7 @@ class DenseMML(BackendDenseMML):
         try:
             encoded = store["kernel_encoded"][()].tobytes()
             shape = store["kernel_shape"][()]
-            scale = store["kernel_scale"][()]
+            w_scale = store["kernel_scale"][()]
 
             if self.use_bias:
                 bias = store["bias"][()]
@@ -256,6 +256,6 @@ class DenseMML(BackendDenseMML):
 
         # Then recover the weights
         self._kernel.assign(decode_ternary_array(shape, encoded))
-        self._kernel_scale = scale
+        self._kernel_scale = w_scale
 
         self._bias = bias
