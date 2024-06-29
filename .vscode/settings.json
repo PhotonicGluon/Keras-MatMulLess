@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "absmax",
+        "addoption",
         "allclose",
         "arange",
         "asnumpy",
@@ -56,6 +57,7 @@
         "MLGRU",
         "mml",
         "mnist",
+        "modifyitems",
         "modindex",
         "myst",
         "ndarray",
