@@ -87,8 +87,6 @@ class GLUMML(keras.Layer):
         self.intermediate_size = intermediate_size
         self.activation = activations.get(activation)
 
-        self.down_dense = DenseMML(units)  # We will use this layer for $W_d$
-
     # Public methods
     def build(self, input_shape: Tuple[int, ...]):
         """
@@ -108,6 +106,11 @@ class GLUMML(keras.Layer):
 
         self.gate_dense = DenseMML(self.intermediate_size * 2)  # We will use this layer for both $W_g$ and $W_u$
         self.gate_dense.build(input_shape)
+
+        self.down_dense = DenseMML(self.units)  # We will use this layer for $W_d$
+        self.down_dense.build((None, self.intermediate_size))
+
+        self.built = True
 
     def call(self, inputs):
         """
