@@ -35,7 +35,7 @@ class BaseDenseMML:
             The quantized activation values.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @staticmethod
     def _compute_kernel_scale(w) -> float:
@@ -49,7 +49,7 @@ class BaseDenseMML:
             Scale factor.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def _kernel_quantization_for_training(self, w):
         """
@@ -62,7 +62,7 @@ class BaseDenseMML:
             The quantized kernel with the scaling applied.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def _kernel_quantization_for_saving(self, w) -> Tuple[Any, float]:
         """
@@ -76,7 +76,7 @@ class BaseDenseMML:
             applied to the quantized kernel.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def _get_quantized_arrays(self, x_norm) -> Tuple[Any, Any]:
         """
@@ -90,4 +90,4 @@ class BaseDenseMML:
             weight values.
         """
 
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover

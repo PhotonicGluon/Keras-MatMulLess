@@ -73,6 +73,7 @@
         "regularizer",
         "regularizers",
         "relu",
+        "rtol",
         "rtype",
         "seglu",
         "selu",
