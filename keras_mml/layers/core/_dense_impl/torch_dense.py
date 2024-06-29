@@ -9,6 +9,7 @@ import torch
 from keras_mml.layers.core._dense_impl.base_dense import EPSILON, BaseDenseMML
 
 
+@torch.compile(mode="reduce-overhead")
 def _activations_quantization(x: torch.Tensor) -> torch.Tensor:
     """
     Quantizes the activations to 8-bit precision using absmax quantization.
@@ -25,6 +26,7 @@ def _activations_quantization(x: torch.Tensor) -> torch.Tensor:
     return y
 
 
+@torch.compile(mode="reduce-overhead")
 def _compute_kernel_scale(w: torch.Tensor) -> float:
     """
     Computes the scale factor of the kernel matrix.
@@ -39,6 +41,7 @@ def _compute_kernel_scale(w: torch.Tensor) -> float:
     return 1.0 / torch.mean(torch.abs(w)).clamp_(EPSILON)
 
 
+@torch.compile(mode="reduce-overhead")
 def _kernel_quantization_for_training(w: torch.Tensor) -> torch.Tensor:
     """
     Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
@@ -55,6 +58,7 @@ def _kernel_quantization_for_training(w: torch.Tensor) -> torch.Tensor:
     return u / scale
 
 
+@torch.compile(mode="reduce-overhead")
 def _kernel_quantization_for_saving(w: torch.Tensor) -> Tuple[torch.Tensor, float]:
     """
     Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
@@ -72,6 +76,7 @@ def _kernel_quantization_for_saving(w: torch.Tensor) -> Tuple[torch.Tensor, floa
     return u, scale
 
 
+@torch.compile(mode="reduce-overhead")
 def _get_x_quantized(x_norm: torch.Tensor) -> torch.Tensor:
     """
     Gets the quantized activations, with support for the backward direction by using STE gradient
@@ -89,6 +94,7 @@ def _get_x_quantized(x_norm: torch.Tensor) -> torch.Tensor:
     return x_norm + (_activations_quantization(x_norm) - x_norm).detach()
 
 
+@torch.compile(mode="reduce-overhead")
 def _get_w_quantized(w: torch.Tensor) -> torch.Tensor:
     """
     Gets the quantized kernel matrix, with support for the backward direction by using STE gradient
@@ -106,6 +112,7 @@ def _get_w_quantized(w: torch.Tensor) -> torch.Tensor:
     return w + w + (_kernel_quantization_for_training(w) - w).detach()
 
 
+@torch.compile(mode="reduce-overhead")
 def _get_quantized_arrays_for_training(x_norm: torch.Tensor, w: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Gets the quantized activation and kernel values for training the model.
@@ -124,6 +131,7 @@ def _get_quantized_arrays_for_training(x_norm: torch.Tensor, w: torch.Tensor) ->
     return x_quantized, w_quantized
 
 
+@torch.compile(mode="reduce-overhead")
 def _get_quantized_arrays_for_inference(
     x_norm: torch.Tensor, w: torch.Tensor, w_scale: float
 ) -> Tuple[torch.Tensor, torch.Tensor]:
