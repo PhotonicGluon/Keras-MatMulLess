@@ -25,7 +25,7 @@ Matrix multiplication free layers addresses these pain points by removing the ke
 <!-- end rationale -->
 
 ## Installation
-<!-- start installation overview -->
+<!-- start installation -->
 
 For now, the only way to install Keras-MML is via GitHub.
 
@@ -33,10 +33,7 @@ The requirements for the package are:
 
 - Python 3.9 (and above)
 
-<!-- end installation overview -->
-
 ### Installation via GitHub
-<!-- start installation GitHub -->
 
 First, clone the repository using
 
@@ -89,10 +86,7 @@ Note that the `BACKEND_NAME` to be specified here is
 
 That's it! You should now have access to the `keras_mml` package.
 
-<!-- end installation GitHub -->
-
 ### Installation Issues
-<!-- start installation Issues -->
 
 These are some of the known issues faced when installing Keras-MML.
 
@@ -112,7 +106,7 @@ fails with a message like `Unable to find installation candidates for torch (2.3
 pip install torch torchaudio torchvision
 ```
 
-<!-- end installation Issues -->
+<!-- end installation -->
 
 ## Quickstart
 
