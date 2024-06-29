@@ -31,6 +31,7 @@ einops = "~0.8.0"
 
 # Others
 poetry-dynamic-versioning = { extras = ["plugin"], version = "~1.4.0" }
+numba = "~0.60.0"
 
 [tool.poetry.group.dev.dependencies]
 # Tests
@@ -81,17 +82,17 @@ tensorflow = { version = "~2.16.1", extras = ["and-cuda"] }
 optional = true
 
 [tool.poetry.group.torch.dependencies]
-torch = { version = "~2.3.1+cpu", source = "pytorch-cpu" }
-torchvision = { version = "~0.18.1+cpu", source = "pytorch-cpu" }
-torchaudio = { version = "~2.3.1+cpu", source = "pytorch-cpu" }
+torch = { version = "~2.2.2+cpu", source = "pytorch-cpu" }
+torchvision = { version = "~0.17.2+cpu", source = "pytorch-cpu" }
+torchaudio = { version = "~2.2.2+cpu", source = "pytorch-cpu" }
 
 [tool.poetry.group.torch-gpu]
 optional = true
 
 [tool.poetry.group.torch-gpu.dependencies]
-torch = "~2.3.1+cpu"
-torchvision = "~0.18.1+cpu"
-torchaudio = "~2.3.1+cpu"
+torch = "~2.2.2"
+torchvision = "~0.17.2"
+torchaudio = "~2.2.2"
 
 [tool.poetry.group.jax]
 optional = true

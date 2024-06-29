@@ -116,7 +116,17 @@ class TransformerBlockMML(keras.Layer):
             input_shape: Shape of the input.
         """
 
-        super().build(input_shape)
+        self.attention.build(input_shape)
+        intermediate_shape = self.attention.compute_output_shape(input_shape)
+        self.attention_dropout.build(intermediate_shape)
+        self.attention_norm.build(intermediate_shape)
+
+        self.ffn.build(intermediate_shape)
+        intermediate_shape = self.ffn.compute_output_shape(input_shape)
+        self.ffn_dropout.build(intermediate_shape)
+        self.ffn_norm.build(intermediate_shape)
+
+        self.built = True
 
     def call(self, inputs):
         """
@@ -137,3 +147,18 @@ class TransformerBlockMML(keras.Layer):
         ffn_output = self.ffn_dropout(ffn_output)
         ffn_output = self.ffn_norm(attention_output + ffn_output)
         return ffn_output
+
+    def compute_output_shape(self, input_shape: Tuple[int, int, int]) -> Tuple[int, int, int]:
+        """
+        Computes the output shape of the layer.
+
+        Args:
+            input_shape: Shape of the input into the layer.
+
+        Returns:
+            Shape of the output.
+        """
+
+        input_shape = list(input_shape)
+        input_shape[-1] = self.embedding_dim
+        return tuple(input_shape)
