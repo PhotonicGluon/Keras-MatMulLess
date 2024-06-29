@@ -100,10 +100,10 @@ Attempting to install the `torch` backend using
 poetry install --with torch
 ```
 
-fails with a message like `Unable to find installation candidates for torch (2.2.2+cpu)`. To remedy, run
+fails with a message like `Unable to find installation candidates for torch (2.3.1+cpu)`. To remedy, run
 
 ```bash
-pip install torch~=2.2.2 torchvision~=0.17.2 torchaudio~=2.2.2
+pip install torch torchaudio torchvision
 ```
 
 <!-- end installation -->

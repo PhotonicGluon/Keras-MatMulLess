@@ -101,16 +101,3 @@ class AttentionMML(keras.Layer):
         """
 
         return self.internal_layer(inputs)
-
-    def compute_output_shape(self, input_shape: Tuple[int, int, int]) -> Tuple[int, int, int]:
-        """
-        Computes the output shape of the layer.
-
-        Args:
-            input_shape: Shape of the input into the layer.
-
-        Returns:
-            Shape of the output.
-        """
-
-        return self.internal_layer.compute_output_shape(input_shape)

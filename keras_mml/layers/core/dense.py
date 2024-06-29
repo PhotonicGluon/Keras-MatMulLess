@@ -2,14 +2,13 @@
 Implements a matmul-less Dense layer.
 """
 
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 import keras
 import numpy as np
 from einops import asnumpy
 from keras import activations, constraints, initializers, ops, regularizers
 
-from keras_mml.layers.core._dense_impl.backend_dense import BackendDenseMML
 from keras_mml.layers.normalizations.rms_norm import RMSNorm
 from keras_mml.utils.array import decode_ternary_array, encode_ternary_array
 
@@ -18,7 +17,7 @@ HUGE = 1e9
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
-class DenseMML(BackendDenseMML):
+class DenseMML(keras.Layer):
     """
     Dense layer without matrix multiplications.
 
@@ -130,6 +129,70 @@ class DenseMML(BackendDenseMML):
 
         self._kernel_scale = None  # Used for when the layer is loaded from file
 
+    # Helper methods
+    @staticmethod
+    def _activations_quantization(x):
+        """
+        Quantizes the activations to 8-bit precision using absmax quantization.
+
+        Args:
+            x: Array of quantization values.
+
+        Returns:
+            The quantized activation values.
+        """
+
+        scale = 127.0 / ops.clip(ops.max(ops.abs(x), axis=-1, keepdims=True), EPSILON, HUGE)
+        y = ops.clip(ops.round(x * scale), -128, 127) / scale
+        return y
+
+    @staticmethod
+    def _kernel_quantization(w, for_saving: bool = False) -> Union[Any, Tuple[Any, float]]:
+        """
+        Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
+
+        Args:
+            w: Kernel matrix.
+            for_saving: Whether this should output values in preparation for saving.
+
+        Returns:
+            The quantized kernel with the scaling applied. If the quantization is for saving, then
+            both the quantized kernel and the scale will be returned, with the scale **not**
+            applied to the quantized kernel.
+        """
+
+        scale = 1.0 / ops.clip(ops.mean(ops.abs(w)), EPSILON, HUGE)
+        u = ops.clip(ops.round(w * scale), -1, 1)
+
+        if for_saving:
+            return u, scale
+        return u / scale
+
+    def _get_quantized_arrays(self, x_norm) -> Tuple[Any, Any]:
+        """
+        Gets the quantized activation and kernel values.
+
+        Args:
+            x_norm: Normalized activation values.
+
+        Returns:
+            A tuple. The first value is the quantized activation values. The second is the quantized
+            kernel values.
+        """
+
+        # Get the quantized activations and kernel
+        # (We use a Straight-Through Estimator (STE) trick by stopping gradient propagation)
+        x_quantized = x_norm + ops.stop_gradient(self._activations_quantization(x_norm) - x_norm)
+
+        if self._kernel_scale:
+            # Kernel values should have been pre-quantized
+            w_quantized = self._kernel / self._kernel_scale
+        else:
+            w = self._kernel
+            w_quantized = w + ops.stop_gradient(self._kernel_quantization(w) - w)
+
+        return x_quantized, w_quantized
+
     # Public methods
     def build(self, input_shape: Tuple[int, ...]):
         """
@@ -217,7 +280,7 @@ class DenseMML(BackendDenseMML):
         """
 
         # Pre-quantize the kernel values
-        w_quantized, w_scale = self._kernel_quantization_for_saving(self._kernel)
+        w_quantized, w_scale = self._kernel_quantization(self._kernel, for_saving=True)
 
         # Encode the ternary array efficiently
         shape, encoded = encode_ternary_array(asnumpy(w_quantized))
@@ -245,7 +308,7 @@ class DenseMML(BackendDenseMML):
         try:
             encoded = store["kernel_encoded"][()].tobytes()
             shape = store["kernel_shape"][()]
-            w_scale = store["kernel_scale"][()]
+            scale = store["kernel_scale"][()]
 
             if self.use_bias:
                 bias = store["bias"][()]
@@ -256,6 +319,6 @@ class DenseMML(BackendDenseMML):
 
         # Then recover the weights
         self._kernel.assign(decode_ternary_array(shape, encoded))
-        self._kernel_scale = w_scale
+        self._kernel_scale = scale
 
         self._bias = bias

@@ -95,11 +95,11 @@ class TokenEmbedding(keras.layers.Layer):
             input_shape: Shape of the input.
         """
 
+        super().build(input_shape)
+
         self.token_embedding.build(input_shape)
         if self.pos_embedding is not None:
             self.pos_embedding.build(input_shape)
-
-        self.built = True
 
     def call(self, inputs):
         """
