@@ -105,3 +105,28 @@ def test_training():
     # Fit the model
     model.compile(loss="mse", optimizer="adam")
     model.fit(x, y, verbose=0)
+
+
+def test_hidden_calls():
+    layer = DenseMML(4)
+
+    # _activations_quantization()
+    x = np.array([-1.23, 0.12, 4.56, 12.35, 34.324])
+    predicted = layer._activations_quantization(ops.array(x))
+    predicted = asnumpy(predicted)
+    correct = np.array([-1.3513, 0.0000, 4.5946, 12.4323, 34.3240])
+    assert np.allclose(predicted, correct, rtol=1e-3)
+
+    # _compute_kernel_scale()
+    x = np.array([[-1.23, 0.12, 4.56, 2.3, -5.34]])
+    predicted = layer._compute_kernel_scale(ops.array(x))
+    predicted = asnumpy(predicted)
+    correct = 0.36900369
+    assert np.isclose(predicted, correct)
+
+    # _kernel_quantization_for_training()
+    x = np.array([[-1.23, 0.12, 4.56, 2.3, -5.34]])
+    predicted = layer._kernel_quantization_for_training(ops.array(x))
+    predicted = asnumpy(predicted)
+    correct = np.array([[-0.0, 0.0, 2.71, 2.71, -2.71]])
+    assert np.allclose(predicted, correct)
