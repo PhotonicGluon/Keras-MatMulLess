@@ -129,6 +129,21 @@ class GLUMML(keras.Layer):
         d = self.down_dense(p)
         return d
 
+    def compute_output_shape(self, input_shape: Tuple[int, ...]) -> Tuple[int, ...]:
+        """
+        Computes the output shape of the layer.
+
+        Args:
+            input_shape: Shape of the input into the layer.
+
+        Returns:
+            Shape of the output.
+        """
+
+        input_shape = list(input_shape)
+        input_shape[-1] = self.units
+        return tuple(input_shape)
+
     def get_config(self) -> Dict[str, Any]:
         """
         Gets the configuration for the layer.

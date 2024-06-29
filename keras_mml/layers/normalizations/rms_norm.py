@@ -19,7 +19,7 @@ class RMSNorm(keras.Layer):
         :class: tip
 
         - **Input Shape**: ``(batch_size, d1, ..., dn)``, i.e., allows any shape.
-        - **Output Shape**: ``(batch_size, d1, ..., units)``
+        - **Output Shape**: ``(batch_size, d1, ..., dn)``
 
     Attributes:
         has_learnable_weights: Whether the layer has learnable per-element affine parameters.
