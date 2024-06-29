@@ -53,3 +53,20 @@ def test_invalid_arguments():
 
     with pytest.raises(ValueError):
         AttentionMML(num_heads=2, out_dim=-1)
+
+
+def test_training():
+    # Dataset is just a sequence of known numbers
+    x = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+    y = np.copy(x)
+    x = rearrange(x, "b (h w) -> b h w", w=1)
+
+    # Create the simple model
+    model = models.Sequential()
+    model.add(layers.Input((1, 1)))
+    model.add(AttentionMML(num_heads=2, out_dim=4))
+    model.add(layers.Dense(1))
+
+    # Fit the model
+    model.compile(loss="mse", optimizer="adam")
+    model.fit(x, y, verbose=0)

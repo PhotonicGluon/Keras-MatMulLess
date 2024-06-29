@@ -3,7 +3,7 @@ import tempfile
 
 import numpy as np
 import pytest
-from einops import asnumpy
+from einops import asnumpy, rearrange
 from keras import backend, layers, models, ops
 
 from keras_mml.layers import TokenEmbedding
@@ -69,3 +69,18 @@ def test_invalid_arguments():
 
     with pytest.raises(ValueError):
         TokenEmbedding(max_len=2, vocab_size=2, embedding_dim=-1)
+
+
+def test_training():
+    # Dataset is just a sequence of known numbers
+    x = np.array([[1, 2, 3], [0, 1, 2]])
+    y = np.array([[[1, 1], [2, 2], [3, 3]], [[0, 0], [1, 1], [2, 2]]])
+
+    # Create the simple model
+    model = models.Sequential()
+    model.add(layers.Input((3,)))
+    model.add(TokenEmbedding(max_len=5, vocab_size=4, embedding_dim=2))
+
+    # Fit the model
+    model.compile(loss="mse", optimizer="adam")
+    model.fit(x, y, verbose=0)

@@ -78,3 +78,20 @@ def test_invalid_arguments():
     # Number of heads do not divide units
     with pytest.raises(ValueError):
         GRUMML(4, num_heads=3)
+
+
+def test_training():
+    # Dataset is just a sequence of known numbers
+    x = np.array([1, 2, 3, 4, 5])
+    x = rearrange(x, "(b t f) -> b t f", t=1, f=1)
+    y = rearrange(x, "b t f -> b (t f)")
+
+    # Create the simple model
+    model = models.Sequential()
+    model.add(layers.Input((1, 1)))
+    model.add(GRUMML(3))
+    model.add(layers.Dense(1))
+
+    # Fit the model
+    model.compile(loss="mse", optimizer="adam")
+    model.fit(x, y, verbose=0)

@@ -66,3 +66,20 @@ def test_invalid_arguments():
     # Embedding dimension not divisible by number of heads
     with pytest.raises(ValueError):
         TransformerBlockMML(embedding_dim=3, ffn_dim=2, num_heads=2)
+
+
+def test_training():
+    # Dataset is just a sequence of known numbers
+    x = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+    x = rearrange(x, "b (w e) -> b w e", e=2)
+    y = np.copy(x)
+
+    # Create the simple model
+    model = models.Sequential()
+    model.add(layers.Input((3, 2)))
+    model.add(TransformerBlockMML(embedding_dim=2, ffn_dim=4, num_heads=2))
+    model.add(layers.Dense(1))
+
+    # Fit the model
+    model.compile(loss="mse", optimizer="adam")
+    model.fit(x, y, verbose=0)
