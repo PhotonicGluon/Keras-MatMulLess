@@ -91,6 +91,29 @@ That's it! You should now have access to the `keras_mml` package.
 
 <!-- end installation GitHub -->
 
+### Installation Issues
+<!-- start installation Issues -->
+
+These are some of the known issues faced when installing Keras-MML.
+
+#### Development Installation With `torch` Backend
+
+*This is a known issue when installing Keras-MML with `dev` and `torch` on **AArch64** (i.e., **ARM64**) systems.*
+
+Attempting to install the `torch` backend using
+
+```bash
+poetry install --with torch
+```
+
+fails with a message like `Unable to find installation candidates for torch (2.3.1+cpu)`. To remedy, run
+
+```bash
+pip install torch torchaudio torchvision
+```
+
+<!-- end installation Issues -->
+
 ## Quickstart
 
 Read the [tutorial](https://keras-matmulless.readthedocs.io/en/latest/getting-started/tutorial.html).

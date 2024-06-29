@@ -78,6 +78,8 @@
         "timesteps",
         "tobytes",
         "toctree",
+        "torchaudio",
+        "torchvision",
         "typehints",
         "usecols",
         "venv",
