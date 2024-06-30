@@ -9,7 +9,7 @@ import tensorflow as tf
 from keras_mml.layers.core._dense_impl.base_dense import EPSILON, HUGE, BaseDenseMML
 
 
-@tf.function(jit_compile=True)
+# @tf.function(jit_compile=True)
 def _activations_quantization(x: tf.Tensor) -> tf.Tensor:
     """
     Quantizes the activations to 8-bit precision using absmax quantization.
@@ -26,7 +26,7 @@ def _activations_quantization(x: tf.Tensor) -> tf.Tensor:
     return y
 
 
-@tf.function(jit_compile=True)
+# @tf.function(jit_compile=True)
 def _compute_kernel_scale(w: tf.Tensor) -> float:
     """
     Computes the scale factor of the kernel matrix.
@@ -57,7 +57,7 @@ def _quantize_kernel(w: tf.Tensor, scale: float) -> tf.Tensor:
     return tf.clip_by_value(tf.round(w * scale), -1, 1)
 
 
-@tf.function(jit_compile=True)
+# @tf.function(jit_compile=True)
 def _get_x_quantized(x_norm: tf.Tensor) -> tf.Tensor:
     """
     Gets the quantized activations, with support for the backward direction by using STE gradient
@@ -94,7 +94,7 @@ def _get_w_quantized(w: tf.Tensor) -> tf.Tensor:
     return w + tf.stop_gradient(_quantize_kernel(w, scale) / scale - w)
 
 
-@tf.function(jit_compile=True)
+# @tf.function(jit_compile=True)
 def _get_quantized_arrays_for_training(x_norm: tf.Tensor, w: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
     """
     Gets the quantized activation and kernel values for training the model.
@@ -113,7 +113,7 @@ def _get_quantized_arrays_for_training(x_norm: tf.Tensor, w: tf.Tensor) -> Tuple
     return x_quantized, w_quantized
 
 
-@tf.function(jit_compile=True)
+# @tf.function(jit_compile=True)
 def _get_quantized_arrays_for_inference(x_norm: tf.Tensor, w: tf.Tensor, w_scale: float) -> Tuple[tf.Tensor, tf.Tensor]:
     """
     Gets the quantized activation and kernel values.
