@@ -24,20 +24,6 @@ class BaseDenseMML:
         self._kernel_scale = None  #: Used for when the layer is loaded from file.
 
     @staticmethod
-    def _activations_quantization(x):
-        """
-        Quantizes the activations to 8-bit precision using absmax quantization.
-
-        Args:
-            x: Array of quantization values.
-
-        Returns:
-            The quantized activation values.
-        """
-
-        raise NotImplementedError  # pragma: no cover
-
-    @staticmethod
     def _compute_kernel_scale(w) -> float:
         """
         Computes the scale factor of the kernel matrix.
@@ -51,29 +37,17 @@ class BaseDenseMML:
 
         raise NotImplementedError  # pragma: no cover
 
-    def _kernel_quantization_for_training(self, w):
+    @staticmethod
+    def _quantize_kernel(w, scale: float):
         """
         Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
 
         Args:
             w: Kernel matrix.
+            scale: Scaling factor.
 
         Returns:
-            The quantized kernel with the scaling applied.
-        """
-
-        raise NotImplementedError  # pragma: no cover
-
-    def _kernel_quantization_for_saving(self, w) -> Tuple[Any, float]:
-        """
-        Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
-
-        Args:
-            w: Kernel matrix.
-
-        Returns:
-            Both the quantized kernel and the scale will be returned, with the scale **not**
-            applied to the quantized kernel.
+            The quantized kernel without scaling applied.
         """
 
         raise NotImplementedError  # pragma: no cover

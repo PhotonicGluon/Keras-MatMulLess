@@ -217,7 +217,8 @@ class DenseMML(BackendDenseMML):
         """
 
         # Pre-quantize the kernel values
-        w_quantized, w_scale = self._kernel_quantization_for_saving(self._kernel)
+        w_scale = self._compute_kernel_scale(self._kernel)
+        w_quantized = self._quantize_kernel(self._kernel, w_scale)
 
         # Encode the ternary array efficiently
         shape, encoded = encode_ternary_array(asnumpy(w_quantized))

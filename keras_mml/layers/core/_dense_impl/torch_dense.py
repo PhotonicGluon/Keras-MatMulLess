@@ -42,38 +42,19 @@ def _compute_kernel_scale(w: torch.Tensor) -> float:
 
 
 # @torch.compile(mode="reduce-overhead")
-def _kernel_quantization_for_training(w: torch.Tensor) -> torch.Tensor:
+def _quantize_kernel(w: torch.Tensor, scale: float) -> torch.Tensor:
     """
     Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
 
     Args:
         w: Kernel matrix.
+        scale: Scaling factor.
 
     Returns:
-        The quantized kernel with the scaling applied.
+        The quantized kernel without scaling applied.
     """
 
-    scale = _compute_kernel_scale(w)
-    u = torch.clip(torch.round(w * scale), -1, 1)
-    return u / scale
-
-
-# @torch.compile(mode="reduce-overhead")
-def _kernel_quantization_for_saving(w: torch.Tensor) -> Tuple[torch.Tensor, float]:
-    """
-    Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
-
-    Args:
-        w: Kernel matrix.
-
-    Returns:
-        Both the quantized kernel and the scale will be returned, with the scale **not** applied to
-        the quantized kernel.
-    """
-
-    scale = _compute_kernel_scale(w)
-    u = torch.clip(torch.round(w * scale), -1, 1)
-    return u, scale
+    return torch.clip(torch.round(w * scale), -1, 1)
 
 
 # @torch.compile(mode="reduce-overhead")
@@ -109,7 +90,8 @@ def _get_w_quantized(w: torch.Tensor) -> torch.Tensor:
         Quantized kernel matrix.
     """
 
-    return w + (_kernel_quantization_for_training(w) - w).detach()
+    scale = _compute_kernel_scale(w)
+    return w + (_quantize_kernel(w, scale) / scale - w).detach()
 
 
 # @torch.compile(mode="reduce-overhead")
@@ -136,7 +118,7 @@ def _get_quantized_arrays_for_inference(
     x_norm: torch.Tensor, w: torch.Tensor, w_scale: float
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """
-    Gets the quantized activation and kernel values for inference.
+    Gets the quantized activation and kernel values.
 
     Args:
         x_norm: Normalized activation values.
@@ -155,21 +137,15 @@ def _get_quantized_arrays_for_inference(
 
 class TorchDenseMML(BaseDenseMML):
     @staticmethod
-    def _activations_quantization(x: torch.Tensor):
-        return _activations_quantization(x)
-
-    @staticmethod
     def _compute_kernel_scale(w: torch.Tensor) -> float:
         return _compute_kernel_scale(w)
 
-    def _kernel_quantization_for_training(self, w: torch.Tensor) -> torch.Tensor:
-        return _kernel_quantization_for_training(w)
-
-    def _kernel_quantization_for_saving(self, w: torch.Tensor) -> Tuple[torch.Tensor, float]:
-        return _kernel_quantization_for_saving(w)
+    @staticmethod
+    def _quantize_kernel(w: torch.Tensor, scale: float) -> torch.Tensor:
+        return _quantize_kernel(w, scale)
 
     def _get_quantized_arrays(self, x_norm: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
         if self._kernel_scale:
-            return _get_quantized_arrays_for_inference(x_norm, self._kernel, self._kernel_scale)
+            return _get_quantized_arrays_for_inference(x_norm, self._kernel.value, self._kernel_scale)
         else:
-            return _get_quantized_arrays_for_training(x_norm, self._kernel)
+            return _get_quantized_arrays_for_training(x_norm, self._kernel.value)

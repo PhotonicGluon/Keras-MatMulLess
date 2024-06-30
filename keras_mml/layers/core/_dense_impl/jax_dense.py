@@ -43,38 +43,19 @@ def _compute_kernel_scale(w: jax.Array) -> float:
 
 
 @jax.jit
-def _kernel_quantization_for_training(w: jax.Array) -> jax.Array:
+def _quantize_kernel(w: jax.Array, scale: float) -> jax.Array:
     """
     Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
 
     Args:
         w: Kernel matrix.
+        scale: Scaling factor.
 
     Returns:
-        The quantized kernel with the scaling applied.
+        The quantized kernel without scaling applied.
     """
 
-    scale = _compute_kernel_scale(w)
-    u = jnp.clip(jnp.round(w * scale), -1, 1)
-    return u / scale
-
-
-@jax.jit
-def _kernel_quantization_for_saving(w: jax.Array) -> Tuple[jax.Array, float]:
-    """
-    Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
-
-    Args:
-        w: Kernel matrix.
-
-    Returns:
-        Both the quantized kernel and the scale will be returned, with the scale **not** applied to
-        the quantized kernel.
-    """
-
-    scale = _compute_kernel_scale(w)
-    u = jnp.clip(jnp.round(w * scale), -1, 1)
-    return u, scale
+    return jnp.clip(jnp.round(w * scale), -1, 1)
 
 
 @jax.jit
@@ -110,7 +91,8 @@ def _get_w_quantized(w: jax.Array) -> jax.Array:
         Quantized kernel matrix.
     """
 
-    return w + jax.lax.stop_gradient(_kernel_quantization_for_training(w) - w)
+    scale = _compute_kernel_scale(w)
+    return w + jax.lax.stop_gradient(_quantize_kernel(w, scale) / scale - w)
 
 
 @jax.jit
@@ -135,7 +117,7 @@ def _get_quantized_arrays_for_training(x_norm: jax.Array, w: jax.Array) -> Tuple
 @jax.jit
 def _get_quantized_arrays_for_inference(x_norm: jax.Array, w: jax.Array, w_scale: float) -> Tuple[jax.Array, jax.Array]:
     """
-    Gets the quantized activation and kernel values for inference.
+    Gets the quantized activation and kernel values.
 
     Args:
         x_norm: Normalized activation values.
@@ -154,23 +136,15 @@ def _get_quantized_arrays_for_inference(x_norm: jax.Array, w: jax.Array, w_scale
 
 class JaxDenseMML(BaseDenseMML):
     @staticmethod
-    def _activations_quantization(x: jax.Array):
-        return _activations_quantization(x)
-
-    @staticmethod
     def _compute_kernel_scale(w: jax.Array) -> float:
         return _compute_kernel_scale(w)
 
     @staticmethod
-    def _kernel_quantization_for_training(w: jax.Array):
-        return _kernel_quantization_for_training(w)
-
-    @staticmethod
-    def _kernel_quantization_for_saving(w: jax.Array) -> Tuple[jax.Array, float]:
-        return _kernel_quantization_for_saving(w)
+    def _quantize_kernel(w: jax.Array, scale: float) -> jax.Array:
+        return _quantize_kernel(w, scale)
 
     def _get_quantized_arrays(self, x_norm: jax.Array) -> Tuple[jax.Array, jax.Array]:
         if self._kernel_scale:
-            return _get_quantized_arrays_for_inference(x_norm, self._kernel, self._kernel_scale)
+            return _get_quantized_arrays_for_inference(x_norm, self._kernel.value, self._kernel_scale)
         else:
-            return _get_quantized_arrays_for_training(x_norm, self._kernel)
+            return _get_quantized_arrays_for_training(x_norm, self._kernel.value)

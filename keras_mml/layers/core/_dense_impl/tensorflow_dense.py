@@ -42,38 +42,19 @@ def _compute_kernel_scale(w: tf.Tensor) -> float:
 
 
 # @tf.function(jit_compile=True)  # FIXME: Why does it break when in `TransformerBlockMML`?
-def _kernel_quantization_for_training(w: tf.Tensor) -> tf.Tensor:
+def _quantize_kernel(w: tf.Tensor, scale: float) -> tf.Tensor:
     """
     Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
 
     Args:
         w: Kernel matrix.
+        scale: Scaling factor.
 
     Returns:
-        The quantized kernel with the scaling applied.
+        The quantized kernel without scaling applied.
     """
 
-    scale = _compute_kernel_scale(w)
-    u = tf.clip_by_value(tf.round(w * scale), -1, 1)
-    return u / scale
-
-
-# @tf.function(jit_compile=True)
-def _kernel_quantization_for_saving(w: tf.Tensor) -> Tuple[tf.Tensor, float]:
-    """
-    Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
-
-    Args:
-        w: Kernel matrix.
-
-    Returns:
-        Both the quantized kernel and the scale will be returned, with the scale **not** applied to
-        the quantized kernel.
-    """
-
-    scale = _compute_kernel_scale(w)
-    u = tf.clip_by_value(tf.round(w * scale), -1, 1)
-    return u, scale
+    return tf.clip_by_value(tf.round(w * scale), -1, 1)
 
 
 @tf.function(jit_compile=True)
@@ -109,7 +90,8 @@ def _get_w_quantized(w: tf.Tensor) -> tf.Tensor:
         Quantized kernel matrix.
     """
 
-    return w + tf.stop_gradient(_kernel_quantization_for_training(w) - w)
+    scale = _compute_kernel_scale(w)
+    return w + tf.stop_gradient(_quantize_kernel(w, scale) / scale - w)
 
 
 @tf.function(jit_compile=True)
@@ -134,7 +116,7 @@ def _get_quantized_arrays_for_training(x_norm: tf.Tensor, w: tf.Tensor) -> Tuple
 @tf.function(jit_compile=True)
 def _get_quantized_arrays_for_inference(x_norm: tf.Tensor, w: tf.Tensor, w_scale: float) -> Tuple[tf.Tensor, tf.Tensor]:
     """
-    Gets the quantized activation and kernel values for inference.
+    Gets the quantized activation and kernel values.
 
     Args:
         x_norm: Normalized activation values.
@@ -153,20 +135,12 @@ def _get_quantized_arrays_for_inference(x_norm: tf.Tensor, w: tf.Tensor, w_scale
 
 class TensorflowDenseMML(BaseDenseMML):
     @staticmethod
-    def _activations_quantization(x: tf.Tensor):
-        return _activations_quantization(x)
-
-    @staticmethod
     def _compute_kernel_scale(w: tf.Tensor) -> float:
         return _compute_kernel_scale(w)
 
     @staticmethod
-    def _kernel_quantization_for_training(w: tf.Tensor):
-        return _kernel_quantization_for_training(w)
-
-    @staticmethod
-    def _kernel_quantization_for_saving(w: tf.Tensor) -> Tuple[tf.Tensor, float]:
-        return _kernel_quantization_for_saving(w)
+    def _quantize_kernel(w: tf.Tensor, scale: float) -> tf.Tensor:
+        return _quantize_kernel(w, scale)
 
     def _get_quantized_arrays(self, x_norm: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
         if self._kernel_scale:
