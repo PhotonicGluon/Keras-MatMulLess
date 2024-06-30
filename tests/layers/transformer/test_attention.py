@@ -63,9 +63,10 @@ def test_training():
 
     # Create the simple model
     model = models.Sequential()
-    model.add(layers.Input((1, 1)))
+    model.add(layers.Input((3, 1)))
     model.add(AttentionMML(num_heads=2, out_dim=4))
-    model.add(layers.Dense(1))
+    model.add(layers.GlobalMaxPooling1D())
+    model.add(layers.Dense(3))
 
     # Fit the model
     model.compile(loss="mse", optimizer="adam")

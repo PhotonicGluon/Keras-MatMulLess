@@ -76,7 +76,7 @@ def test_training():
 
     # Create the simple model
     model = models.Sequential()
-    model.add(layers.Input((3, 2)))
+    model.add(layers.Input((1, 2)))
     model.add(TransformerBlockMML(embedding_dim=2, ffn_dim=4, num_heads=2))
     model.add(layers.Dense(1))
 
