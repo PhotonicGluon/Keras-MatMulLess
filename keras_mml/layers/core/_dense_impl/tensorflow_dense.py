@@ -41,7 +41,7 @@ def _compute_kernel_scale(w: tf.Tensor) -> float:
     return 1.0 / tf.clip_by_value(tf.reduce_mean(tf.abs(w)), EPSILON, HUGE)
 
 
-@tf.function(jit_compile=True)
+# @tf.function(jit_compile=True)  # FIXME: Why does it break when in `TransformerBlockMML`?
 def _kernel_quantization_for_training(w: tf.Tensor) -> tf.Tensor:
     """
     Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
@@ -58,7 +58,7 @@ def _kernel_quantization_for_training(w: tf.Tensor) -> tf.Tensor:
     return u / scale
 
 
-@tf.function(jit_compile=True)
+# @tf.function(jit_compile=True)
 def _kernel_quantization_for_saving(w: tf.Tensor) -> Tuple[tf.Tensor, float]:
     """
     Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
@@ -94,7 +94,7 @@ def _get_x_quantized(x_norm: tf.Tensor) -> tf.Tensor:
     return x_norm + tf.stop_gradient(_activations_quantization(x_norm) - x_norm)
 
 
-@tf.function(jit_compile=True)
+# @tf.function(jit_compile=True)
 def _get_w_quantized(w: tf.Tensor) -> tf.Tensor:
     """
     Gets the quantized kernel matrix, with support for the backward direction by using STE gradient
@@ -170,6 +170,6 @@ class TensorflowDenseMML(BaseDenseMML):
 
     def _get_quantized_arrays(self, x_norm: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
         if self._kernel_scale:
-            return _get_quantized_arrays_for_inference(x_norm, self._kernel, self._kernel_scale)
+            return _get_quantized_arrays_for_inference(x_norm, self._kernel.value, self._kernel_scale)
         else:
-            return _get_quantized_arrays_for_training(x_norm, self._kernel)
+            return _get_quantized_arrays_for_training(x_norm, self._kernel.value)
