@@ -9,7 +9,7 @@ import tensorflow as tf
 from keras_mml.layers.core._dense_impl.base_dense import EPSILON, HUGE, BaseDenseMML
 
 
-# @tf.function(jit_compile=True)
+@tf.function(jit_compile=True)
 def _activations_quantization(x: tf.Tensor) -> tf.Tensor:
     """
     Quantizes the activations to 8-bit precision using absmax quantization.
@@ -26,7 +26,7 @@ def _activations_quantization(x: tf.Tensor) -> tf.Tensor:
     return y
 
 
-# @tf.function(jit_compile=True)
+@tf.function(jit_compile=True)
 def _compute_kernel_scale(w: tf.Tensor) -> float:
     """
     Computes the scale factor of the kernel matrix.
@@ -41,7 +41,7 @@ def _compute_kernel_scale(w: tf.Tensor) -> float:
     return 1.0 / tf.clip_by_value(tf.reduce_mean(tf.abs(w)), EPSILON, HUGE)
 
 
-# @tf.function(jit_compile=True)
+@tf.function(jit_compile=True)
 def _quantize_kernel(w: tf.Tensor, scale: float) -> tf.Tensor:
     """
     Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
@@ -57,7 +57,7 @@ def _quantize_kernel(w: tf.Tensor, scale: float) -> tf.Tensor:
     return tf.clip_by_value(tf.round(w * scale), -1, 1)
 
 
-# @tf.function(jit_compile=True)
+@tf.function(jit_compile=True)
 def _get_x_quantized(x_norm: tf.Tensor) -> tf.Tensor:
     """
     Gets the quantized activations, with support for the backward direction by using STE gradient
@@ -75,6 +75,7 @@ def _get_x_quantized(x_norm: tf.Tensor) -> tf.Tensor:
     return x_norm + tf.stop_gradient(_activations_quantization(x_norm) - x_norm)
 
 
+# FIXME: Somehow `TransformerMML` just doesn't work with the `tf.function` decorator enabled... why?
 # @tf.function(jit_compile=True)
 def _get_w_quantized(w: tf.Tensor, scale: float) -> tf.Tensor:
     """
