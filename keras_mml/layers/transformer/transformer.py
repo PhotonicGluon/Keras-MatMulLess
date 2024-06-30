@@ -122,7 +122,7 @@ class TransformerBlockMML(keras.Layer):
         self.attention_norm.build(intermediate_shape)
 
         self.ffn.build(intermediate_shape)
-        intermediate_shape = self.ffn.compute_output_shape(input_shape)
+        intermediate_shape = self.ffn.compute_output_shape(intermediate_shape)
         self.ffn_dropout.build(intermediate_shape)
         self.ffn_norm.build(intermediate_shape)
 
