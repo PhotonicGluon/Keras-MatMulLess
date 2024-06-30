@@ -109,3 +109,10 @@ class TensorflowDenseMML(BaseDenseMML):
         else:
             scale = _compute_kernel_scale(self._kernel.value)
             return _get_x_quantized(x_norm), _get_w_quantized(self._kernel.value, scale), scale
+
+    @staticmethod
+    def _ternary_multiplication(x_quantized: tf.Tensor, w_quantized: tf.Tensor, w_scale: float) -> tf.Tensor:
+        # TODO: Optimize
+        return tf.matmul(
+            x_quantized, w_quantized / w_scale
+        )  # The `matmul` should just involve addition and subtraction

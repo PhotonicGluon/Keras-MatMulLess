@@ -68,7 +68,7 @@ class BaseDenseMML:
         raise NotImplementedError  # pragma: no cover
 
     @staticmethod
-    def _ternary_multiplication(x_quantized, w_quantized, w_scale):
+    def _ternary_multiplication(x_quantized, w_quantized, w_scale: float) -> Any:
         """
         Applies the ternary multiplication algorithm.
 
