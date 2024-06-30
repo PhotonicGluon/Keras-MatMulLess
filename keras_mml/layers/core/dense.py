@@ -180,11 +180,10 @@ class DenseMML(BackendDenseMML):
         x_norm = self.activation_norm(inputs)
 
         # Get the quantized arrays
-        x_quantized, w_quantized = self._get_quantized_arrays(x_norm)
+        x_quantized, w_quantized, w_scale = self._get_quantized_arrays(x_norm)
 
-        # Perform kernel operation
-        # TODO: Make this more efficient when we are doing inference only
-        x = ops.matmul(x_quantized, w_quantized)  # The `matmul` should just involve addition and subtraction
+        # Perform ternary multiplication
+        x = self._ternary_multiplication(x_quantized, w_quantized, w_scale)
 
         # Then apply bias and activation
         if self._bias is not None:

@@ -5,6 +5,7 @@ Base class for all matmul-less dense layers.
 from typing import Any, Tuple
 
 import keras
+from keras import ops
 
 EPSILON = 1e-5
 HUGE = 1e9
@@ -52,7 +53,7 @@ class BaseDenseMML:
 
         raise NotImplementedError  # pragma: no cover
 
-    def _get_quantized_arrays(self, x_norm) -> Tuple[Any, Any]:
+    def _get_quantized_arrays(self, x_norm) -> Tuple[Any, Any, float]:
         """
         Gets the quantized activation and weight values.
 
@@ -61,7 +62,23 @@ class BaseDenseMML:
 
         Returns:
             A tuple. The first value is the quantized activation values. The second is the quantized
-            weight values.
+            weight values without scaling applied. The last value is the scaling factor.
         """
 
         raise NotImplementedError  # pragma: no cover
+
+    @staticmethod
+    def _ternary_multiplication(x_quantized, w_quantized, w_scale):
+        """
+        Applies the ternary multiplication algorithm.
+
+        Args:
+            x_quantized: Quantized activation values.
+            w_quantized: Quantized kernel matrix without scaling applied.
+            w_scale: Scale factor for the kernel matrix.
+        """
+
+        # TODO: Optimize
+        return ops.matmul(
+            x_quantized, w_quantized / w_scale
+        )  # The `matmul` should just involve addition and subtraction
