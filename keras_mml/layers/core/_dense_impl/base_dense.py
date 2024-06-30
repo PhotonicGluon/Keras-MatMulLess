@@ -5,7 +5,6 @@ Base class for all matmul-less dense layers.
 from typing import Any, Tuple
 
 import keras
-from keras import ops
 
 EPSILON = 1e-5
 HUGE = 1e9
@@ -78,7 +77,4 @@ class BaseDenseMML:
             w_scale: Scale factor for the kernel matrix.
         """
 
-        # TODO: Optimize
-        return ops.matmul(
-            x_quantized, w_quantized / w_scale
-        )  # The `matmul` should just involve addition and subtraction
+        raise NotImplementedError  # pragma: no cover
