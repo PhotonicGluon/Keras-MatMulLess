@@ -45,6 +45,7 @@
         "intersphinx",
         "ipynb",
         "isscalar",
+        "Kaggle",
         "keepdim",
         "keepdims",
         "keras",

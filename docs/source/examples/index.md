@@ -8,6 +8,7 @@ These are demonstrations of what Keras-MML can do. All of our examples are writt
 MNIST Classification <mnist-classifier>
 Time Series Forecasting <time-series-forecasting>
 Autoencoders <autoencoders>
+Credit Card Fraud Detection <fraud-detection>
 Gated Linear Units (GLUs) <gated-linear-unit>
 Text Classification With Transformers <transformers>
 ```
