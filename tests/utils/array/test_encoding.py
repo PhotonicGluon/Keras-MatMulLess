@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from keras_mml.utils.array import decode_ternary_array, encode_ternary_array
+from keras_mml.utils.array.encoding import decode_ternary_array, encode_ternary_array
 
 
 def test_encode_ternary_array():

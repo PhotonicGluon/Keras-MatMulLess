@@ -1,5 +1,5 @@
 """
-Miscellaneous functions.
+Miscellaneous number utilities.
 """
 
 
