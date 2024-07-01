@@ -84,6 +84,7 @@
         "silu",
         "softmax",
         "swiglu",
+        "tensordot",
         "tensorflow",
         "timestep",
         "timesteps",
