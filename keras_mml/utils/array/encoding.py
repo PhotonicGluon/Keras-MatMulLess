@@ -1,12 +1,12 @@
 """
-Utilities for handing numpy arrays.
+Utilities for encoding special types of arrays.
 """
 
 from typing import Tuple
 
 import numpy as np
 
-from keras_mml.utils.misc import int_to_bin
+from keras_mml.utils.misc.number import int_to_bin
 
 
 def encode_ternary_array(x: np.ndarray) -> Tuple[Tuple[int, ...], bytes]:
