@@ -75,8 +75,7 @@ def _get_x_quantized(x_norm: tf.Tensor) -> tf.Tensor:
     return x_norm + tf.stop_gradient(_activations_quantization(x_norm) - x_norm)
 
 
-# FIXME: Somehow `TransformerMML` just doesn't work with the `tf.function` decorator enabled... why?
-# @tf.function(jit_compile=True)
+@tf.function(jit_compile=True)
 def _get_w_quantized(w: tf.Tensor, scale: float) -> tf.Tensor:
     """
     Gets the quantized kernel matrix, with support for the backward direction by using STE gradient
@@ -108,8 +107,10 @@ class TensorflowDenseMML(BaseDenseMML):
         if self._kernel_scale:
             return _get_x_quantized(x_norm), self._kernel.value, self._kernel_scale
         else:
-            scale = _compute_kernel_scale(self._kernel.value)
-            return _get_x_quantized(x_norm), _get_w_quantized(self._kernel.value, scale), scale
+            # Need this to avoid nasty "Called a function referencing variables which have been deleted" error
+            w = tf.identity(self._kernel.value)
+            scale = _compute_kernel_scale(w)
+            return _get_x_quantized(x_norm), _get_w_quantized(w, scale), scale
 
     @staticmethod
     def _ternary_multiplication(x_quantized: tf.Tensor, w_quantized: tf.Tensor, w_scale: float) -> tf.Tensor:
