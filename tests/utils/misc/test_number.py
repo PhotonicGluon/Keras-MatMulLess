@@ -1,4 +1,4 @@
-from keras_mml.utils.misc import int_to_bin
+from keras_mml.utils.misc.number import int_to_bin
 
 
 def test_int_to_bin():
