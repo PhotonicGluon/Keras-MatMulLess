@@ -2,6 +2,7 @@
 Custom decorators for test coverage management.
 """
 
+import os
 import sys
 from typing import Callable, Optional
 
@@ -9,7 +10,7 @@ from typing import Callable, Optional
 def torch_compile(model: Optional[Callable] = None, *args, **kwargs) -> Callable:  # pragma: no cover
     """
     Custom decorator similar to :py:func:`torch.compile`. However the compilation of the function
-    will not be performed if running in a PyTest suite.
+    will not be performed if the ``PYTEST_USE_EAGER`` environment variable is set.
 
     Arguments:
         model: Module/function to optimize.
@@ -20,7 +21,7 @@ def torch_compile(model: Optional[Callable] = None, *args, **kwargs) -> Callable
         Decorated model.
     """
 
-    if "pytest" in sys.modules:
+    if os.environ.get("PYTEST_USE_EAGER"):
         return lambda x: x  # Identity function
 
     import torch
