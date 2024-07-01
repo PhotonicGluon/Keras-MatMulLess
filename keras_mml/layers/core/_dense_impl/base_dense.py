@@ -6,6 +6,8 @@ from typing import Any, Tuple
 
 import keras
 
+from keras_mml.utils.array.ternary_multiplication import ternary_multiplication
+
 EPSILON = 1e-5
 HUGE = 1e9
 
@@ -75,6 +77,9 @@ class BaseDenseMML:
             x_quantized: Quantized activation values.
             w_quantized: Quantized kernel matrix without scaling applied.
             w_scale: Scale factor for the kernel matrix.
+
+        Returns:
+            Multiplied matrix.
         """
 
-        raise NotImplementedError  # pragma: no cover
+        return ternary_multiplication(x_quantized, w_quantized, w_scale)

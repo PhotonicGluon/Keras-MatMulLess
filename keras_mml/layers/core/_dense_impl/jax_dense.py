@@ -110,10 +110,3 @@ class JaxDenseMML(BaseDenseMML):
         else:
             scale = _compute_kernel_scale(self._kernel.value)
             return _get_x_quantized(x_norm), _get_w_quantized(self._kernel.value, scale), scale
-
-    @staticmethod
-    def _ternary_multiplication(x_quantized: jax.Array, w_quantized: jax.Array, w_scale: float) -> jax.Array:
-        # TODO: Optimize
-        return jnp.matmul(
-            x_quantized, w_quantized / w_scale
-        )  # The `matmul` should just involve addition and subtraction

@@ -9,7 +9,7 @@ import numpy as np
 from einops import asnumpy
 from keras import activations, constraints, initializers, ops, regularizers
 
-from keras_mml.layers.core._dense_impl.backend_dense import BackendDenseMML
+from keras_mml.layers.core._dense_impl import BackendDenseMML
 from keras_mml.layers.normalizations.rms_norm import RMSNorm
 from keras_mml.utils.array.encoding import decode_ternary_array, encode_ternary_array
 
