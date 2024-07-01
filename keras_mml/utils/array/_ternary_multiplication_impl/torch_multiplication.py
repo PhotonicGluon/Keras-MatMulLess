@@ -80,7 +80,7 @@ def torch_ternary_multiplication(x_quantized: torch.Tensor, w_quantized: torch.T
         for j in range(num_stacked_vectors):
             vector_elements = x_flat[j * vector_stride : (j + 1) * vector_stride]
             product = _2d_ternary_multiplication(vector_elements, matrix_elements, w_scale)
-            output_flat[k * output_stride : (k + 1) * output_stride] = product)
+            output_flat[k * output_stride : (k + 1) * output_stride] = product
             k += 1
 
     return output_flat.reshape(output_shape)
