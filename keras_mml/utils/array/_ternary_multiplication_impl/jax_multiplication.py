@@ -23,7 +23,30 @@ def _2d_ternary_multiplication(x: jax.Array, w: jax.Array, scale: float) -> jax.
     # TODO: Optimize
     assert w.ndim == 2
     assert x.ndim == 1
-    return jnp.matmul(x, w / scale)  # The `matmul` should just involve addition and subtraction
+    # return jnp.matmul(x, w / scale)  # The `matmul` should just involve addition and subtraction
+
+    output = jnp.zeros((w.shape[1],))
+    for col in range(w.shape[1]):
+        delta = jax.lax.select(
+            pred=w[:, col] > 0,
+            on_true=x,
+            on_false=jax.lax.select(pred=w[:, col] < 0, on_true=-x, on_false=jnp.zeros((w.shape[0],))),
+        )
+        # for row in range(w.shape[0]):
+        #     delta = jax.lax.cond(
+        #         pred=w[row, col] > 0,
+        #         true_fun=lambda: x[row],
+        #         false_fun=lambda: jax.lax.cond(pred=w[row, col] < 0, true_fun=lambda: -x[row], false_fun=lambda: 0.0),
+        #     )
+        #     total += delta
+        # jax.debug.print("w={w}", w=w[:, col])
+        # jax.debug.print("d={d}", d=delta)
+        total = jnp.sum(delta)
+        # jax.debug.print("total={t}", t=total)
+        total /= scale
+        output = output.at[col].set(total)
+
+    return output
 
 
 @jax.jit
