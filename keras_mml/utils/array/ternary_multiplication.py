@@ -4,8 +4,6 @@ Implementation of ternary multiplication.
 
 from keras import ops
 
-# from keras_mml.utils.array._ternary_multiplication_impl import backend_function
-
 
 def ternary_multiplication(x_quantized, w_quantized, w_scale: float):
     """
@@ -26,6 +24,4 @@ def ternary_multiplication(x_quantized, w_quantized, w_scale: float):
     """
 
     # TODO: Optimize backend-dependent ternary multiplication
-    # return backend_function(x_quantized, w_quantized, w_scale)
-
     return ops.matmul(x_quantized, w_quantized) / w_scale
