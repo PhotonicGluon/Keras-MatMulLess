@@ -19,7 +19,7 @@ jobs:
     uses: ./.github/workflows/publish_to_testpypi.yml
     with:
       continue_on_error: true
-      is_nightly_build: true
+      is_nightly_build: false
     secrets: inherit
   # Phase 3 - Update branches
   push-to-nightly:
