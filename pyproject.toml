@@ -47,6 +47,7 @@ sphinx-design = "~0.6.0"
 sphinx-autodoc-typehints = "~2.1.1"
 sphinx-autobuild = "2024.4.16"
 myst-nb = "~1.1.0"
+pylint = "~3.2.5"
 
 [tool.poetry.group.nvidia-gpu]
 optional = true

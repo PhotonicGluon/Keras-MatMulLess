@@ -108,5 +108,8 @@
         "**/.Trash-1000": true,
         "**/.ipynb_checkpoints": true,
         "**/__pycache__": true
-    }
+    },
+    "pylint.path": [
+        "pylint"
+    ]
 }
