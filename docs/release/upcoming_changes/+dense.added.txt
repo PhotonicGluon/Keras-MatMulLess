@@ -1,0 +1,1 @@
+Added a matmul-less version of the `Dense` layer in Keras.

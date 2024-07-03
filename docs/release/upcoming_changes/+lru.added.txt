@@ -1,0 +1,1 @@
+Added a matmul-less Linear Recurrent Unit (LRU) layer.
