@@ -1,1 +1,0 @@
-Added a matmul-less Gated Recurrent Unit (GRU) layer.

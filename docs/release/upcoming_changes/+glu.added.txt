@@ -1,1 +1,0 @@
-Added a matmul-less version of a Gated Linear Unit (GLU), along with its variants by using different activation functions.

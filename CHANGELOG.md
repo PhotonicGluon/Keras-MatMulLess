@@ -8,3 +8,15 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 
 <!-- towncrier release notes start -->
 
+## [0.1.0a1](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/0.1.0a1) - 2024-07-03
+
+Initial alpha release of Keras-MML.
+
+### New Features
+
+- Added a matmul-less version of the `Dense` layer in Keras.
+- Added a Root Mean Square Normalization (RMSNorm) layer.
+- Added a matmul-less version of a Gated Linear Unit (GLU), along with its variants by using different activation functions.
+- Added a matmul-less Gated Recurrent Unit (GRU) layer.
+- Added a matmul-less Linear Recurrent Unit (LRU) layer.
+- Added a matmul-less transformer block layer, along with its associated attention and embedding layers.
