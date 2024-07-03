@@ -1,0 +1,39 @@
+[tool.towncrier]
+name = "Keras-MatMulLess"
+package = "keras_mml"
+filename = "CHANGELOG.md"
+directory = "docs/release/upcoming_changes/"
+start_string = "<!-- towncrier release notes start -->\n"
+underlines = ["", "", ""]
+title_format = "## [{version}](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/{version}) - {project_date}"
+issue_format = "[#{issue}](https://github.com/PhotonicGluon/Keras-MatMulLess/issues/{issue})"
+
+[[tool.towncrier.type]]
+directory = "removed"
+name = "Removals"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "deprecated"
+name = "Deprecations"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "added"
+name = "New Features"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "changed"
+name = "Changes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "performance"
+name = "Performance Improvements"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "fixed"
+name = "Fixes"
+showcontent = true
