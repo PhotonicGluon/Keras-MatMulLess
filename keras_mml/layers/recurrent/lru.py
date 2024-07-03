@@ -43,6 +43,8 @@ class LRUCellMML(keras.Layer):
         r_min: Minimum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
         r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
         max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
+        state_size: Size of the recurrent state.
+        output_size: Size of the output vector.
     """
 
     def __init__(
@@ -54,7 +56,7 @@ class LRUCellMML(keras.Layer):
         r_max: float = 1,
         max_phase: float = 6.283,
         **kwargs,
-    ):
+    ):  # TODO: Add dropout?
         """
         Initializes a new instance of the layer.
 
@@ -74,6 +76,7 @@ class LRUCellMML(keras.Layer):
 
         if units <= 0:
             raise ValueError(f"Invalid number of units. Expected a positive integer, got {units}.")
+
         if state_dim <= 0:
             raise ValueError(f"Invalid state dimensionality. Expected a positive integer, got {state_dim}.")
 
@@ -81,6 +84,10 @@ class LRUCellMML(keras.Layer):
 
         self.input_spec = keras.layers.InputSpec(ndim=2)
 
+        self.state_size = state_dim
+        self.output_size = units
+
+        # Main attributes
         self.units = units
         self.state_dim = state_dim
         self.fully_mml = fully_mml
@@ -89,11 +96,19 @@ class LRUCellMML(keras.Layer):
         self.r_max = r_max
         self.max_phase = max_phase
 
-        self.state_size = state_dim
-        self.output_size = units
+        # Hidden weights/layers
+        self._nu_log = None
+        self._theta_log = None
+        self._gamma_log = None
+
+        self._b_gate_re = None
+        self._b_gate_im = None
+        self._c_gate_re = None
+        self._c_gate_im = None
+        self._d_gate = None
 
     # Helper methods
-    def _nu_log_init(self, shape: Tuple[int, ...], dtype: str = None) -> np.ndarray:
+    def _init_nu_log(self, shape: Tuple[int, ...], dtype: str = None) -> np.ndarray:
         """
         Initializer for the ``nu_log`` weight.
 
@@ -109,7 +124,7 @@ class LRUCellMML(keras.Layer):
         nu_log = ops.log(-0.5 * ops.log(uniform * (self.r_max**2 - self.r_min**2) + self.r_min**2))
         return nu_log
 
-    def _theta_log_init(self, shape: Tuple[int, ...], dtype: str = None) -> np.ndarray:
+    def _init_theta_log(self, shape: Tuple[int, ...], dtype: str = None) -> np.ndarray:
         """
         Initializer for the ``theta_log`` weight.
 
@@ -125,7 +140,7 @@ class LRUCellMML(keras.Layer):
         theta_log = ops.log(self.max_phase * uniform)
         return theta_log
 
-    def _B_init(self, shape: Tuple[int, int], dtype: str = None) -> np.ndarray:
+    def _init_b_matrix(self, shape: Tuple[int, int], dtype: str = None) -> np.ndarray:
         """
         Initializer for the $B$ matrix weights.
 
@@ -141,7 +156,7 @@ class LRUCellMML(keras.Layer):
         values = keras.random.normal(shape, dtype=dtype) / ops.sqrt(2 * input_dim)
         return values
 
-    def _C_init(self, shape: Tuple[int, int], dtype: str = None) -> np.ndarray:
+    def _init_c_matrix(self, shape: Tuple[int, int], dtype: str = None) -> np.ndarray:
         """
         Initializer for the $C$ matrix weights.
 
@@ -176,25 +191,25 @@ class LRUCellMML(keras.Layer):
 
         # Initialization of Lambda is complex valued distributed uniformly on a ring between r_min and r_max, with the
         # phase in the interval $[0, max_phase]$ (See lemma 3.2 for initialization details)
-        self.nu_log = self.add_weight(name="nu_log", shape=(self.state_dim,), initializer=self._nu_log_init)
-        self.theta_log = self.add_weight(name="theta_log", shape=(self.state_dim,), initializer=self._theta_log_init)
+        self._nu_log = self.add_weight(name="nu_log", shape=(self.state_dim,), initializer=self._init_nu_log)
+        self._theta_log = self.add_weight(name="theta_log", shape=(self.state_dim,), initializer=self._init_theta_log)
 
         # Glorot initialized Input/Output projection matrices
-        self.B_re = DenseMML(self.state_dim, kernel_initializer=self._B_init, name="B_re")
-        self.B_im = DenseMML(self.state_dim, kernel_initializer=self._B_init, name="B_im")
-        self.C_re = output_layer_class(self.units, kernel_initializer=self._C_init, name="C_re")
-        self.C_im = output_layer_class(self.units, kernel_initializer=self._C_init, name="C_im")
-        self.D = output_layer_class(self.units, kernel_initializer="glorot_normal", name="D")
+        self._b_gate_re = DenseMML(self.state_dim, kernel_initializer=self._init_b_matrix, name="B_re")
+        self._b_gate_im = DenseMML(self.state_dim, kernel_initializer=self._init_b_matrix, name="B_im")
+        self._c_gate_re = output_layer_class(self.units, kernel_initializer=self._init_c_matrix, name="C_re")
+        self._c_gate_im = output_layer_class(self.units, kernel_initializer=self._init_c_matrix, name="C_im")
+        self._d_gate = output_layer_class(self.units, kernel_initializer="glorot_normal", name="D")
 
-        self.B_re.build(input_shape)
-        self.B_im.build(input_shape)
-        self.C_re.build((None, self.state_dim))
-        self.C_im.build((None, self.state_dim))
-        self.D.build(input_shape)
+        self._b_gate_re.build(input_shape)
+        self._b_gate_im.build(input_shape)
+        self._c_gate_re.build((None, self.state_dim))
+        self._c_gate_im.build((None, self.state_dim))
+        self._d_gate.build(input_shape)
 
         # Normalization factor
-        self.gamma_log = self.add_weight(
-            name="gamma_log", shape=(self.state_dim,), initializer=_GammaLogInitializer(self.nu_log)
+        self._gamma_log = self.add_weight(
+            name="gamma_log", shape=(self.state_dim,), initializer=_GammaLogInitializer(self._nu_log)
         )
 
     def call(self, inputs, states, training=False):
@@ -217,22 +232,22 @@ class LRUCellMML(keras.Layer):
         state_im = ops.squeeze(state_im, axis=1)
 
         # Compute real and imaginary parts of the diagonal lambda matrix
-        lambda_mod = ops.exp(-ops.exp(self.nu_log))
-        lambda_re = lambda_mod * ops.cos(ops.exp(self.theta_log))
-        lambda_im = lambda_mod * ops.sin(ops.exp(self.theta_log))
+        lambda_mod = ops.exp(-ops.exp(self._nu_log))
+        lambda_re = lambda_mod * ops.cos(ops.exp(self._theta_log))
+        lambda_im = lambda_mod * ops.sin(ops.exp(self._theta_log))
 
         # Get the normalization factor, gamma
-        gamma = ops.exp(self.gamma_log)
+        gamma = ops.exp(self._gamma_log)
 
         # Compute new state
-        new_state_re = lambda_re * state_re - lambda_im * state_im + gamma * self.B_re(inputs)
-        new_state_im = lambda_re * state_im + lambda_im * state_re + gamma * self.B_im(inputs)
+        new_state_re = lambda_re * state_re - lambda_im * state_im + gamma * self._b_gate_re(inputs)
+        new_state_im = lambda_re * state_im + lambda_im * state_re + gamma * self._b_gate_im(inputs)
 
         new_state = ops.stack([new_state_re, new_state_im], axis=1)
         new_state = [new_state] if keras.tree.is_nested(states) else new_state
 
         # Compute output
-        output = self.C_re(new_state_re) - self.C_im(new_state_im) + self.D(inputs)
+        output = self._c_gate_re(new_state_re) - self._c_gate_im(new_state_im) + self._d_gate(inputs)
         return output, new_state
 
     def get_config(self):
@@ -310,7 +325,7 @@ class LRUMML(keras.layers.RNN):
         r_max: float = 1,
         max_phase: float = 6.283,
         **kwargs,
-    ):
+    ):  # TODO: Add dropout?
         """
         Initializes a new instance of the layer.
 
@@ -406,9 +421,8 @@ class LRUMML(keras.layers.RNN):
         output = super().call(sequences, initial_state=initial_state, mask=mask, training=training)
 
         if keras.config.backend() == "jax" and mask is not None:
-            # FIXME:
-            #   I have no idea why, but when using the Jax backend along with masking, a second copy of the outputs is
-            #   returned along with the first. The following code just takes the first output and ignores the rest.
+            # I have no idea why, but when using the Jax backend along with masking, a second copy of the outputs is
+            # returned along with the first. The following code just takes the first output and ignores the rest.
 
             output = output[0]
 

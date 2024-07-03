@@ -29,8 +29,11 @@ class GRUCellMML(keras.Layer):
     Attributes:
         units: Dimensionality of the output space.
         fully_mml: Whether to use matmul-free operations for all the layers.
+        num_heads: Number of heads to use when performing the recurrent step.
         activation: Activation function to use.
         recurrent_activation: Activation function to use for the recurrent step.
+        state_size: Size of the recurrent state.
+        output_size: Size of the output vector.
     """
 
     def __init__(
@@ -41,7 +44,7 @@ class GRUCellMML(keras.Layer):
         activation: str = "silu",
         recurrent_activation: str = "sigmoid",
         **kwargs,
-    ):  # TODO: Add more arguments
+    ):  # TODO: Add dropout?
         """
         Initializes a new instance of the layer.
 
@@ -68,7 +71,8 @@ class GRUCellMML(keras.Layer):
             raise ValueError(
                 f"Received an invalid value for the number of heads, expected a positive integer, got {num_heads}."
             )
-        elif units % num_heads != 0:
+
+        if units % num_heads != 0:
             raise ValueError(
                 "Output dimension must be divisible by number of heads. "
                 f"Got output dimension of {units} but wanted to use {num_heads} heads."
@@ -78,6 +82,10 @@ class GRUCellMML(keras.Layer):
 
         self.input_spec = keras.layers.InputSpec(ndim=2)
 
+        self.state_size = units
+        self.output_size = units
+
+        # Main attributes
         self.units = units
         self.fully_mml = fully_mml
         self.num_heads = num_heads
@@ -85,8 +93,13 @@ class GRUCellMML(keras.Layer):
         self.activation = activations.get(activation)
         self.recurrent_activation = activations.get(recurrent_activation)
 
-        self.state_size = self.units
-        self.output_size = self.units
+        self._head_dim = None
+
+        # Hidden weights/layers
+        self._f_gate = None
+        self._c_gate = None
+        self._g_gate = None
+        self._o_gate = None
 
     def build(self, input_shape: Tuple[int, int]):
         """
@@ -96,7 +109,7 @@ class GRUCellMML(keras.Layer):
             input_shape: Shape of the input.
         """
 
-        self.head_dim = max(1, self.units // self.num_heads)  # Ensure that head dimension is at least 1
+        self._head_dim = max(1, self.units // self.num_heads)
 
         # Decide what layer class to use for the output-adjacent layers
         if self.fully_mml:
@@ -105,19 +118,20 @@ class GRUCellMML(keras.Layer):
             output_layer_class = keras.layers.Dense
 
         # Define gates
-        self.f_gate = DenseMML(self.units, activation=self.recurrent_activation, use_bias=True, name="forget_gate")
-        self.f_gate.build(input_shape)
+        # TODO: Surely we can combine some of these gates together into one `Dense` layer?
+        self._f_gate = DenseMML(self.units, activation=self.recurrent_activation, use_bias=True, name="forget_gate")
+        self._f_gate.build(input_shape)
 
-        self.c_gate = DenseMML(self.units, activation=self.activation, use_bias=True, name="candidate_state_gate")
-        self.c_gate.build(input_shape)
+        self._c_gate = DenseMML(self.units, activation=self.activation, use_bias=True, name="candidate_state_gate")
+        self._c_gate.build(input_shape)
 
-        self.g_gate = output_layer_class(
+        self._g_gate = output_layer_class(
             self.units, activation=self.recurrent_activation, use_bias=True, name="data_gate"
         )
-        self.g_gate.build(input_shape)
+        self._g_gate.build(input_shape)
 
-        self.o_gate = output_layer_class(self.units, use_bias=True, name="output_gate")
-        self.o_gate.build((None, self.units))
+        self._o_gate = output_layer_class(self.units, use_bias=True, name="output_gate")
+        self._o_gate.build((None, self.units))
 
         self.built = True
 
@@ -138,8 +152,8 @@ class GRUCellMML(keras.Layer):
         h_tm1 = states[0] if keras.tree.is_nested(states) else states
 
         # Get main gate outputs
-        f = self.f_gate(inputs)
-        c = self.c_gate(inputs)
+        f = self._f_gate(inputs)
+        c = self._c_gate(inputs)
 
         # Split for multiple heads
         f, c = map(
@@ -151,9 +165,9 @@ class GRUCellMML(keras.Layer):
         new_state = [h] if keras.tree.is_nested(states) else h
 
         # Get output
-        g = self.g_gate(inputs)
+        g = self._g_gate(inputs)
         o_prime = g * rearrange(h, "batch heads features -> batch (heads features)")
-        output = self.o_gate(o_prime)
+        output = self._o_gate(o_prime)
 
         return output, new_state
 
@@ -188,7 +202,7 @@ class GRUCellMML(keras.Layer):
             Initial states.
         """
 
-        return [ops.zeros((batch_size, self.num_heads, self.head_dim), dtype=self.compute_dtype)]
+        return [ops.zeros((batch_size, self.num_heads, self._head_dim), dtype=self.compute_dtype)]
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
@@ -234,6 +248,7 @@ class GRUMML(keras.layers.RNN):
     Attributes:
         units: Dimensionality of the output space.
         fully_mml: Whether to use matmul-free operations for all the layers.
+        num_heads: Number of heads to use when performing the recurrent step.
         activation: Activation function to use.
         recurrent_activation: Activation function to use for the recurrent step.
     
@@ -249,7 +264,7 @@ class GRUMML(keras.layers.RNN):
         activation: str = "silu",
         recurrent_activation: str = "sigmoid",
         **kwargs,
-    ):  # TODO: Add more arguments
+    ):  # TODO: Add dropout?
         """
         Initializes a new instance of the layer.
 
@@ -339,9 +354,8 @@ class GRUMML(keras.layers.RNN):
         output = super().call(sequences, initial_state=initial_state, mask=mask, training=training)
 
         if keras.config.backend() == "jax" and mask is not None:
-            # FIXME:
-            #   I have no idea why, but when using the Jax backend along with masking, a second copy of the outputs is
-            #   returned along with the first. The following code just takes the first output and ignores the rest.
+            # I have no idea why, but when using the Jax backend along with masking, a second copy of the outputs is
+            # returned along with the first. The following code just takes the first output and ignores the rest.
 
             output = output[0]
 

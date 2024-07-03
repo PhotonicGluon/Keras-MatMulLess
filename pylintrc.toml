@@ -408,6 +408,7 @@ disable = [
     "unused-argument",
     "arguments-differ",
     "too-few-public-methods",
+    "too-many-arguments",
 ]
 
 # Enable the message, report, category or checker with the given id(s). You can
