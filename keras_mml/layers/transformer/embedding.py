@@ -75,17 +75,19 @@ class TokenEmbedding(keras.layers.Layer):
 
         self.input_spec = keras.layers.InputSpec(ndim=2)
 
+        # Main attributes
         self.max_len = max_len
         self.vocab_size = vocab_size
         self.embedding_dim = embedding_dim
         self.with_positions = with_positions
 
-        self.token_embedding = keras.layers.Embedding(input_dim=vocab_size, output_dim=embedding_dim)
+        # Hidden weights/layers
+        self._token_embedding = keras.layers.Embedding(input_dim=vocab_size, output_dim=embedding_dim)
 
         if with_positions:
-            self.pos_embedding = keras.layers.Embedding(input_dim=max_len, output_dim=embedding_dim)
+            self._pos_embedding = keras.layers.Embedding(input_dim=max_len, output_dim=embedding_dim)
         else:
-            self.pos_embedding = None
+            self._pos_embedding = None
 
     def build(self, input_shape: Tuple[int, int]):
         """
@@ -95,9 +97,9 @@ class TokenEmbedding(keras.layers.Layer):
             input_shape: Shape of the input.
         """
 
-        self.token_embedding.build(input_shape)
-        if self.pos_embedding is not None:
-            self.pos_embedding.build(input_shape)
+        self._token_embedding.build(input_shape)
+        if self._pos_embedding is not None:
+            self._pos_embedding.build(input_shape)
 
         self.built = True
 
@@ -112,12 +114,12 @@ class TokenEmbedding(keras.layers.Layer):
             Transformed inputs.
         """
 
-        tokens = self.token_embedding(inputs)
-        if self.pos_embedding is None:
+        tokens = self._token_embedding(inputs)
+        if self._pos_embedding is None:
             return tokens
 
         max_len = ops.shape(inputs)[-1]
         positions = ops.arange(start=0, stop=max_len, step=1)
-        positions = self.pos_embedding(positions)
+        positions = self._pos_embedding(positions)
 
         return tokens + positions

@@ -94,19 +94,21 @@ class TransformerBlockMML(keras.Layer):
 
         self.input_spec = keras.layers.InputSpec(ndim=3)
 
+        # Main attributes
         self.embedding_dim = embedding_dim
         self.ffn_dim = ffn_dim
         self.num_heads = num_heads
         self.fully_mml = fully_mml
         self.rate = rate
 
-        self.attention = AttentionMML(num_heads, embedding_dim, fully_mml=fully_mml)
-        self.attention_dropout = keras.layers.Dropout(rate)
-        self.attention_norm = RMSNorm()
+        # Hidden weights/layers
+        self._attention_layer = AttentionMML(num_heads, embedding_dim, fully_mml=fully_mml)
+        self._attention_dropout = keras.layers.Dropout(rate)
+        self._attention_norm = RMSNorm()
 
-        self.ffn = SwiGLUMML(embedding_dim, intermediate_size=ffn_dim)
-        self.ffn_dropout = keras.layers.Dropout(rate)
-        self.ffn_norm = RMSNorm()
+        self._ffn_layer = SwiGLUMML(embedding_dim, intermediate_size=ffn_dim)
+        self._ffn_dropout = keras.layers.Dropout(rate)
+        self._ffn_norm = RMSNorm()
 
     def build(self, input_shape: Tuple[int, int, int]):
         """
@@ -116,15 +118,15 @@ class TransformerBlockMML(keras.Layer):
             input_shape: Shape of the input.
         """
 
-        self.attention.build(input_shape)
-        intermediate_shape = self.attention.compute_output_shape(input_shape)
-        self.attention_dropout.build(intermediate_shape)
-        self.attention_norm.build(intermediate_shape)
+        self._attention_layer.build(input_shape)
+        intermediate_shape = self._attention_layer.compute_output_shape(input_shape)
+        self._attention_dropout.build(intermediate_shape)
+        self._attention_norm.build(intermediate_shape)
 
-        self.ffn.build(intermediate_shape)
-        intermediate_shape = self.ffn.compute_output_shape(intermediate_shape)
-        self.ffn_dropout.build(intermediate_shape)
-        self.ffn_norm.build(intermediate_shape)
+        self._ffn_layer.build(intermediate_shape)
+        intermediate_shape = self._ffn_layer.compute_output_shape(intermediate_shape)
+        self._ffn_dropout.build(intermediate_shape)
+        self._ffn_norm.build(intermediate_shape)
 
         self.built = True
 
@@ -139,13 +141,13 @@ class TransformerBlockMML(keras.Layer):
             Transformed inputs.
         """
 
-        attention_output = self.attention(inputs)
-        attention_output = self.attention_dropout(attention_output)
-        attention_output = self.attention_norm(inputs + attention_output)
+        attention_output = self._attention_layer(inputs)
+        attention_output = self._attention_dropout(attention_output)
+        attention_output = self._attention_norm(inputs + attention_output)
 
-        ffn_output = self.ffn(attention_output)
-        ffn_output = self.ffn_dropout(ffn_output)
-        ffn_output = self.ffn_norm(attention_output + ffn_output)
+        ffn_output = self._ffn_layer(attention_output)
+        ffn_output = self._ffn_dropout(ffn_output)
+        ffn_output = self._ffn_norm(attention_output + ffn_output)
         return ffn_output
 
     def compute_output_shape(self, input_shape: Tuple[int, int, int]) -> Tuple[int, int, int]:

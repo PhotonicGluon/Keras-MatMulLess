@@ -65,11 +65,13 @@ class AttentionMML(keras.Layer):
 
         self.input_spec = keras.layers.InputSpec(ndim=3)
 
+        # Main attributes
         self.num_heads = num_heads
         self.out_dim = out_dim
         self.fully_mml = fully_mml
 
-        self.internal_layer = GRUMML(
+        # Hidden weights/layers
+        self._internal_layer = GRUMML(
             out_dim,
             fully_mml=fully_mml,
             num_heads=num_heads,
@@ -87,7 +89,7 @@ class AttentionMML(keras.Layer):
         """
 
         super().build(input_shape)
-        self.internal_layer.build(input_shape)
+        self._internal_layer.build(input_shape)
 
     def call(self, inputs):
         """
@@ -100,7 +102,7 @@ class AttentionMML(keras.Layer):
             Transformed inputs.
         """
 
-        return self.internal_layer(inputs)
+        return self._internal_layer(inputs)
 
     def compute_output_shape(self, input_shape: Tuple[int, int, int]) -> Tuple[int, int, int]:
         """
@@ -113,4 +115,4 @@ class AttentionMML(keras.Layer):
             Shape of the output.
         """
 
-        return self.internal_layer.compute_output_shape(input_shape)
+        return self._internal_layer.compute_output_shape(input_shape)
