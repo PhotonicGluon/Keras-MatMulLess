@@ -39,6 +39,11 @@ jobs:
           poetry dynamic-versioning enable
       - name: Build Package
         run: poetry build
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
       - name: Publish Package
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
         continue-on-error: ${{ inputs.continue_on_error }}
