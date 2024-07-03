@@ -23,7 +23,7 @@ jobs:
       - name: Install Project Dependencies
         run: poetry install --with dev,tensorflow,torch,jax
       - name: Add PyLint Executable From Poetry Env To PATH
-        run: export PATH=$(poetry env info --path)/bin:$PATH
+        run: echo "PATH=$(poetry env info --path)/bin:$PATH" >> $GITHUB_ENV
       - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
