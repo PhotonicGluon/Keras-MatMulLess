@@ -93,6 +93,7 @@
         "toctree",
         "torchaudio",
         "torchvision",
+        "towncrier",
         "typehints",
         "unsqueeze",
         "usecols",

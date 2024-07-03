@@ -1,7 +1,8 @@
 # Keras-MatMulLess (Keras-MML)
 
 [![CodeCov](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess/graph/badge.svg?token=VKD0CJX1SD)](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess)
-[![ReadTheDocs](https://readthedocs.org/projects/keras-matmulless/badge/?version=latest)](https://keras-matmulless.readthedocs.io/en/latest/?badge=latest)
+[![Read the Docs (Stable)](https://img.shields.io/readthedocs/keras-matmulless?label=docs%20(stable))](https://keras-matmulless.readthedocs.io/en/stable/)
+[![Read the Docs (Latest)](https://img.shields.io/readthedocs/keras-matmulless?label=docs%20(latest))](https://keras-matmulless.readthedocs.io/en/latest/)
 
 > We offer no explanation as to why these architectures seem to work; we attribute their success, as all else, to divine benevolence.
 > <div style="text-align: right">&mdash; Noam Shazeer, in <a href="https://arxiv.org/pdf/2002.05202v1"><em>GLU Variants Improve Transformer</em></a></div>
@@ -39,9 +40,6 @@ Instructions on how to install Keras can be found [here](https://keras.io/gettin
 
 ### Installation Instructions
 
-<!-- TODO: Remove after first publish to PyPi -->
-Only the installation [via nightly versions](#nightly-versions) and [via GitHub](#github) are supported for now.
-
 #### PyPi
 
 If you use pip, you can install Keras-MML using the command
@@ -66,7 +64,7 @@ Nightly releases for Keras-MML are primarily found on the [TestPyPi](https://tes
 pip install -i https://test.pypi.org/simple/ keras-matmulless
 ```
 
-#### GitHub
+#### Building From Scratch
 
 First, clone the repository using
 
