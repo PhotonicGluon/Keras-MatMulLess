@@ -6,7 +6,8 @@ from pytest import Config, Parser
 
 def pytest_addoption(parser: Parser) -> None:
     """
-    Register argparse-style options and ini-style config values, called once at the beginning of a test run.
+    Register argparse-style options and ini-style config values, called once at the beginning of a
+    test run.
     """
 
     parser.addoption(
@@ -38,7 +39,8 @@ def pytest_ignore_collect(collection_path: pathlib.Path) -> bool:
 
     Return ``None`` to let other plugins ignore the path for collection.
 
-    Returning ``False`` will forcefully not ignore this path for collection, without giving a chance for other plugins to ignore this path.
+    Returning ``False`` will forcefully not ignore this path for collection, without giving a chance
+    for other plugins to ignore this path.
 
     This hook is consulted for all files and directories prior to calling more specific hooks.
     """
