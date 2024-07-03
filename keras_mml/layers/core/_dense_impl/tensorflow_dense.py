@@ -95,6 +95,10 @@ def _get_w_quantized(w: tf.Tensor, scale: float) -> tf.Tensor:
 
 
 class TensorflowDenseMML(BaseDenseMML):
+    """
+    Implementation of the Dense layer using the Tensorflow backend.
+    """
+
     @staticmethod
     def _compute_kernel_scale(w: tf.Tensor) -> float:
         return _compute_kernel_scale(w)

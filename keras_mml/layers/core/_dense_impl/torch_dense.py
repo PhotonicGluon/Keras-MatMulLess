@@ -96,6 +96,10 @@ def _get_w_quantized(w: torch.Tensor, scale: float) -> torch.Tensor:
 
 
 class TorchDenseMML(BaseDenseMML):
+    """
+    Implementation of the Dense layer using the PyTorch backend.
+    """
+
     @staticmethod
     def _compute_kernel_scale(w: torch.Tensor) -> float:
         return _compute_kernel_scale(w)
