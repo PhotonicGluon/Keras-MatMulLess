@@ -68,6 +68,7 @@ class RMSNorm(keras.Layer):
 
         super().__init__(**kwargs)
 
+        # Main attributes
         self.has_learnable_weights = has_learnable_weights
         self.use_bias = use_bias
 
@@ -78,6 +79,22 @@ class RMSNorm(keras.Layer):
         self.gain_constraint = constraints.get(gain_constraint)
         self.bias_constraint = constraints.get(bias_constraint)
 
+        self._scale = None  # This will be initialized in the `build()` method
+
+        # Hidden weights/layers
+        self._gain = None
+        self._bias = None
+
+    @property
+    def scale(self) -> float:
+        """
+        :meta private:
+        """
+
+        if self._scale is None:
+            raise ValueError("Scale not available as layer has not been built")
+        return self._scale
+
     def build(self, input_shape: Tuple[int, ...]):
         """
         Create layer weights.
@@ -87,10 +104,10 @@ class RMSNorm(keras.Layer):
         """
 
         dim = input_shape[-1]
-        self.scale = dim**0.5
+        self._scale = dim**0.5
 
         if self.has_learnable_weights:
-            self.gain = self.add_weight(
+            self._gain = self.add_weight(
                 input_shape[1:],
                 initializer=self.gain_initializer,
                 regularizer=self.gain_regularizer,
@@ -98,18 +115,13 @@ class RMSNorm(keras.Layer):
                 name="gain",
             )
             if self.use_bias:
-                self.bias = self.add_weight(
+                self._bias = self.add_weight(
                     input_shape[1:],
                     initializer=self.bias_initializer,
                     regularizer=self.bias_regularizer,
                     constraint=self.bias_constraint,
                     name="bias",
                 )
-            else:
-                self.bias = None
-        else:
-            self.gain = None
-            self.bias = None
 
         self.built = True
 
@@ -125,8 +137,8 @@ class RMSNorm(keras.Layer):
         """
 
         output = ops.normalize(inputs, order=2, axis=-1) * self.scale
-        if self.gain is not None:
-            output *= self.gain
-        if self.bias is not None:
-            output += self.bias
+        if self._gain is not None:
+            output *= self._gain
+        if self._bias is not None:
+            output += self._bias
         return output
