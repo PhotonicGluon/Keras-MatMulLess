@@ -111,6 +111,6 @@ class JaxDenseMML(BaseDenseMML):
     def _get_quantized_arrays(self, x_norm: jax.Array) -> Tuple[jax.Array, jax.Array, float]:
         if self._kernel_scale:
             return _get_x_quantized(x_norm), self._kernel.value, self._kernel_scale
-        else:
-            scale = _compute_kernel_scale(self._kernel.value)
-            return _get_x_quantized(x_norm), _get_w_quantized(self._kernel.value, scale), scale
+
+        scale = _compute_kernel_scale(self._kernel.value)
+        return _get_x_quantized(x_norm), _get_w_quantized(self._kernel.value, scale), scale

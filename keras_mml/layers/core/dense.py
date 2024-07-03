@@ -108,13 +108,17 @@ class DenseMML(BackendDenseMML):
             ValueError: If the units provided is not a positive integer.
         """
 
-        super().__init__(activity_regularizer=activity_regularizer, **kwargs)
-
         if units <= 0:
             raise ValueError(
                 f"Received an invalid value for argument `units`, expected a positive integer, got {units}"
             )
 
+        super().__init__(activity_regularizer=activity_regularizer, **kwargs)
+
+        self.input_spec = keras.layers.InputSpec(min_ndim=2)
+        self.supports_masking = True
+
+        # Main attributes
         self.units = units
         self.activation = activations.get(activation)
         self.use_bias = use_bias
@@ -124,11 +128,12 @@ class DenseMML(BackendDenseMML):
         self.bias_regularizer = regularizers.get(bias_regularizer)
         self.kernel_constraint = constraints.get(kernel_constraint)
         self.bias_constraint = constraints.get(bias_constraint)
-
-        self.input_spec = keras.layers.InputSpec(min_ndim=2)
-        self.supports_masking = True
-
         self._kernel_scale = None  # Used for when the layer is loaded from file
+
+        # Hidden weights/layers
+        self._activation_norm = None
+        self._kernel = None
+        self._bias = None
 
     # Public methods
     def build(self, input_shape: Tuple[int, ...]):
@@ -141,8 +146,8 @@ class DenseMML(BackendDenseMML):
 
         input_dim = input_shape[-1]
 
-        self.activation_norm = RMSNorm()
-        self.activation_norm.build(input_shape)
+        self._activation_norm = RMSNorm()
+        self._activation_norm.build(input_shape)
 
         self._kernel = self.add_weight(
             name="kernel",
@@ -159,8 +164,6 @@ class DenseMML(BackendDenseMML):
                 regularizer=self.bias_regularizer,
                 constraint=self.bias_constraint,
             )
-        else:
-            self._bias = None
 
         self.input_spec = keras.layers.InputSpec(min_ndim=2, axes={-1: input_dim})
         self.built = True
@@ -177,7 +180,7 @@ class DenseMML(BackendDenseMML):
         """
 
         # First normalize the inputs
-        x_norm = self.activation_norm(inputs)
+        x_norm = self._activation_norm(inputs)
 
         # Get the quantized arrays
         x_quantized, w_quantized, w_scale = self._get_quantized_arrays(x_norm)
@@ -251,8 +254,8 @@ class DenseMML(BackendDenseMML):
                 bias = store["bias"][()]
             else:
                 bias = None
-        except ValueError:  # pragma: no cover
-            raise ValueError("DenseMML layer missing values when loading from file")
+        except ValueError as e:  # pragma: no cover
+            raise ValueError("DenseMML layer missing values when loading from file") from e
 
         # Then recover the weights
         self._kernel.assign(decode_ternary_array(shape, encoded))

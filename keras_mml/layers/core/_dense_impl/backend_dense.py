@@ -10,20 +10,20 @@ BACKEND = keras.config.backend()
 if BACKEND == "tensorflow":
     from keras_mml.layers.core._dense_impl.tensorflow_dense import TensorflowDenseMML
 
-    backend_class = TensorflowDenseMML
+    BackendClass = TensorflowDenseMML
 elif BACKEND == "torch":
     from keras_mml.layers.core._dense_impl.torch_dense import TorchDenseMML
 
-    backend_class = TorchDenseMML
+    BackendClass = TorchDenseMML
 elif BACKEND == "jax":
     from keras_mml.layers.core._dense_impl.jax_dense import JaxDenseMML
 
-    backend_class = JaxDenseMML
+    BackendClass = JaxDenseMML
 else:  # pragma: no cover
     raise ValueError(f"Invalid backend: {BACKEND}")
 
 
-class BackendDenseMML(keras.Layer, backend_class):
+class BackendDenseMML(keras.Layer, BackendClass):
     """
     Class that encapsulates the core algorithm for matmul-less dense.
     """
@@ -36,4 +36,4 @@ class BackendDenseMML(keras.Layer, backend_class):
         """
 
         keras.Layer.__init__(self, *args, **kwargs)
-        backend_class.__init__(self)
+        BackendClass.__init__(self)

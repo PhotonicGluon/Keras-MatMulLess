@@ -110,8 +110,8 @@ class TensorflowDenseMML(BaseDenseMML):
     def _get_quantized_arrays(self, x_norm: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
         if self._kernel_scale:
             return _get_x_quantized(x_norm), self._kernel.value, self._kernel_scale
-        else:
-            # Need this to avoid nasty "Called a function referencing variables which have been deleted" error
-            w = tf.identity(self._kernel.value)
-            scale = _compute_kernel_scale(w)
-            return _get_x_quantized(x_norm), _get_w_quantized(w, scale), scale
+
+        # Need this to avoid nasty "Called a function referencing variables which have been deleted" error
+        w = tf.identity(self._kernel.value)
+        scale = _compute_kernel_scale(w)
+        return _get_x_quantized(x_norm), _get_w_quantized(w, scale), scale
