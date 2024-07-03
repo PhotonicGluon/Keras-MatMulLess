@@ -50,6 +50,7 @@ myst-nb = "~1.1.0"
 
 # Building and release
 pylint = "~3.2.5"
+towncrier = "~23.11.0"
 
 [tool.poetry.group.nvidia-gpu]
 optional = true
@@ -135,3 +136,17 @@ format-jinja = """
     {%- endif -%}
 """
 fix-shallow-repository = true
+
+[tool.poetry-dynamic-versioning.substitution]
+files = [
+    "*.py",
+    "*/__init__.py",
+    "*/__version__.py",
+    "*/_version.py",
+    "docs/source/conf.py",
+]
+patterns = [
+    "(^__version__\\s*(?::.*?)?=\\s*['\"])[^'\"]*(['\"])",
+    { value = "(^__version_tuple__\\s*(?::.*?)?=\\s*\\()[^)]*(\\))", mode = "tuple" },
+    "(^release\\s*(?::.*?)?=\\s*['\"])[^'\"]*(['\"])",
+]

@@ -96,6 +96,10 @@ def _get_w_quantized(w: jax.Array, scale: float) -> jax.Array:
 
 
 class JaxDenseMML(BaseDenseMML):
+    """
+    Implementation of the Dense layer using the Jax backend.
+    """
+
     @staticmethod
     def _compute_kernel_scale(w: jax.Array) -> float:
         return _compute_kernel_scale(w)

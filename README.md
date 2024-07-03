@@ -1,7 +1,8 @@
 # Keras-MatMulLess (Keras-MML)
 
 [![CodeCov](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess/graph/badge.svg?token=VKD0CJX1SD)](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess)
-[![ReadTheDocs](https://readthedocs.org/projects/keras-matmulless/badge/?version=latest)](https://keras-matmulless.readthedocs.io/en/latest/?badge=latest)
+[![Read the Docs (Stable)](https://img.shields.io/readthedocs/keras-matmulless?label=docs%20(stable))](https://keras-matmulless.readthedocs.io/en/stable/)
+[![Read the Docs (Latest)](https://img.shields.io/readthedocs/keras-matmulless?label=docs%20(latest))](https://keras-matmulless.readthedocs.io/en/latest/)
 [![Code Style Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Linting](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
 
@@ -29,13 +30,43 @@ Matrix multiplication free layers addresses these pain points by removing the ke
 ## Installation
 <!-- start installation -->
 
-For now, the only way to install Keras-MML is via GitHub.
+### Requirements
 
-The requirements for the package are:
+Keras-MML has a few requirements, namely
 
-- Python 3.9 (and above)
+- Python 3.9 (or above);
+- Keras; and
+- the Keras backend (either [Tensorflow](https://www.tensorflow.org/), [PyTorch](https://pytorch.org/), or [Jax](https://jax.readthedocs.io/en/latest/index.html)).
 
-### Installation via GitHub
+Instructions on how to install Keras can be found [here](https://keras.io/getting_started/).
+
+### Installation Instructions
+
+#### PyPi
+
+If you use pip, you can install Keras-MML using the command
+
+```bash
+pip install keras-matmulless
+```
+
+##### Pre-Release Versions
+
+To install pre-release versions, use the command
+
+```bash
+pip install --pre keras-matmulless
+```
+
+##### Nightly Versions
+
+Nightly releases for Keras-MML are primarily found on the [TestPyPi](https://test.pypi.org/project/keras-matmulless/) page. To install them, use the command
+
+```bash
+pip install -i https://test.pypi.org/simple/ keras-matmulless
+```
+
+#### Building From Scratch
 
 First, clone the repository using
 
