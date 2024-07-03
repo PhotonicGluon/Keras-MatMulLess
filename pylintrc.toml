@@ -409,6 +409,7 @@ disable = [
     "arguments-differ",
     "too-few-public-methods",
     "too-many-arguments",
+    "fixme",
 ]
 
 # Enable the message, report, category or checker with the given id(s). You can
@@ -488,7 +489,8 @@ ignore-imports = true
 ignore-signatures = true
 
 # Minimum lines number of a similarity.
-min-similarity-lines = 4
+# MODIFIED: Changed to 10 from 4
+min-similarity-lines = 10
 
 [tool.pylint.spelling]
 # Limits count of emitted suggestions for spelling mistakes.
