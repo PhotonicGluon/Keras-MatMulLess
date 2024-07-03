@@ -8,7 +8,7 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 
 <!-- towncrier release notes start -->
 
-## [0.1.0a1](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/0.1.0a1) - 2024-07-03
+## [0.1.0a1](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0a1) - 2024-07-03
 
 Initial alpha release of Keras-MML.
 
