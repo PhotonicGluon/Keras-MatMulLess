@@ -70,8 +70,6 @@ class GLUMML(keras.Layer):
                 :py:const:`~PERMITTED_ACTIVATIONS`.
         """
 
-        super().__init__(**kwargs)
-
         if units <= 0:
             raise ValueError(
                 f"Received an invalid value for argument `units`, expected a positive integer, got {units}"
@@ -82,10 +80,17 @@ class GLUMML(keras.Layer):
                 f"GLU activation '{activation}' not allowed; permitted activations are {PERMITTED_ACTIVATIONS}"
             )
 
+        super().__init__(**kwargs)
+
+        # Main attributes
         self.units = units
         self.hidden_ratio = hidden_ratio
         self.intermediate_size = intermediate_size
         self.activation = activations.get(activation)
+
+        # Hidden weights/layers
+        self._gate_dense = None
+        self._down_dense = None
 
     # Public methods
     def build(self, input_shape: Tuple[int, ...]):
@@ -96,19 +101,19 @@ class GLUMML(keras.Layer):
             input_shape: Shape of the input.
         """
 
-        self.hidden_size = input_shape[-1]
+        hidden_size = input_shape[-1]
 
         if self.intermediate_size is None:
             # The `intermediate_size` is chosen to be a multiple of 256 closest to `2/3 * hidden_size * hidden_ratio`
-            intermediate_size = int(self.hidden_size * self.hidden_ratio * 2 / 3)
+            intermediate_size = int(hidden_size * self.hidden_ratio * 2 / 3)
             intermediate_size = 256 * ((intermediate_size + 256 - 1) // 256)
             self.intermediate_size = intermediate_size
 
-        self.gate_dense = DenseMML(self.intermediate_size * 2)  # We will use this layer for both $W_g$ and $W_u$
-        self.gate_dense.build(input_shape)
+        self._gate_dense = DenseMML(self.intermediate_size * 2)  # We will use this layer for both $W_g$ and $W_u$
+        self._gate_dense.build(input_shape)
 
-        self.down_dense = DenseMML(self.units)  # We will use this layer for $W_d$
-        self.down_dense.build((None, self.intermediate_size))
+        self._down_dense = DenseMML(self.units)  # We will use this layer for $W_d$
+        self._down_dense.build((None, self.intermediate_size))
 
         self.built = True
 
@@ -123,10 +128,10 @@ class GLUMML(keras.Layer):
             Transformed inputs.
         """
 
-        g_and_u = self.gate_dense(inputs)
+        g_and_u = self._gate_dense(inputs)
         g, u = ops.split(g_and_u, 2, axis=-1)
         p = ops.multiply(self.activation(g), u)
-        d = self.down_dense(p)
+        d = self._down_dense(p)
         return d
 
     def compute_output_shape(self, input_shape: Tuple[int, ...]) -> Tuple[int, ...]:
