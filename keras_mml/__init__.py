@@ -1,3 +1,7 @@
+"""
+Keras layers without using matrix multiplications.
+"""
+
 from . import layers
 
 __version__ = "0.0.0"
