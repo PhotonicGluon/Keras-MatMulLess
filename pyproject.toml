@@ -135,3 +135,17 @@ format-jinja = """
     {%- endif -%}
 """
 fix-shallow-repository = true
+
+[tool.poetry-dynamic-versioning.substitution]
+files = [
+    "*.py",
+    "*/__init__.py",
+    "*/__version__.py",
+    "*/_version.py",
+    "docs/source/conf.py",
+]
+patterns = [
+    "(^__version__\\s*(?::.*?)?=\\s*['\"])[^'\"]*(['\"])",
+    { value = "(^__version_tuple__\\s*(?::.*?)?=\\s*\\()[^)]*(\\))", mode = "tuple" },
+    "(^release\\s*(?::.*?)?=\\s*['\"])[^'\"]*(['\"])",
+]
