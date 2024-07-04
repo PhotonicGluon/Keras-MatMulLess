@@ -1,0 +1,1 @@
+Improved documentation by adding more explanations and a new look for the homepage.
