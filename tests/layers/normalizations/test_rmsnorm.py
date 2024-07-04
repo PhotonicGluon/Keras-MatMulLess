@@ -1,6 +1,7 @@
 import numpy as np
 from einops import asnumpy, rearrange
 from keras import layers, models, ops
+import pytest
 
 from keras_mml.layers import RMSNorm
 
@@ -47,6 +48,11 @@ def test_with_learnable_weights_3d():
 
     y = RMSNorm(use_bias=True)(x)
     assert ops.shape(y) == ops.shape(x)
+
+
+def test_scale_access():
+    with pytest.raises(ValueError):
+        RMSNorm(use_bias=False).scale
 
 
 # Training
