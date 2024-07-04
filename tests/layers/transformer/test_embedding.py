@@ -3,26 +3,55 @@ import tempfile
 
 import numpy as np
 import pytest
-from einops import asnumpy, rearrange
+from einops import asnumpy
 from keras import backend, layers, models, ops
 
 from keras_mml.layers import TokenEmbedding
 
 
-def test_call():
-    x = np.array([[1, 2, 3], [0, 1, 2]])
+# Calls
+@pytest.fixture
+def call_data():
+    return np.array([[1, 2, 3], [0, 1, 2]])
 
-    # Without positions
+
+def test_call_without_positions(call_data):
     layer = TokenEmbedding(max_len=5, vocab_size=4, embedding_dim=6)
-    y = layer(x)
+    y = layer(call_data)
     assert ops.shape(y) == (2, 3, 6)
 
-    # With positions
+
+def test_call_with_positions(call_data):
     layer = TokenEmbedding(max_len=5, vocab_size=4, embedding_dim=6, with_positions=True)
-    y = layer(x)
+    y = layer(call_data)
     assert ops.shape(y) == (2, 3, 6)
 
 
+def test_invalid_max_len():
+    with pytest.raises(ValueError):
+        TokenEmbedding(max_len=0, vocab_size=2, embedding_dim=2)
+
+    with pytest.raises(ValueError):
+        TokenEmbedding(max_len=-1, vocab_size=2, embedding_dim=2)
+
+
+def test_invalid_vocab_size():
+    with pytest.raises(ValueError):
+        TokenEmbedding(max_len=2, vocab_size=0, embedding_dim=2)
+
+    with pytest.raises(ValueError):
+        TokenEmbedding(max_len=2, vocab_size=-1, embedding_dim=2)
+
+
+def test_invalid_embedding_dim():
+    with pytest.raises(ValueError):
+        TokenEmbedding(max_len=2, vocab_size=2, embedding_dim=0)
+
+    with pytest.raises(ValueError):
+        TokenEmbedding(max_len=2, vocab_size=2, embedding_dim=-1)
+
+
+# Saving/loadings
 def test_save_load():
     mock_data = np.array([[1, 2, 3], [0, 1, 2]])
 
@@ -48,29 +77,7 @@ def test_save_load():
         assert np.allclose(model1_output, model2_output)
 
 
-def test_invalid_arguments():
-    # Max length invalid
-    with pytest.raises(ValueError):
-        TokenEmbedding(max_len=0, vocab_size=2, embedding_dim=2)
-
-    with pytest.raises(ValueError):
-        TokenEmbedding(max_len=-1, vocab_size=2, embedding_dim=2)
-
-    # Vocab size invalid
-    with pytest.raises(ValueError):
-        TokenEmbedding(max_len=2, vocab_size=0, embedding_dim=2)
-
-    with pytest.raises(ValueError):
-        TokenEmbedding(max_len=2, vocab_size=-1, embedding_dim=2)
-
-    # Embedding dimension invalid
-    with pytest.raises(ValueError):
-        TokenEmbedding(max_len=2, vocab_size=2, embedding_dim=0)
-
-    with pytest.raises(ValueError):
-        TokenEmbedding(max_len=2, vocab_size=2, embedding_dim=-1)
-
-
+# Training
 def test_training():
     # Dataset is just a sequence of known numbers
     x = np.array([[1, 2, 3], [0, 1, 2]])
