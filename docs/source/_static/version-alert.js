@@ -12,7 +12,7 @@ function warnOnLatestVersion() {
     // Create the warning
     let warning = document.createElement("div");
     warning.setAttribute("class", "admonition danger");
-    warning.innerHTML = "<p class='first admonition-title'>Note</p> " +
+    warning.innerHTML = "<p class='first admonition-title'>Caution</p> " +
         "<p class='last'> " +
         "You're reading the documentation for a <strong>development version</strong>. " +
         "Documentation is available for the <a href='/en/stable/'>current stable release</a>, " +
