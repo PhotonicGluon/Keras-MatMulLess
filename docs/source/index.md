@@ -4,7 +4,6 @@
 :maxdepth: 2
 :hidden:
 
-Home Page <self>
 Getting Started <getting-started/index>
 Code Examples <examples/index>
 Explanations <explanations/index>
@@ -19,15 +18,35 @@ API Reference <api/index>
 :end-before: <!-- end summary -->
 ```
 
-## Rationale
+::::{grid} 1 2 2 2
+:margin: 4 4 0 0
+:gutter: 3
 
-```{include} ../../README.md
-:start-after: <!-- start rationale -->
-:end-before: <!-- end rationale -->
-```
+:::{grid-item-card} Getting Started
+:link: getting-started/index
+:link-type: doc
 
-## Indices and Tables
+Get started with using Keras-MML with the introductory pages.
+:::
 
-- {ref}`genindex`
-- {ref}`modindex`
-- {ref}`search`
+:::{grid-item-card} Code Examples
+:link: examples/index
+:link-type: doc
+
+See what Keras-MML can do with these code examples.
+:::
+
+:::{grid-item-card} Explanations
+:link: explanations/index
+:link-type: doc
+
+Read about the inner workings and rationale behind Keras-MML.
+:::
+
+:::{grid-item-card} API
+:link: api/index
+:link-type: doc
+
+Documentation for the components that Keras-MML offers.
+:::
+::::
