@@ -97,8 +97,7 @@ class GRUCellMML(keras.Layer):
         self._head_dim = None
 
         # Hidden weights/layers
-        self._f_gate = None
-        self._c_gate = None
+        self._kernel = None
         self._g_gate = None
         self._o_gate = None
 
@@ -112,27 +111,28 @@ class GRUCellMML(keras.Layer):
 
         self._head_dim = max(1, self.units // self.num_heads)
 
-        # Decide what layer class to use for the output-adjacent layers
         if self.fully_mml:
-            output_layer_class = DenseMML
+            # Incorporate the forget gate (f), the candidate state gate (c), and the data gate (g) in one kernel matrix
+            self._kernel = DenseMML(self.units * 3, use_bias=True, name="kernel")
+            self._kernel.build(input_shape)
+
+            self._g_gate = None
+
+            self._o_gate = DenseMML(self.units, use_bias=True, name="output_gate")
+            self._o_gate.build((None, self.units))
         else:
-            output_layer_class = keras.layers.Dense
+            # Incorporate the only the forget gate (f) and the candidate state gate (c) in the kernel matrix. The data
+            # gate needs to be separated
+            self._kernel = DenseMML(self.units * 2, use_bias=True, name="kernel")
+            self._kernel.build(input_shape)
 
-        # Define gates
-        # TODO: Surely we can combine some of these gates together into one `Dense` layer?
-        self._f_gate = DenseMML(self.units, activation=self.recurrent_activation, use_bias=True, name="forget_gate")
-        self._f_gate.build(input_shape)
+            self._g_gate = keras.layers.Dense(
+                self.units, activation=self.recurrent_activation, use_bias=True, name="data_gate"
+            )
+            self._g_gate.build(input_shape)
 
-        self._c_gate = DenseMML(self.units, activation=self.activation, use_bias=True, name="candidate_state_gate")
-        self._c_gate.build(input_shape)
-
-        self._g_gate = output_layer_class(
-            self.units, activation=self.recurrent_activation, use_bias=True, name="data_gate"
-        )
-        self._g_gate.build(input_shape)
-
-        self._o_gate = output_layer_class(self.units, use_bias=True, name="output_gate")
-        self._o_gate.build((None, self.units))
+            self._o_gate = keras.layers.Dense(self.units, use_bias=True, name="output_gate")
+            self._o_gate.build((None, self.units))
 
         self.built = True
 
@@ -152,9 +152,18 @@ class GRUCellMML(keras.Layer):
         # Get the previous state
         h_tm1 = states[0] if keras.tree.is_nested(states) else states
 
-        # Get main gate outputs
-        f = self._f_gate(inputs)
-        c = self._c_gate(inputs)
+        # Pass inputs through the kernel matrix
+        kernel_out = self._kernel(inputs)
+
+        if self.fully_mml:
+            # Split into f, c, and g
+            f, c, g = ops.split(kernel_out, 3, axis=-1)
+        else:
+            # Split into f and c
+            f, c = ops.split(kernel_out, 2, axis=-1)
+
+            # Process g separately
+            g = self._g_gate(inputs)
 
         # Split for multiple heads
         f, c = map(
@@ -166,7 +175,6 @@ class GRUCellMML(keras.Layer):
         new_state = [h] if keras.tree.is_nested(states) else h
 
         # Get output
-        g = self._g_gate(inputs)
         o_prime = g * rearrange(h, "batch heads features -> batch (heads features)")
         output = self._o_gate(o_prime)
 

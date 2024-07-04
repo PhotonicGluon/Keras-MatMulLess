@@ -1,0 +1,1 @@
+Combined several internal layers in `GRUMML` into one kernel layer, reducing computational load.
