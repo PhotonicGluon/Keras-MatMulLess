@@ -7,3 +7,8 @@ p {
 div.toctree-wrapper>p.caption>span.caption-text {
     display: none;
 }
+
+/* Fix scrollbar from appearing in block math text */
+div.math-wrapper {
+    padding-bottom: 1em;
+}
