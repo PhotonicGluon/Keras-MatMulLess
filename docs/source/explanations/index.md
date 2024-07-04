@@ -6,4 +6,5 @@ These pages explain how we implemented the layers in Keras-MML.
 :maxdepth: 1
 
 Dense <dense>
+Recurrent Units <gru-and-lru>
 ```
