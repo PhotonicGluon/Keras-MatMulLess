@@ -7,14 +7,14 @@ from typing import Any, Dict, List, Optional, Tuple
 import keras
 import numpy as np
 from einops import rearrange
-from keras import activations, ops
+from keras import activations, constraints, initializers, ops, random, regularizers
 
 from keras_mml.layers.core import DenseMML
-from keras_mml.layers.recurrent.rnn import RNN
+from keras_mml.layers.recurrent.rnn import RNN, DropoutRNNCell
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
-class GRUCellMML(keras.Layer):
+class GRUCellMML(keras.Layer, DropoutRNNCell):
     """
     Cell class for the :py:class:`~GRUMML` layer.
 
@@ -33,6 +33,19 @@ class GRUCellMML(keras.Layer):
         num_heads: Number of heads to use when performing the recurrent step.
         activation: Activation function to use.
         recurrent_activation: Activation function to use for the recurrent step.
+        use_bias: Whether to use a bias vector for the layer.
+        weights_initializer: Initializer for the gates' matrices. Used for the linear transformation
+            of the inputs.
+        bias_initializer: Initializer for the bias vector.
+        weights_regularizer: Regularizer function applied to the gates' matrices.
+        bias_regularizer: Regularizer function applied to the bias vector.
+        weights_constraint: Constraint function applied to the gates' matrices.
+        bias_constraint: Constraint function applied to the bias vector.
+        dropout: Fraction of the units to drop for the linear transformation of the inputs. Should
+            be a float between 0 and 1.
+        recurrent_dropout: Fraction of the units to drop for the linear transformation of the
+            recurrent state. Should be a float between 0 and 1.
+        seed: Random seed for dropout.
         state_size: Size of the recurrent state.
         output_size: Size of the output vector.
     """
@@ -44,8 +57,18 @@ class GRUCellMML(keras.Layer):
         num_heads: int = 1,
         activation: str = "silu",
         recurrent_activation: str = "sigmoid",
+        use_bias: bool = True,
+        weights_initializer: str = "glorot_uniform",
+        bias_initializer: str = "zeros",
+        weights_regularizer: Optional[str] = None,
+        bias_regularizer: Optional[str] = None,
+        weights_constraint: Optional[str] = None,
+        bias_constraint: Optional[str] = None,
+        dropout: float = 0.0,
+        recurrent_dropout: float = 0.0,
+        seed: Optional[int] = None,
         **kwargs,
-    ):  # TODO: Add dropout?
+    ):
         """
         Initializes a new instance of the layer.
 
@@ -55,6 +78,19 @@ class GRUCellMML(keras.Layer):
             num_heads: Number of heads to use when performing the recurrent step.
             activation: Activation function to use.
             recurrent_activation: Activation function to use for the recurrent step.
+            use_bias: Whether to use a bias vector for the layer.
+            weights_initializer: Initializer for the gates' matrices. Used for the linear
+                transformation of the inputs.
+            bias_initializer: Initializer for the bias vector.
+            weights_regularizer: Regularizer function applied to the gates' matrices.
+            bias_regularizer: Regularizer function applied to the bias vector.
+            weights_constraint: Constraint function applied to the gates' matrices.
+            bias_constraint: Constraint function applied to the bias vector.
+            dropout: Fraction of the units to drop for the linear transformation of the inputs.
+                Should be a float between 0 and 1.
+            recurrent_dropout: Fraction of the units to drop for the linear transformation of the
+                recurrent state. Should be a float between 0 and 1.
+            seed: Random seed for dropout.
             **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
@@ -79,7 +115,8 @@ class GRUCellMML(keras.Layer):
                 f"Got output dimension of {units} but wanted to use {num_heads} heads."
             )
 
-        super().__init__(**kwargs)
+        keras.Layer.__init__(self, **kwargs)
+        DropoutRNNCell.__init__(self)
 
         self.input_spec = keras.layers.InputSpec(ndim=2)
 
@@ -90,9 +127,25 @@ class GRUCellMML(keras.Layer):
         self.units = units
         self.fully_mml = fully_mml
         self.num_heads = num_heads
+        self.use_bias = use_bias
 
         self.activation = activations.get(activation)
         self.recurrent_activation = activations.get(recurrent_activation)
+
+        self.weights_initializer = initializers.get(weights_initializer)
+        self.bias_initializer = initializers.get(bias_initializer)
+
+        self.weights_regularizer = regularizers.get(weights_regularizer)
+        self.bias_regularizer = regularizers.get(bias_regularizer)
+
+        self.weights_constraint = constraints.get(weights_constraint)
+        self.bias_constraint = constraints.get(bias_constraint)
+
+        self.dropout = min(1.0, max(0.0, dropout))
+        self.recurrent_dropout = min(1.0, max(0.0, recurrent_dropout))
+
+        self.seed = seed
+        self.seed_generator = random.SeedGenerator(seed=seed)
 
         self._head_dim = None
 
@@ -113,25 +166,74 @@ class GRUCellMML(keras.Layer):
 
         if self.fully_mml:
             # Incorporate the forget gate (f), the candidate state gate (c), and the data gate (g) in one kernel matrix
-            self._kernel = DenseMML(self.units * 3, use_bias=True, name="kernel")
+            self._kernel = DenseMML(
+                self.units * 3,
+                use_bias=self.use_bias,
+                kernel_initializer=self.weights_initializer,
+                bias_initializer=self.bias_initializer,
+                kernel_regularizer=self.weights_regularizer,
+                bias_regularizer=self.bias_regularizer,
+                kernel_constraint=self.weights_constraint,
+                bias_constraint=self.bias_constraint,
+                name="kernel",
+            )
             self._kernel.build(input_shape)
 
             self._g_gate = None
 
-            self._o_gate = DenseMML(self.units, use_bias=True, name="output_gate")
+            self._o_gate = DenseMML(
+                self.units,
+                use_bias=self.use_bias,
+                kernel_initializer=self.weights_initializer,
+                bias_initializer=self.bias_initializer,
+                kernel_regularizer=self.weights_regularizer,
+                bias_regularizer=self.bias_regularizer,
+                kernel_constraint=self.weights_constraint,
+                bias_constraint=self.bias_constraint,
+                name="output_gate",
+            )
             self._o_gate.build((None, self.units))
         else:
             # Incorporate the only the forget gate (f) and the candidate state gate (c) in the kernel matrix. The data
             # gate needs to be separated
-            self._kernel = DenseMML(self.units * 2, use_bias=True, name="kernel")
+            self._kernel = DenseMML(
+                self.units * 2,
+                use_bias=self.use_bias,
+                kernel_initializer=self.weights_initializer,
+                bias_initializer=self.bias_initializer,
+                kernel_regularizer=self.weights_regularizer,
+                bias_regularizer=self.bias_regularizer,
+                kernel_constraint=self.weights_constraint,
+                bias_constraint=self.bias_constraint,
+                name="kernel",
+            )
             self._kernel.build(input_shape)
 
             self._g_gate = keras.layers.Dense(
-                self.units, activation=self.recurrent_activation, use_bias=True, name="data_gate"
+                self.units,
+                activation=self.recurrent_activation,
+                use_bias=self.use_bias,
+                kernel_initializer=self.weights_initializer,
+                bias_initializer=self.bias_initializer,
+                kernel_regularizer=self.weights_regularizer,
+                bias_regularizer=self.bias_regularizer,
+                kernel_constraint=self.weights_constraint,
+                bias_constraint=self.bias_constraint,
+                name="data_gate",
             )
             self._g_gate.build(input_shape)
 
-            self._o_gate = keras.layers.Dense(self.units, use_bias=True, name="output_gate")
+            self._o_gate = keras.layers.Dense(
+                self.units,
+                use_bias=self.use_bias,
+                kernel_initializer=self.weights_initializer,
+                bias_initializer=self.bias_initializer,
+                kernel_regularizer=self.weights_regularizer,
+                bias_regularizer=self.bias_regularizer,
+                kernel_constraint=self.weights_constraint,
+                bias_constraint=self.bias_constraint,
+                name="output_gate",
+            )
             self._o_gate.build((None, self.units))
 
         self.built = True
@@ -151,6 +253,15 @@ class GRUCellMML(keras.Layer):
 
         # Get the previous state
         h_tm1 = states[0] if keras.tree.is_nested(states) else states
+
+        # Handle dropping out
+        dp_mask = self.get_dropout_mask(inputs)
+        recurrent_dp_mask = self.get_recurrent_dropout_mask(inputs)
+
+        if training and 0.0 < self.dropout < 1.0:
+            inputs = inputs * dp_mask
+        if training and 0.0 < self.recurrent_dropout < 1.0:
+            h_tm1 = h_tm1 * recurrent_dp_mask
 
         # Pass inputs through the kernel matrix
         kernel_out = self._kernel(inputs)
@@ -203,6 +314,16 @@ class GRUCellMML(keras.Layer):
                 "num_heads": self.num_heads,
                 "activation": activations.serialize(self.activation),
                 "recurrent_activation": activations.serialize(self.recurrent_activation),
+                "use_bias": self.use_bias,
+                "weights_initializer": initializers.serialize(self.weights_initializer),
+                "bias_initializer": initializers.serialize(self.bias_initializer),
+                "weights_regularizer": regularizers.serialize(self.weights_regularizer),
+                "bias_regularizer": regularizers.serialize(self.bias_regularizer),
+                "weights_constraint": constraints.serialize(self.weights_constraint),
+                "bias_constraint": constraints.serialize(self.bias_constraint),
+                "dropout": self.dropout,
+                "recurrent_dropout": self.recurrent_dropout,
+                "seed": self.seed,
             }
         )
         return config
@@ -267,6 +388,19 @@ class GRUMML(RNN):
         num_heads: Number of heads to use when performing the recurrent step.
         activation: Activation function to use.
         recurrent_activation: Activation function to use for the recurrent step.
+        use_bias: Whether to use a bias vector for the layer.
+        weights_initializer: Initializer for the gates' matrices. Used for the linear transformation
+            of the inputs.
+        bias_initializer: Initializer for the bias vector.
+        weights_regularizer: Regularizer function applied to the gates' matrices.
+        bias_regularizer: Regularizer function applied to the bias vector.
+        weights_constraint: Constraint function applied to the gates' matrices.
+        bias_constraint: Constraint function applied to the bias vector.
+        dropout: Fraction of the units to drop for the linear transformation of the inputs. Should
+            be a float between 0 and 1.
+        recurrent_dropout: Fraction of the units to drop for the linear transformation of the
+            recurrent state. Should be a float between 0 and 1.
+        seed: Random seed for dropout.
     
     .. |MatMulFreeLLM| replace:: *Scalable MatMul-free Language Modeling*
     .. _MatMulFreeLLM: https://arxiv.org/pdf/2406.02528v5
@@ -279,8 +413,18 @@ class GRUMML(RNN):
         num_heads: int = 1,
         activation: str = "silu",
         recurrent_activation: str = "sigmoid",
+        use_bias: bool = True,
+        weights_initializer: str = "glorot_uniform",
+        bias_initializer: str = "zeros",
+        weights_regularizer: Optional[str] = None,
+        bias_regularizer: Optional[str] = None,
+        weights_constraint: Optional[str] = None,
+        bias_constraint: Optional[str] = None,
+        dropout: float = 0.0,
+        recurrent_dropout: float = 0.0,
+        seed: Optional[int] = None,
         **kwargs,
-    ):  # TODO: Add dropout?
+    ):
         """
         Initializes a new instance of the layer.
 
@@ -291,10 +435,25 @@ class GRUMML(RNN):
                 details on the multi-headed variant.
             activation: Activation function to use.
             recurrent_activation: Activation function to use for the recurrent step.
+            use_bias: Whether to use a bias vector for the layer.
+            weights_initializer: Initializer for the gates' matrices. Used for the linear
+                transformation of the inputs.
+            bias_initializer: Initializer for the bias vector.
+            weights_regularizer: Regularizer function applied to the gates' matrices.
+            bias_regularizer: Regularizer function applied to the bias vector.
+            weights_constraint: Constraint function applied to the gates' matrices.
+            bias_constraint: Constraint function applied to the bias vector.
+            dropout: Fraction of the units to drop for the linear transformation of the inputs.
+                Should be a float between 0 and 1.
+            recurrent_dropout: Fraction of the units to drop for the linear transformation of the
+                recurrent state. Should be a float between 0 and 1.
+            seed: Random seed for dropout.
             **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
             ValueError: If the units provided is not a positive integer.
+            ValueError: If the number of heads to use is not a positive integer.
+            ValueError: If the number of heads does not divide the units provided.
 
         .. |HGRN2| replace:: *HGRN2: Gated Linear RNNs with State Expansion*
         .. _HGRN2: https://arxiv.org/pdf/2404.07904v1
@@ -307,6 +466,16 @@ class GRUMML(RNN):
             num_heads=num_heads,
             activation=activation,
             recurrent_activation=recurrent_activation,
+            use_bias=use_bias,
+            weights_initializer=weights_initializer,
+            bias_initializer=bias_initializer,
+            weights_regularizer=weights_regularizer,
+            bias_regularizer=bias_regularizer,
+            weights_constraint=weights_constraint,
+            bias_constraint=bias_constraint,
+            dropout=dropout,
+            recurrent_dropout=recurrent_dropout,
+            seed=seed,
         )
         super().__init__(cell, **kwargs)
 
@@ -348,6 +517,76 @@ class GRUMML(RNN):
         """
         return self.cell.recurrent_activation
 
+    @property
+    def use_bias(self):
+        """
+        :meta private:
+        """
+        return self.cell.use_bias
+
+    @property
+    def weights_initializer(self):
+        """
+        :meta private:
+        """
+        return self.cell.weights_initializer
+
+    @property
+    def bias_initializer(self):
+        """
+        :meta private:
+        """
+        return self.cell.bias_initializer
+
+    @property
+    def weights_regularizer(self):
+        """
+        :meta private:
+        """
+        return self.cell.weights_regularizer
+
+    @property
+    def bias_regularizer(self):
+        """
+        :meta private:
+        """
+        return self.cell.bias_regularizer
+
+    @property
+    def weights_constraint(self):
+        """
+        :meta private:
+        """
+        return self.cell.weights_constraint
+
+    @property
+    def bias_constraint(self):
+        """
+        :meta private:
+        """
+        return self.cell.bias_constraint
+
+    @property
+    def dropout(self):
+        """
+        :meta private:
+        """
+        return self.cell.dropout
+
+    @property
+    def recurrent_dropout(self):
+        """
+        :meta private:
+        """
+        return self.cell.recurrent_dropout
+
+    @property
+    def seed(self):
+        """
+        :meta private:
+        """
+        return self.cell.seed
+
     # Public methods
     def get_config(self) -> Dict[str, Any]:
         """
@@ -363,6 +602,16 @@ class GRUMML(RNN):
             "num_heads": self.num_heads,
             "activation": activations.serialize(self.activation),
             "recurrent_activation": activations.serialize(self.recurrent_activation),
+            "use_bias": self.use_bias,
+            "weights_initializer": initializers.serialize(self.weights_initializer),
+            "bias_initializer": initializers.serialize(self.bias_initializer),
+            "weights_regularizer": regularizers.serialize(self.weights_regularizer),
+            "bias_regularizer": regularizers.serialize(self.bias_regularizer),
+            "weights_constraint": constraints.serialize(self.weights_constraint),
+            "bias_constraint": constraints.serialize(self.bias_constraint),
+            "dropout": self.dropout,
+            "recurrent_dropout": self.recurrent_dropout,
+            "seed": self.seed,
         }
         base_config = super().get_config()
         del base_config["cell"]

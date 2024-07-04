@@ -1,10 +1,69 @@
 """
-Custom RNN layer.
+Custom common RNN layers.
 """
 
 from typing import Any, List, Optional
 
 import keras
+from keras import ops, random
+
+
+class DropoutRNNCell:
+    """
+    Object that holds dropout-related functionality for RNN cells.
+
+    This class is **not** a standalone RNN cell.
+
+    Read docstring of this object at
+    https://github.com/keras-team/keras/blob/v3.3.3/keras/src/layers/rnn/dropout_rnn_cell.py.
+    """
+
+    def __init__(self):
+        """
+        Initializes a blank dropout RNN cell.
+        """
+
+        self.dropout = 0.0
+        self.recurrent_dropout = 0.0
+
+        self.seed_generator = None
+
+        self._dropout_mask = None
+        self._recurrent_dropout_mask = None
+
+    def get_dropout_mask(self, step_input):
+        """
+        Gets the dropout mask for the current step's input.
+        """
+
+        if self._dropout_mask is None and self.dropout > 0:
+            ones = ops.ones_like(step_input)
+            self._dropout_mask = random.dropout(ones, rate=self.dropout, seed=self.seed_generator)
+        return self._dropout_mask
+
+    def get_recurrent_dropout_mask(self, step_input):
+        """
+        Gets the recurrent dropout mask for the current step's input.
+        """
+
+        if self._recurrent_dropout_mask is None and self.recurrent_dropout > 0:
+            ones = ops.ones_like(step_input)
+            self._recurrent_dropout_mask = random.dropout(ones, rate=self.recurrent_dropout, seed=self.seed_generator)
+        return self._recurrent_dropout_mask
+
+    def reset_dropout_mask(self):
+        """
+        Reset the cached dropout mask if any.
+        """
+
+        self._dropout_mask = None
+
+    def reset_recurrent_dropout_mask(self):
+        """
+        Reset the cached recurrent dropout mask if any.
+        """
+
+        self._recurrent_dropout_mask = None
 
 
 class RNN(keras.layers.RNN):
@@ -12,7 +71,6 @@ class RNN(keras.layers.RNN):
     Custom RNN layer that implements custom overrides of common methods.
     """
 
-    # Public methods
     def call(self, sequences, initial_state: Optional[List] = None, mask: Optional[Any] = None, training: bool = False):
         """
         Calling method of the layer.
