@@ -9,6 +9,7 @@ from keras import backend, layers, models, ops
 from keras_mml.layers import TransformerBlockMML
 
 
+# Calls
 def test_call():
     x = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
     x = rearrange(x, "b (w e) -> b w e", e=2)
@@ -18,6 +19,36 @@ def test_call():
     assert ops.shape(y) == (3, 1, 2)
 
 
+def test_invalid_embedding_dim():
+    with pytest.raises(ValueError):
+        TransformerBlockMML(embedding_dim=0, ffn_dim=2, num_heads=2)
+
+    with pytest.raises(ValueError):
+        TransformerBlockMML(embedding_dim=-1, ffn_dim=2, num_heads=2)
+
+
+def test_invalid_ffn_dim():
+    with pytest.raises(ValueError):
+        TransformerBlockMML(embedding_dim=2, ffn_dim=0, num_heads=2)
+
+    with pytest.raises(ValueError):
+        TransformerBlockMML(embedding_dim=2, ffn_dim=-1, num_heads=2)
+
+
+def test_invalid_num_heads():
+    # Number of heads invalid
+    with pytest.raises(ValueError):
+        TransformerBlockMML(embedding_dim=2, ffn_dim=2, num_heads=0)
+
+    with pytest.raises(ValueError):
+        TransformerBlockMML(embedding_dim=2, ffn_dim=2, num_heads=-1)
+
+    # Embedding dimension not divisible by number of heads
+    with pytest.raises(ValueError):
+        TransformerBlockMML(embedding_dim=3, ffn_dim=2, num_heads=2)
+
+
+# Saving/loading
 def test_save_load():
     mock_data = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
     mock_data = rearrange(mock_data, "b (w e) -> b w e", e=2)
@@ -41,33 +72,7 @@ def test_save_load():
         assert np.allclose(model1_output, model2_output)
 
 
-def test_invalid_arguments():
-    # Embedding dimension invalid
-    with pytest.raises(ValueError):
-        TransformerBlockMML(embedding_dim=0, ffn_dim=2, num_heads=2)
-
-    with pytest.raises(ValueError):
-        TransformerBlockMML(embedding_dim=-1, ffn_dim=2, num_heads=2)
-
-    # FFN dimension invalid
-    with pytest.raises(ValueError):
-        TransformerBlockMML(embedding_dim=2, ffn_dim=0, num_heads=2)
-
-    with pytest.raises(ValueError):
-        TransformerBlockMML(embedding_dim=2, ffn_dim=-1, num_heads=2)
-
-    # Number of heads invalid
-    with pytest.raises(ValueError):
-        TransformerBlockMML(embedding_dim=2, ffn_dim=2, num_heads=0)
-
-    with pytest.raises(ValueError):
-        TransformerBlockMML(embedding_dim=2, ffn_dim=2, num_heads=-1)
-
-    # Embedding dimension not divisible by number of heads
-    with pytest.raises(ValueError):
-        TransformerBlockMML(embedding_dim=3, ffn_dim=2, num_heads=2)
-
-
+# Training
 def test_training():
     # Dataset is just a sequence of known numbers
     x = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
