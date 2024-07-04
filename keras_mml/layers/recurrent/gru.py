@@ -158,12 +158,19 @@ class GRUCellMML(keras.Layer):
         if self.fully_mml:
             # Split into f, c, and g
             f, c, g = ops.split(kernel_out, 3, axis=-1)
+
+            # Remember to apply activation for g!
+            g = self.recurrent_activation(g)
         else:
             # Split into f and c
             f, c = ops.split(kernel_out, 2, axis=-1)
 
             # Process g separately
-            g = self._g_gate(inputs)
+            g = self._g_gate(inputs)  # This already applies the activation, so no need to do it again
+
+        # Apply activations for f and c
+        f = self.recurrent_activation(f)
+        c = self.activation(c)
 
         # Split for multiple heads
         f, c = map(
