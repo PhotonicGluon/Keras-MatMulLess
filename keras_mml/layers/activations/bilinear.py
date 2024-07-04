@@ -11,7 +11,7 @@ from keras_mml.layers.activations.glu import GLUMML
 @keras.saving.register_keras_serializable(package="keras_mml")
 class BilinearMML(GLUMML):
     """
-    Gated Linear Unit (GLU) without matrix multiplication and any activation function. Also called
+    Gated Linear Unit (GLU) without matrix multiplications and any activation functions. Also called
     "Bilinear" (see |GLUVariants|_, section 2).
 
     See :py:class:`~.GLUMML` for the full documentation.

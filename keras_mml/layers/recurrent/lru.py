@@ -67,7 +67,7 @@ class LRUCellMML(keras.Layer, DropoutRNNCell):
         recurrent_dropout: float = 0.0,
         seed: Optional[int] = None,
         **kwargs,
-    ):  # TODO: Add other arguments?
+    ):
         """
         Initializes a new instance of the layer.
 
@@ -384,7 +384,7 @@ class LRUMML(RNN):
         recurrent_dropout: float = 0.0,
         seed: Optional[int] = None,
         **kwargs,
-    ):  # TODO: Add dropout?
+    ):
         """
         Initializes a new instance of the layer.
 
