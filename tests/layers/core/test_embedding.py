@@ -114,6 +114,12 @@ def test_patch_embedding_call_with_positions(patch_embedding_call_data):
     assert ops.shape(y) == (2, 16, 4)
 
 
+def test_patch_embedding_call_without_mml(patch_embedding_call_data):
+    layer = PatchEmbedding(num_patches=16, embedding_dim=4, use_mml=False)
+    y = layer(patch_embedding_call_data)
+    assert ops.shape(y) == (2, 16, 4)
+
+
 def test_patch_embedding_invalid_num_patches():
     with pytest.raises(ValueError):
         PatchEmbedding(num_patches=0, embedding_dim=2)
