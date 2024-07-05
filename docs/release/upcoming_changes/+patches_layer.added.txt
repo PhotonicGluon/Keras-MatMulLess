@@ -1,1 +1,0 @@
-Create a `Patches` layer for use in vision transformers (ViT).

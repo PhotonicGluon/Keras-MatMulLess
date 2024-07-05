@@ -1,1 +1,0 @@
-Fixed scrollbar ugliness with the math block rendering on the documentation site.

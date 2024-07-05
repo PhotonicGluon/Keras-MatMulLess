@@ -1,1 +1,0 @@
-Improve coding standard to better match PyLint standards.

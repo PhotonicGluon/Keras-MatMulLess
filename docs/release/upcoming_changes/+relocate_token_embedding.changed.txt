@@ -1,1 +1,0 @@
-Moved `TokenEmbedding` to the `core` package, to be more in line with the Keras organization of the layers.

@@ -8,6 +8,34 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 
 <!-- towncrier release notes start -->
 
+## [0.1.0a2](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0a2) - 2024-07-05
+
+
+### New Features
+
+- Added more parameters for `GRUMML`.
+- Added more parameters for `LRUMML`.
+- Created `Patches` and `PatchEmbedding` layers for use in vision transformers (ViT).
+
+### Changes
+
+- Improved coding standard to better match PyLint standards.
+- Moved `TokenEmbedding` to the `core` package, to be more in line with the Keras organization of the layers.
+- Split tests to better run in parallel.
+
+### Performance Improvements
+
+- Combined several internal layers in `GRUMML` into one kernel layer, reducing computational load.
+
+### Documentation Changes
+
+- Added explanation for how the matmul-less recurrent units work.
+- Added hover tips to documentation.
+- Fixed scrollbar ugliness with the math block rendering on the documentation site.
+- Made a new look for the homepage.
+- Removed spurious "defaults to" in some layers' documentation.
+
+
 ## [0.1.0a1](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0a1) - 2024-07-03
 
 Initial alpha release of Keras-MML.
