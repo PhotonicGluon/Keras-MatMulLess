@@ -9,6 +9,7 @@ from keras import backend, layers, models, ops
 from keras_mml.layers import AttentionMML
 
 
+# Calls
 def test_call():
     x = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
     x = rearrange(x, "b (h w) -> b h w", w=1)
@@ -18,6 +19,23 @@ def test_call():
     assert ops.shape(y) == (2, 3, 4)
 
 
+def test_invalid_num_heads():
+    with pytest.raises(ValueError):
+        AttentionMML(num_heads=0, out_dim=2)
+
+    with pytest.raises(ValueError):
+        AttentionMML(num_heads=-1, out_dim=2)
+
+
+def test_invalid_output_dim():
+    with pytest.raises(ValueError):
+        AttentionMML(num_heads=2, out_dim=0)
+
+    with pytest.raises(ValueError):
+        AttentionMML(num_heads=2, out_dim=-1)
+
+
+# Saving/loading
 def test_save_load():
     mock_data = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
     mock_data = rearrange(mock_data, "b (h w) -> b h w", w=1)
@@ -39,22 +57,7 @@ def test_save_load():
         assert np.allclose(model1_output, model2_output)
 
 
-def test_invalid_arguments():
-    # Number of heads invalid
-    with pytest.raises(ValueError):
-        AttentionMML(num_heads=0, out_dim=2)
-
-    with pytest.raises(ValueError):
-        AttentionMML(num_heads=-1, out_dim=2)
-
-    # Output dim invalid
-    with pytest.raises(ValueError):
-        AttentionMML(num_heads=2, out_dim=0)
-
-    with pytest.raises(ValueError):
-        AttentionMML(num_heads=2, out_dim=-1)
-
-
+# Training
 def test_training():
     # Dataset is just a sequence of known numbers
     x = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])

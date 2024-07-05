@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import keras
 import numpy as np
-from keras import ops
+from keras import ops, random
 
 from keras_mml.layers.core import DenseMML
 from keras_mml.layers.recurrent.rnn import RNN
@@ -44,6 +44,7 @@ class LRUCellMML(keras.Layer):
         r_min: Minimum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
         r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
         max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
+        use_bias: Whether to use a bias vector for the layer.
         state_size: Size of the recurrent state.
         output_size: Size of the output vector.
     """
@@ -55,9 +56,10 @@ class LRUCellMML(keras.Layer):
         fully_mml: bool = False,
         r_min: float = 0,
         r_max: float = 1,
-        max_phase: float = 6.283,
+        max_phase: float = np.pi * 2,
+        use_bias: bool = False,
         **kwargs,
-    ):  # TODO: Add dropout?
+    ):
         """
         Initializes a new instance of the layer.
 
@@ -68,6 +70,7 @@ class LRUCellMML(keras.Layer):
             r_min: Minimum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
             r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
             max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
+            use_bias: Whether to use a bias vector for the layer.
             **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
@@ -92,6 +95,7 @@ class LRUCellMML(keras.Layer):
         self.units = units
         self.state_dim = state_dim
         self.fully_mml = fully_mml
+        self.use_bias = use_bias
 
         self.r_min = r_min
         self.r_max = r_max
@@ -196,11 +200,21 @@ class LRUCellMML(keras.Layer):
         self._theta_log = self.add_weight(name="theta_log", shape=(self.state_dim,), initializer=self._init_theta_log)
 
         # Glorot initialized Input/Output projection matrices
-        self._b_gate_re = DenseMML(self.state_dim, kernel_initializer=self._init_b_matrix, name="B_re")
-        self._b_gate_im = DenseMML(self.state_dim, kernel_initializer=self._init_b_matrix, name="B_im")
-        self._c_gate_re = output_layer_class(self.units, kernel_initializer=self._init_c_matrix, name="C_re")
-        self._c_gate_im = output_layer_class(self.units, kernel_initializer=self._init_c_matrix, name="C_im")
-        self._d_gate = output_layer_class(self.units, kernel_initializer="glorot_normal", name="D")
+        self._b_gate_re = DenseMML(
+            self.state_dim, use_bias=self.use_bias, kernel_initializer=self._init_b_matrix, name="B_re"
+        )
+        self._b_gate_im = DenseMML(
+            self.state_dim, use_bias=self.use_bias, kernel_initializer=self._init_b_matrix, name="B_im"
+        )
+        self._c_gate_re = output_layer_class(
+            self.units, use_bias=self.use_bias, kernel_initializer=self._init_c_matrix, name="C_re"
+        )
+        self._c_gate_im = output_layer_class(
+            self.units, use_bias=self.use_bias, kernel_initializer=self._init_c_matrix, name="C_im"
+        )
+        self._d_gate = output_layer_class(
+            self.units, use_bias=self.use_bias, kernel_initializer="glorot_normal", name="D"
+        )
 
         self._b_gate_re.build(input_shape)
         self._b_gate_im.build(input_shape)
@@ -268,6 +282,7 @@ class LRUCellMML(keras.Layer):
                 "r_min": self.r_min,
                 "r_max": self.r_max,
                 "max_phase": self.max_phase,
+                "use_bias": self.use_bias,
             }
         )
         return config
@@ -310,6 +325,12 @@ class LRUMML(RNN):
         r_min: Minimum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
         r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
         max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
+        use_bias: Whether to use a bias vector for the layer.
+        dropout: Fraction of the units to drop for the linear transformation of the inputs. Should
+            be a float between 0 and 1.
+        recurrent_dropout: Fraction of the units to drop for the linear transformation of the
+            recurrent state. Should be a float between 0 and 1.
+        seed: Random seed for dropout.
 
     .. |LinearRU| replace:: *Resurrecting Recurrent Neural Networks for Long Sequences*
     .. _LinearRU: https://arxiv.org/pdf/2303.06349v1
@@ -324,9 +345,10 @@ class LRUMML(RNN):
         fully_mml: bool = False,
         r_min: float = 0,
         r_max: float = 1,
-        max_phase: float = 6.283,
+        max_phase: float = np.pi * 2,
+        use_bias: bool = False,
         **kwargs,
-    ):  # TODO: Add dropout?
+    ):
         """
         Initializes a new instance of the layer.
 
@@ -337,6 +359,7 @@ class LRUMML(RNN):
             r_min: Minimum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
             r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
             max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
+            use_bias: Whether to use a bias vector for the layer.
             **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
@@ -352,6 +375,7 @@ class LRUMML(RNN):
             r_min=r_min,
             r_max=r_max,
             max_phase=max_phase,
+            use_bias=use_bias,
         )
         super().__init__(cell, **kwargs)
 
@@ -400,6 +424,13 @@ class LRUMML(RNN):
         """
         return self.cell.max_phase
 
+    @property
+    def use_bias(self):
+        """
+        :meta private:
+        """
+        return self.cell.use_bias
+
     # Public methods
     def get_config(self) -> Dict[str, Any]:
         """
@@ -416,6 +447,7 @@ class LRUMML(RNN):
             "r_min": self.r_min,
             "r_max": self.r_max,
             "max_phase": self.max_phase,
+            "use_bias": self.use_bias,
         }
         base_config = super().get_config()
         del base_config["cell"]
@@ -431,7 +463,7 @@ class LRUMML(RNN):
             config: Configuration dictionary.
 
         Returns:
-            Created :py:class:`~LRUMML` instance.
+            Created instance.
         """
 
         return cls(**config)

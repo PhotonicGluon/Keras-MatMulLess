@@ -1,10 +1,11 @@
 """
-Custom RNN layer.
+Custom common RNN layers.
 """
 
 from typing import Any, List, Optional
 
 import keras
+from keras import ops, random
 
 
 class RNN(keras.layers.RNN):
@@ -12,7 +13,6 @@ class RNN(keras.layers.RNN):
     Custom RNN layer that implements custom overrides of common methods.
     """
 
-    # Public methods
     def call(self, sequences, initial_state: Optional[List] = None, mask: Optional[Any] = None, training: bool = False):
         """
         Calling method of the layer.

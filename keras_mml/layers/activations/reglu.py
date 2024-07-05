@@ -11,7 +11,7 @@ from keras_mml.layers.activations.glu import GLUMML
 @keras.saving.register_keras_serializable(package="keras_mml")
 class ReGLUMML(GLUMML):
     """
-    ReLU activated Gated Linear Unit (GLU) without matrix multiplication.
+    Rectified Linear Unit (ReLU) activated Gated Linear Unit (GLU) without matrix multiplications.
 
     See :py:class:`~.GLUMML` for the full documentation.
     """

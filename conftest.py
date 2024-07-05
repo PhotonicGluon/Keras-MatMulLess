@@ -28,7 +28,8 @@ def pytest_configure(config: Config):
         try:
             import tensorflow as tf
 
-            tf.config.experimental_run_functions_eagerly(True)
+            tf.config.run_functions_eagerly(True)
+            tf.data.experimental.enable_debug_mode()
         except ModuleNotFoundError:
             print("Tensorflow not installed; ignoring `--eager`.")
 

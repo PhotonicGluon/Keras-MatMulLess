@@ -1,17 +1,21 @@
 import numpy as np
 from einops import asnumpy, rearrange
 from keras import layers, models, ops
+import pytest
 
 from keras_mml.layers import RMSNorm
 
 
-def test_no_learnable_weights():
+# Calls
+def test_no_learnable_weights_1():
     x = np.array([1, 2, 3])
     y = RMSNorm(has_learnable_weights=False)(x)
     y_pred = asnumpy(y)
     y_true = np.array([0.46291004, 0.92582010, 1.38873015])
     assert np.allclose(y_pred, y_true)
 
+
+def test_no_learnable_weights_2():
     x = np.array([4, -5, 6, -7])
     y = RMSNorm(has_learnable_weights=False)(x)
     y_pred = asnumpy(y)
@@ -19,8 +23,7 @@ def test_no_learnable_weights():
     assert np.allclose(y_pred, y_true)
 
 
-def test_with_learnable_weights():
-    # 1D array
+def test_with_learnable_weights_1d():
     x = np.array([1, 2, 3])
     y = RMSNorm(use_bias=False)(x)
     assert ops.shape(y) == ops.shape(x)
@@ -28,7 +31,8 @@ def test_with_learnable_weights():
     y = RMSNorm(use_bias=True)(x)
     assert ops.shape(y) == ops.shape(x)
 
-    # 2D array
+
+def test_with_learnable_weights_2d():
     x = np.array([[1, 2, 3], [4, 5, 6]])
     y = RMSNorm(use_bias=False)(x)
     assert ops.shape(y) == ops.shape(x)
@@ -36,7 +40,8 @@ def test_with_learnable_weights():
     y = RMSNorm(use_bias=True)(x)
     assert ops.shape(y) == ops.shape(x)
 
-    # 3D array
+
+def test_with_learnable_weights_3d():
     x = np.array([[[1, 2, 3], [4, 5, 6]], [[1, 2, 3], [4, 5, 6]], [[1, 2, 3], [4, 5, 6]], [[1, 2, 3], [4, 5, 6]]])
     y = RMSNorm(use_bias=False)(x)
     assert ops.shape(y) == ops.shape(x)
@@ -45,6 +50,12 @@ def test_with_learnable_weights():
     assert ops.shape(y) == ops.shape(x)
 
 
+def test_scale_access():
+    with pytest.raises(ValueError):
+        RMSNorm(use_bias=False).scale
+
+
+# Training
 def test_training():
     # Dataset is just a sequence of known numbers
     x = np.array([1, 2, 3, 4, 5])

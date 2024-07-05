@@ -9,31 +9,55 @@ from keras import backend, layers, models, ops
 from keras_mml.layers.recurrent import LRUMML
 
 
-def test_call():
+# Calls
+@pytest.fixture
+def call_data():
     x = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
     x = rearrange(x, "b (h w) -> b h w", w=1)
+    return x
 
-    # Partial MML
+
+def test_call_partial_mml(call_data):
     layer = LRUMML(4, 4)
-    y = layer(x)
+    y = layer(call_data)
     assert ops.shape(y) == (2, 4)
 
-    # Full MML
+
+def test_call_full_mml(call_data):
     layer = LRUMML(4, 4, fully_mml=True)
-    y = layer(x)
+    y = layer(call_data)
     assert ops.shape(y) == (2, 4)
 
-    # Masked, flat
+
+def test_call_masked_flat(call_data):
     layer = LRUMML(4, 4)
-    y = layer(x, mask=np.array([[True, True, False]]))
+    y = layer(call_data, mask=np.array([[True, True, False]]))
     assert ops.shape(y) == (2, 4)
 
-    # Masked, nested
+
+def test_call_masked_nested(call_data):
     layer = LRUMML(4, 4)
-    y = layer(x, mask=[np.array([[True, True, False]])])
+    y = layer(call_data, mask=[np.array([[True, True, False]])])
     assert ops.shape(y) == (2, 4)
 
 
+def test_invalid_units():
+    with pytest.raises(ValueError):
+        LRUMML(0, 2)
+
+    with pytest.raises(ValueError):
+        LRUMML(-1, 2)
+
+
+def test_invalid_state_dim():
+    with pytest.raises(ValueError):
+        LRUMML(2, 0)
+
+    with pytest.raises(ValueError):
+        LRUMML(2, -1)
+
+
+# Saving/loading
 def test_save_load():
     mock_data = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
     mock_data = rearrange(mock_data, "b (h w) -> b h w", w=1)
@@ -55,22 +79,7 @@ def test_save_load():
         assert np.allclose(model1_output, model2_output)
 
 
-def test_invalid_arguments():
-    # Units invalid
-    with pytest.raises(ValueError):
-        LRUMML(0, 2)
-
-    with pytest.raises(ValueError):
-        LRUMML(-1, 2)
-
-    # State dim invalid
-    with pytest.raises(ValueError):
-        LRUMML(2, 0)
-
-    with pytest.raises(ValueError):
-        LRUMML(2, -1)
-
-
+# Training
 def test_training():
     # Dataset is just a sequence of known numbers
     x = np.array([1, 2, 3, 4, 5])

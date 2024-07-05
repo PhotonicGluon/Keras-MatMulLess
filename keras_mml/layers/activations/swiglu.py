@@ -11,7 +11,8 @@ from keras_mml.layers.activations.glu import GLUMML
 @keras.saving.register_keras_serializable(package="keras_mml")
 class SwiGLUMML(GLUMML):
     """
-    Swish (or silu) activated Gated Linear Unit (GLU) without matrix multiplication.
+    Swish with :math:`\\beta = 1` (i.e., Sigmoid Linear Unit (SiLU)) activated Gated Linear Unit
+    (GLU) without matrix multiplications.
 
     See :py:class:`~.GLUMML` for the full documentation.
     """

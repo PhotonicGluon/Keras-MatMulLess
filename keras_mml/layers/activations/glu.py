@@ -16,7 +16,7 @@ PERMITTED_ACTIVATIONS = {"sigmoid", "linear", "relu", "gelu", "silu", "selu"}
 @keras.saving.register_keras_serializable(package="keras_mml")
 class GLUMML(keras.Layer):
     """
-    Gated Linear Unit (GLU) without matrix multiplication.
+    General Gated Linear Unit (GLU) without matrix multiplications.
 
     This is a modified implementation of ``HGRNBitMLP`` from the `GitHub repository
     <https://github.com/ridgerchu/matmulfreellm>`_ of |MatMulFreeLLM|_ where, instead of just

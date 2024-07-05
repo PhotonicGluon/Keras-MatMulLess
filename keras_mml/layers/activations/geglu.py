@@ -11,7 +11,8 @@ from keras_mml.layers.activations.glu import GLUMML
 @keras.saving.register_keras_serializable(package="keras_mml")
 class GeGLUMML(GLUMML):
     """
-    GELU activated Gated Linear Unit (GLU) without matrix multiplication.
+    Gaussian Error Linear Unit (GELU) activated Gated Linear Unit (GLU) without matrix
+    multiplications.
 
     See :py:class:`~.GLUMML` for the full documentation.
     """
