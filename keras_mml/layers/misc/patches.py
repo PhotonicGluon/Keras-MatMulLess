@@ -19,7 +19,7 @@ class Patches(keras.Layer):
     .. admonition:: Calling Convention
         :class: tip
 
-        - **Input Shape**: A 4D tensor with shape ``(batch_size, height, width, channels)``
+        - **Input Shape**: 4D tensor with shape ``(batch_size, height, width, channels)``
         - **Output Shape**: ``(batch_size, patch_count, channels * (patch_size)**2)``
 
     Attributes:

@@ -7,6 +7,8 @@ from typing import Tuple
 import keras
 from keras import ops
 
+from keras_mml.layers.core.dense import DenseMML
+
 
 @keras.saving.register_keras_serializable(package="keras_mml")
 class TokenEmbedding(keras.layers.Layer):
@@ -128,5 +130,101 @@ class TokenEmbedding(keras.layers.Layer):
 @keras.saving.register_keras_serializable(package="keras_mml")
 class PatchEmbedding(keras.layers.Layer):
     """
-    TODO: ADD
+    Turns image patches into vectors of fixed size.
+
+    The image patches should have come from the :py:class:`~keras_mml.layers.misc.Patches` layer.
+
+    This layer could optionally include position information in the embeddings by enabling the
+    :py:attr:`with_positions` attribute.
+
+    .. admonition:: Calling Convention
+        :class: tip
+
+        - **Input Shape**: 3D tensor of shape ``(batch_size, patch_count, patch_dim)``
+        - **Output Shape**: ``(batch_size, patch_count, embedding_dim)``
+
+    Attributes:
+        num_patches: Number of patches in each image.
+        embedding_dim: Embedding dimension.
+        use_mml: Whether to use a matmul-less projection to embed the patches.
+        with_positions: Whether to include position information in the embeddings.
     """
+
+    def __init__(
+        self, num_patches: int, embedding_dim: int, use_mml: bool = True, with_positions: bool = False, **kwargs
+    ):
+        """
+        Initializes a new instance of the layer.
+
+        Args:
+            num_patches: Number of patches in each image.
+            embedding_dim: Embedding dimension.
+            use_mml: Whether to use a matmul-less projection to embed the patches.
+            with_positions: Whether to include position information in the embeddings.
+            **kwargs: Keyword arguments for :py:class:`keras.Layer`.
+
+        Raises:
+            ValueError: If the number of patches is not a positive integer.
+            ValueError: If the embedding dimension is not a positive integer.
+        """
+
+        if num_patches <= 0:
+            raise ValueError(f"Invalid number of patches, expected a positive integer, got {num_patches}")
+
+        if embedding_dim <= 0:
+            raise ValueError(f"Invalid embedding dimension, expected a positive integer, got {embedding_dim}")
+
+        super().__init__(**kwargs)
+
+        self.input_spec = keras.layers.InputSpec(ndim=3)
+
+        # Main attributes
+        self.num_patches = num_patches
+        self.embedding_dim = embedding_dim
+        self.use_mml = use_mml
+        self.with_positions = with_positions
+
+        # Hidden weights/layers
+        if self.use_mml:
+            self._projection = DenseMML(embedding_dim)
+        else:
+            self._projection = keras.layers.Dense(embedding_dim)
+
+        if with_positions:
+            self._pos_embedding = keras.layers.Embedding(input_dim=num_patches, output_dim=embedding_dim)
+        else:
+            self._pos_embedding = None
+
+    def build(self, input_shape: Tuple[int, int, int]):
+        """
+        Build the layer.
+
+        Args:
+            input_shape: Shape of the input.
+        """
+
+        self._projection.build(input_shape)
+        if self._pos_embedding is not None:
+            self._pos_embedding.build(input_shape)
+
+        self.built = True
+
+    def call(self, inputs):
+        """
+        Calling method of the layer.
+
+        Args:
+            inputs: Inputs into the layer.
+
+        Returns:
+            Transformed inputs.
+        """
+
+        projected_patches = self._projection(inputs)
+        if self._pos_embedding is None:
+            return projected_patches
+
+        positions = ops.expand_dims(ops.arange(start=0, stop=self.num_patches, step=1), axis=0)
+        positions = self._pos_embedding(positions)
+
+        return projected_patches + positions
