@@ -119,7 +119,7 @@ class LRUCellMML(keras.Layer):
 
         Args:
             shape: Shape of the weight.
-            dtype: Data type of the weight. Defaults to None.
+            dtype: Data type of the weight.
 
         Returns:
             Weight values.
@@ -135,7 +135,7 @@ class LRUCellMML(keras.Layer):
 
         Args:
             shape: Shape of the weight.
-            dtype: Data type of the weight. Defaults to None.
+            dtype: Data type of the weight.
 
         Returns:
             Weight values.
@@ -151,7 +151,7 @@ class LRUCellMML(keras.Layer):
 
         Args:
             shape: Shape of the weight.
-            dtype: Data type of the weight. Defaults to None.
+            dtype: Data type of the weight.
 
         Returns:
             Weight values.
@@ -167,7 +167,7 @@ class LRUCellMML(keras.Layer):
 
         Args:
             shape: Shape of the weight.
-            dtype: Data type of the weight. Defaults to None.
+            dtype: Data type of the weight.
 
         Returns:
             Weight values.

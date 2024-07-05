@@ -301,7 +301,7 @@ class GRUCellMML(keras.Layer):
         Gets the initial states.
 
         Args:
-            batch_size: Batch size for the cell. Defaults to None.
+            batch_size: Batch size for the cell.
 
         Returns:
             Initial states.
