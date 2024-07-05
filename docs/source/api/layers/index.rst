@@ -15,3 +15,4 @@ This page lists modules containing Keras-MML layers.
     normalizations
     recurrent
     transformer
+    misc
