@@ -123,3 +123,10 @@ class TokenEmbedding(keras.layers.Layer):
         positions = self._pos_embedding(positions)
 
         return tokens + positions
+
+
+@keras.saving.register_keras_serializable(package="keras_mml")
+class PatchEmbedding(keras.layers.Layer):
+    """
+    TODO: ADD
+    """
