@@ -10,11 +10,11 @@ from einops import rearrange
 from keras import activations, constraints, initializers, ops, random, regularizers
 
 from keras_mml.layers.core import DenseMML
-from keras_mml.layers.recurrent.rnn import RNN, DropoutRNNCell
+from keras_mml.layers.recurrent.rnn import RNN
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
-class GRUCellMML(keras.Layer, DropoutRNNCell):
+class GRUCellMML(keras.Layer):
     """
     Cell class for the :py:class:`~GRUMML` layer.
 
@@ -41,11 +41,6 @@ class GRUCellMML(keras.Layer, DropoutRNNCell):
         bias_regularizer: Regularizer function applied to the bias vector.
         weights_constraint: Constraint function applied to the gates' matrices.
         bias_constraint: Constraint function applied to the bias vector.
-        dropout: Fraction of the units to drop for the linear transformation of the inputs. Should
-            be a float between 0 and 1.
-        recurrent_dropout: Fraction of the units to drop for the linear transformation of the
-            recurrent state. Should be a float between 0 and 1.
-        seed: Random seed for dropout.
         state_size: Size of the recurrent state.
         output_size: Size of the output vector.
     """
@@ -64,9 +59,6 @@ class GRUCellMML(keras.Layer, DropoutRNNCell):
         bias_regularizer: Optional[str] = None,
         weights_constraint: Optional[str] = None,
         bias_constraint: Optional[str] = None,
-        dropout: float = 0.0,
-        recurrent_dropout: float = 0.0,
-        seed: Optional[int] = None,
         **kwargs,
     ):
         """
@@ -86,11 +78,6 @@ class GRUCellMML(keras.Layer, DropoutRNNCell):
             bias_regularizer: Regularizer function applied to the bias vector.
             weights_constraint: Constraint function applied to the gates' matrices.
             bias_constraint: Constraint function applied to the bias vector.
-            dropout: Fraction of the units to drop for the linear transformation of the inputs.
-                Should be a float between 0 and 1.
-            recurrent_dropout: Fraction of the units to drop for the linear transformation of the
-                recurrent state. Should be a float between 0 and 1.
-            seed: Random seed for dropout.
             **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
@@ -115,8 +102,7 @@ class GRUCellMML(keras.Layer, DropoutRNNCell):
                 f"Got output dimension of {units} but wanted to use {num_heads} heads."
             )
 
-        keras.Layer.__init__(self, **kwargs)
-        DropoutRNNCell.__init__(self)
+        super().__init__(**kwargs)
 
         self.input_spec = keras.layers.InputSpec(ndim=2)
 
@@ -140,12 +126,6 @@ class GRUCellMML(keras.Layer, DropoutRNNCell):
 
         self.weights_constraint = constraints.get(weights_constraint)
         self.bias_constraint = constraints.get(bias_constraint)
-
-        self.dropout = min(1.0, max(0.0, dropout))
-        self.recurrent_dropout = min(1.0, max(0.0, recurrent_dropout))
-
-        self.seed = seed
-        self.seed_generator = random.SeedGenerator(seed=seed)
 
         self._head_dim = None
 
@@ -254,15 +234,6 @@ class GRUCellMML(keras.Layer, DropoutRNNCell):
         # Get the previous state
         h_tm1 = states[0] if keras.tree.is_nested(states) else states
 
-        # Handle dropping out
-        dp_mask = self.get_dropout_mask(inputs)
-        recurrent_dp_mask = self.get_recurrent_dropout_mask(inputs)
-
-        if training and 0.0 < self.dropout < 1.0:
-            inputs = inputs * dp_mask
-        if training and 0.0 < self.recurrent_dropout < 1.0:
-            h_tm1 = h_tm1 * recurrent_dp_mask
-
         # Pass inputs through the kernel matrix
         kernel_out = self._kernel(inputs)
 
@@ -321,9 +292,6 @@ class GRUCellMML(keras.Layer, DropoutRNNCell):
                 "bias_regularizer": regularizers.serialize(self.bias_regularizer),
                 "weights_constraint": constraints.serialize(self.weights_constraint),
                 "bias_constraint": constraints.serialize(self.bias_constraint),
-                "dropout": self.dropout,
-                "recurrent_dropout": self.recurrent_dropout,
-                "seed": self.seed,
             }
         )
         return config
@@ -420,9 +388,6 @@ class GRUMML(RNN):
         bias_regularizer: Optional[str] = None,
         weights_constraint: Optional[str] = None,
         bias_constraint: Optional[str] = None,
-        dropout: float = 0.0,
-        recurrent_dropout: float = 0.0,
-        seed: Optional[int] = None,
         **kwargs,
     ):
         """
@@ -443,11 +408,6 @@ class GRUMML(RNN):
             bias_regularizer: Regularizer function applied to the bias vector.
             weights_constraint: Constraint function applied to the gates' matrices.
             bias_constraint: Constraint function applied to the bias vector.
-            dropout: Fraction of the units to drop for the linear transformation of the inputs.
-                Should be a float between 0 and 1.
-            recurrent_dropout: Fraction of the units to drop for the linear transformation of the
-                recurrent state. Should be a float between 0 and 1.
-            seed: Random seed for dropout.
             **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
@@ -473,9 +433,6 @@ class GRUMML(RNN):
             bias_regularizer=bias_regularizer,
             weights_constraint=weights_constraint,
             bias_constraint=bias_constraint,
-            dropout=dropout,
-            recurrent_dropout=recurrent_dropout,
-            seed=seed,
         )
         super().__init__(cell, **kwargs)
 
@@ -566,27 +523,6 @@ class GRUMML(RNN):
         """
         return self.cell.bias_constraint
 
-    @property
-    def dropout(self):
-        """
-        :meta private:
-        """
-        return self.cell.dropout
-
-    @property
-    def recurrent_dropout(self):
-        """
-        :meta private:
-        """
-        return self.cell.recurrent_dropout
-
-    @property
-    def seed(self):
-        """
-        :meta private:
-        """
-        return self.cell.seed
-
     # Public methods
     def get_config(self) -> Dict[str, Any]:
         """
@@ -609,9 +545,6 @@ class GRUMML(RNN):
             "bias_regularizer": regularizers.serialize(self.bias_regularizer),
             "weights_constraint": constraints.serialize(self.weights_constraint),
             "bias_constraint": constraints.serialize(self.bias_constraint),
-            "dropout": self.dropout,
-            "recurrent_dropout": self.recurrent_dropout,
-            "seed": self.seed,
         }
         base_config = super().get_config()
         del base_config["cell"]

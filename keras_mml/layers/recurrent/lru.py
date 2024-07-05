@@ -9,7 +9,7 @@ import numpy as np
 from keras import ops, random
 
 from keras_mml.layers.core import DenseMML
-from keras_mml.layers.recurrent.rnn import RNN, DropoutRNNCell
+from keras_mml.layers.recurrent.rnn import RNN
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
@@ -24,7 +24,7 @@ class _GammaLogInitializer(keras.initializers.Initializer):
 
 
 @keras.saving.register_keras_serializable(package="keras_mml")
-class LRUCellMML(keras.Layer, DropoutRNNCell):
+class LRUCellMML(keras.Layer):
     """
     Cell class for the :py:class:`~LRUMML` layer.
 
@@ -45,11 +45,6 @@ class LRUCellMML(keras.Layer, DropoutRNNCell):
         r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
         max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
         use_bias: Whether to use a bias vector for the layer.
-        dropout: Fraction of the units to drop for the linear transformation of the inputs. Should
-            be a float between 0 and 1.
-        recurrent_dropout: Fraction of the units to drop for the linear transformation of the
-            recurrent state. Should be a float between 0 and 1.
-        seed: Random seed for dropout.
         state_size: Size of the recurrent state.
         output_size: Size of the output vector.
     """
@@ -63,9 +58,6 @@ class LRUCellMML(keras.Layer, DropoutRNNCell):
         r_max: float = 1,
         max_phase: float = np.pi * 2,
         use_bias: bool = False,
-        dropout: float = 0.0,
-        recurrent_dropout: float = 0.0,
-        seed: Optional[int] = None,
         **kwargs,
     ):
         """
@@ -79,11 +71,6 @@ class LRUCellMML(keras.Layer, DropoutRNNCell):
             r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
             max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
             use_bias: Whether to use a bias vector for the layer.
-            dropout: Fraction of the units to drop for the linear transformation of the inputs.
-                Should be a float between 0 and 1.
-            recurrent_dropout: Fraction of the units to drop for the linear transformation of the
-                recurrent state. Should be a float between 0 and 1.
-            seed: Random seed for dropout.
             **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
@@ -97,8 +84,7 @@ class LRUCellMML(keras.Layer, DropoutRNNCell):
         if state_dim <= 0:
             raise ValueError(f"Invalid state dimensionality. Expected a positive integer, got {state_dim}.")
 
-        keras.layers.Layer.__init__(self, **kwargs)
-        DropoutRNNCell.__init__(self)
+        super().__init__(**kwargs)
 
         self.input_spec = keras.layers.InputSpec(ndim=2)
 
@@ -114,12 +100,6 @@ class LRUCellMML(keras.Layer, DropoutRNNCell):
         self.r_min = r_min
         self.r_max = r_max
         self.max_phase = max_phase
-
-        self.dropout = min(1.0, max(0.0, dropout))
-        self.recurrent_dropout = min(1.0, max(0.0, recurrent_dropout))
-
-        self.seed = seed
-        self.seed_generator = random.SeedGenerator(seed=seed)
 
         # Hidden weights/layers
         self._nu_log = None
@@ -266,16 +246,6 @@ class LRUCellMML(keras.Layer, DropoutRNNCell):
         state_re = ops.squeeze(state_re, axis=1)
         state_im = ops.squeeze(state_im, axis=1)
 
-        # Handle dropping out
-        dp_mask = self.get_dropout_mask(inputs)
-        recurrent_dp_mask = self.get_recurrent_dropout_mask(inputs)
-
-        if training and 0.0 < self.dropout < 1.0:
-            inputs = inputs * dp_mask
-        if training and 0.0 < self.recurrent_dropout < 1.0:
-            state_re = state_re * recurrent_dp_mask
-            state_im = state_im * recurrent_dp_mask
-
         # Compute real and imaginary parts of the diagonal lambda matrix
         lambda_mod = ops.exp(-ops.exp(self._nu_log))
         lambda_re = lambda_mod * ops.cos(ops.exp(self._theta_log))
@@ -313,9 +283,6 @@ class LRUCellMML(keras.Layer, DropoutRNNCell):
                 "r_max": self.r_max,
                 "max_phase": self.max_phase,
                 "use_bias": self.use_bias,
-                "dropout": self.dropout,
-                "recurrent_dropout": self.recurrent_dropout,
-                "seed": self.seed,
             }
         )
         return config
@@ -380,9 +347,6 @@ class LRUMML(RNN):
         r_max: float = 1,
         max_phase: float = np.pi * 2,
         use_bias: bool = False,
-        dropout: float = 0.0,
-        recurrent_dropout: float = 0.0,
-        seed: Optional[int] = None,
         **kwargs,
     ):
         """
@@ -396,11 +360,6 @@ class LRUMML(RNN):
             r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
             max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
             use_bias: Whether to use a bias vector for the layer.
-            dropout: Fraction of the units to drop for the linear transformation of the inputs.
-                Should be a float between 0 and 1.
-            recurrent_dropout: Fraction of the units to drop for the linear transformation of the
-                recurrent state. Should be a float between 0 and 1.
-            seed: Random seed for dropout.
             **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
         Raises:
@@ -417,9 +376,6 @@ class LRUMML(RNN):
             r_max=r_max,
             max_phase=max_phase,
             use_bias=use_bias,
-            dropout=dropout,
-            recurrent_dropout=recurrent_dropout,
-            seed=seed,
         )
         super().__init__(cell, **kwargs)
 
@@ -475,27 +431,6 @@ class LRUMML(RNN):
         """
         return self.cell.use_bias
 
-    @property
-    def dropout(self):
-        """
-        :meta private:
-        """
-        return self.cell.dropout
-
-    @property
-    def recurrent_dropout(self):
-        """
-        :meta private:
-        """
-        return self.cell.recurrent_dropout
-
-    @property
-    def seed(self):
-        """
-        :meta private:
-        """
-        return self.cell.seed
-
     # Public methods
     def get_config(self) -> Dict[str, Any]:
         """
@@ -513,9 +448,6 @@ class LRUMML(RNN):
             "r_max": self.r_max,
             "max_phase": self.max_phase,
             "use_bias": self.use_bias,
-            "dropout": self.dropout,
-            "recurrent_dropout": self.recurrent_dropout,
-            "seed": self.seed,
         }
         base_config = super().get_config()
         del base_config["cell"]
