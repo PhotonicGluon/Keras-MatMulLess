@@ -4735,6 +4735,27 @@ theme-rtd = ["sphinx-rtd-theme (>=2.0,<3.0)"]
 theme-sbt = ["sphinx-book-theme (>=1.1,<2.0)"]
 
 [[package]]
+name = "sphinx-tippy"
+version = "0.4.3"
+description = "Get rich tool tips in your sphinx documentation!"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "sphinx_tippy-0.4.3-py3-none-any.whl", hash = "sha256:572b0e001baec9b03e2b19ec4e9760ca1a853f4c3226b5cea251f477b2c2b096"},
+    {file = "sphinx_tippy-0.4.3.tar.gz", hash = "sha256:255abee0aed8085fdb9ab0cc595cd7a45748ae7f4662156e500a17a3f73ad63d"},
+]
+
+[package.dependencies]
+beautifulsoup4 = "*"
+jinja2 = "*"
+requests = "*"
+sphinx = ">4"
+
+[package.extras]
+docs = ["furo", "myst-parser"]
+testing = ["pytest", "pytest-regressions", "sphinx-pytest"]
+
+[[package]]
 name = "sphinxcontrib-applehelp"
 version = "1.0.8"
 description = "sphinxcontrib-applehelp is a Sphinx extension which outputs Apple help books"
@@ -5889,4 +5910,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "e861cb5f668184cc376efa47a5f592244a4a49bb6cac7a90a6f7d92d8a854ef7"
+content-hash = "8bbab86616fd0f2220a748f51ef0ffd7b74f9c08fc1b28e453c715fe382231dd"

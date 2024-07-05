@@ -40,6 +40,7 @@ extensions = [
     "myst_nb",
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinx_tippy",
 ]
 
 source_suffix = {
