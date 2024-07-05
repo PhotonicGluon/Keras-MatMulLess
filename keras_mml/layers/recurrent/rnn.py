@@ -5,7 +5,6 @@ Custom common RNN layers.
 from typing import Any, List, Optional
 
 import keras
-from keras import ops, random
 
 
 class RNN(keras.layers.RNN):
