@@ -42,7 +42,15 @@ def test_hidden_calls():
     assert np.allclose(predicted, correct)
 
 
-# Saving/Load
+def test_invalid_units():
+    with pytest.raises(ValueError):
+        DenseMML(0)
+
+    with pytest.raises(ValueError):
+        DenseMML(-1)
+
+
+# Saving/Loading
 def test_save_load_normal_2d_array():
     with tempfile.TemporaryDirectory() as tmpdir:
         mock_data = np.array([[1.0, 2.0, 3.0]])
@@ -103,15 +111,6 @@ def test_save_load_2d_array_no_bias():
         model2_output = asnumpy(model2(mock_data))
 
         assert np.allclose(model1_output, model2_output)
-
-
-# Invalid calls
-def test_invalid_units():
-    with pytest.raises(ValueError):
-        DenseMML(0)
-
-    with pytest.raises(ValueError):
-        DenseMML(-1)
 
 
 # Training
