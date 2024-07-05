@@ -10,7 +10,7 @@ def int_to_bin(x: int, pad_len: int = 8) -> str:
     Args:
         x: Integer to convert.
         pad_len: Length to pad to. If the length of the original binary representation is longer
-            than the pad length, this will be ignored. Defaults to 8.
+            than the pad length, this will be ignored.
 
     Returns:
         Binary representation of the integer.
