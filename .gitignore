@@ -166,6 +166,8 @@ cython_debug/
 
 docs/source/examples/data
 docs/source/**/generated
+docs/source/examples/misc
+
 experiments/
 **/jupyter_execute
 

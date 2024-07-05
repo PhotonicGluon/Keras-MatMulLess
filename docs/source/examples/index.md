@@ -11,4 +11,5 @@ Autoencoders <autoencoders>
 Credit Card Fraud Detection <fraud-detection>
 Gated Linear Units (GLUs) <gated-linear-unit>
 Text Classification With Transformers <transformers>
+Hyperparameter Tuning <hyperparameter-tuning>
 ```
