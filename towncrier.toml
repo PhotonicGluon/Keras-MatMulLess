@@ -42,3 +42,8 @@ showcontent = true
 directory = "docs"
 name = "Documentation Changes"
 showcontent = true
+
+[[tool.towncrier.type]]
+directory = "misc"
+name = "Other Changes"
+showcontent = true

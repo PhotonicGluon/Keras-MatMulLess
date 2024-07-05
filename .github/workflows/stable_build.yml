@@ -79,7 +79,8 @@ jobs:
         with:
           inputs: ./dist/*.tar.gz ./dist/*.whl
       - name: Create a GitHub release
-        run: gh release create --draft --repo --generate-notes '${{ github.repository }}' '${{ github.ref_name }}'
+        run: >-
+          gh release create --draft --repo '${{ github.repository }}' --generate-notes '${{ github.ref_name }}'
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: Upload signed release files to GitHub release
