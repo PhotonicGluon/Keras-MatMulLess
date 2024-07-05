@@ -12,7 +12,7 @@ This page explains the theory behind `DenseMML`, as well as important pitfalls o
 
 ## How `DenseMML` Works
 
-The core implementation of `DenseMMl` stems from the paper [*The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits*](https://arxiv.org/pdf/2402.17764) by Ma and Wang et al.
+The core implementation of `DenseMML` stems from the paper [*The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits*](https://arxiv.org/pdf/2402.17764) by Ma and Wang et al.
 
 <center>
     <img alt="Figure 1" style="width: 75%" src="https://i.postimg.cc/SxcSzjCQ/figure-1.png">
@@ -29,12 +29,12 @@ $$
 \gamma = \frac1{mn} \sum_{i,j} \left|\mathbf{W}_{i,j}\right|
 $$
 
-
 Then, with this value, they are able to round each weight value in the weight matrix $\mathbf{W}$ to the nearest integer amongst $\{-1, 0, 1\}$ using the formula
 $$
 \tilde{\mathbf{W}} = \mathrm{RoundClip}\left(\frac1{\gamma + \epsilon}\mathbf{W}, -1, 1\right)
 $$
 where
+
 - the $\mathrm{RoundClip}$ function is defined by $$\mathrm{RoundClip}(x, a, b) = \max(a, \min(b, \mathrm{round}(x)))$$ for $a \leq b$;
 - $\gamma$ is the absmean of the values in $\mathbf{W}$ (see above); and
 - $\epsilon$ is a small value (e.g, $10^{-5}$) to avoid division by zero errors.
@@ -49,6 +49,7 @@ $$
 \tilde{\mathbf{x}} = \mathrm{Clip}\left(\frac{Q_b}{\beta}\mathbf{x}, -Q_b+\epsilon, Q_b-\epsilon\right)
 $$
 where
+
 - $b$ is the number of bits to quantize the activations to, and so $Q_b = 2^{b-1}$;
 - the $\mathrm{Clip}$ function is defined by $$\mathrm{Clip}(x, a, b) = \max(a, \min(b, x))$$ for $a \leq b$;
 - $\beta$ is the maximum of the absolute values of the components of $\mathbf{x}$; and

@@ -30,6 +30,7 @@ $$
 \end{align*}
 $$
 where
+
 - $\mathbf{h}_t \in \mathbb{R}^d$ is the hidden state vector at the timestep $t$ (where we define $\mathbf{h}_0 = \mathbf{0}$);
 - $\mathbf{r}_t \in \mathbb{R}^d$ can be called the *reset gate vector*;
 - $\mathbf{f}_t \in \mathbb{R}^d$ can be called the *forget gate vector*;
@@ -83,6 +84,7 @@ $$
 \end{align*}
 $$
 where
+
 - $\mathbf{W}_f$, $\mathbf{W}_c$, and $\mathbf{W}_g$ are $n \times d$ ternary weight matrices;
 - $\mathbf{W}_o$ is a $d \times d$ ternary weight matrix; and
 - $\mathbf{b}_f, \mathbf{b}_c, \mathbf{b}_g, \mathbf{b}_o \in \mathbf{R}^d$ are bias vectors.
@@ -120,6 +122,7 @@ $$
 $$
 
 In the description above,
+
 - $\mathbf{x}_k \in \mathbb{C}^m$ is the hidden state at $k$ (where $m$ is the state dimension), where we define $\mathbf{x}_0 = \mathbf{0}$;
 - $\mathbf{\Lambda}$ is a complex-valued diagonal matrix of size $m \times m$;
 - $\mathbf{\gamma}^{\mathrm{log}} \in \mathbb{R}^m$ is a vector containing the logarithms of the scaling factors (meaning that $\exp(\mathbf{\gamma}^{\mathrm{log}})$ is just the scaling factors matrix);
@@ -155,6 +158,7 @@ Unlike `GRUMML` which had to use a wholly different architecture to the original
 Despite the above implementations of `GRUMML` and `LRUMML` above being fully matmul-less, there is a problem &mdash; the outputs are also quantized. This limitation means that the output of the two layers are not as good as their normal counterparts.
 
 Thus, the fully matmul-less implementations of both of these layers are **disabled by default**. We only partially use ternary weights for the layers; in particular
+
 - only $\mathbf{W}_f$ and $\mathbf{W}_c$ use ternary weights in `GRUMML`; and
 - only $\mathbf{B}$ uses ternary weights in `LRUMML`.
 

@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "absmax",
+        "absmean",
         "addoption",
         "allclose",
         "arange",
@@ -54,6 +55,7 @@
         "keras",
         "lineplot",
         "LRUMML",
+        "LSTM",
         "mathbb",
         "mathbf",
         "mathrm",
@@ -104,6 +106,7 @@
         "venv",
         "viewcode",
         "virtualenv",
+        "wordcount",
         "xaxis",
         "xlabel",
         "yaxis",
