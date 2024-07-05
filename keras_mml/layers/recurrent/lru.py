@@ -326,11 +326,6 @@ class LRUMML(RNN):
         r_max: Maximum modulus of the complex weights in :math:`\\mathbf{\\Lambda}`.
         max_phase: Maximum phase of the complex weights in :math:`\\mathbf{\\Lambda}`.
         use_bias: Whether to use a bias vector for the layer.
-        dropout: Fraction of the units to drop for the linear transformation of the inputs. Should
-            be a float between 0 and 1.
-        recurrent_dropout: Fraction of the units to drop for the linear transformation of the
-            recurrent state. Should be a float between 0 and 1.
-        seed: Random seed for dropout.
 
     .. |LinearRU| replace:: *Resurrecting Recurrent Neural Networks for Long Sequences*
     .. _LinearRU: https://arxiv.org/pdf/2303.06349v1
