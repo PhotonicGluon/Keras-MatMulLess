@@ -364,11 +364,6 @@ class GRUMML(RNN):
         bias_regularizer: Regularizer function applied to the bias vector.
         weights_constraint: Constraint function applied to the gates' matrices.
         bias_constraint: Constraint function applied to the bias vector.
-        dropout: Fraction of the units to drop for the linear transformation of the inputs. Should
-            be a float between 0 and 1.
-        recurrent_dropout: Fraction of the units to drop for the linear transformation of the
-            recurrent state. Should be a float between 0 and 1.
-        seed: Random seed for dropout.
     
     .. |MatMulFreeLLM| replace:: *Scalable MatMul-free Language Modeling*
     .. _MatMulFreeLLM: https://arxiv.org/pdf/2406.02528v5
