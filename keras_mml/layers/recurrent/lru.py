@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import keras
 import numpy as np
-from keras import ops, random
+from keras import ops
 
 from keras_mml.layers.core import DenseMML
 from keras_mml.layers.recurrent.rnn import RNN

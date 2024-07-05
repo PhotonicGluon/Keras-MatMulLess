@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import keras
 import numpy as np
 from einops import rearrange
-from keras import activations, constraints, initializers, ops, random, regularizers
+from keras import activations, constraints, initializers, ops, regularizers
 
 from keras_mml.layers.core import DenseMML
 from keras_mml.layers.recurrent.rnn import RNN
