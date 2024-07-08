@@ -85,6 +85,7 @@
         "relu",
         "rtol",
         "rtype",
+        "secho",
         "seglu",
         "selu",
         "Shazeer",
