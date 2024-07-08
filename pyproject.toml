@@ -48,9 +48,6 @@ sphinx-tippy = "~0.4.3"
 pylint = "~3.2.5"
 towncrier = "~23.11.0"
 
-# Others
-click = "~8.1.7"
-
 [tool.poetry.group.cuda]
 optional = true
 
