@@ -35,7 +35,7 @@ jobs:
       - name: Install Project Dependencies
         run: |
           poetry self add "poetry-dynamic-versioning[plugin]"
-          poetry install --with dev
+          python install.py dev
           poetry dynamic-versioning enable
       - name: Build Package
         run: poetry build

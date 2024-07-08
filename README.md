@@ -103,16 +103,16 @@ Now we install Poetry.
 pip install poetry
 ```
 
-Finally, install the development dependencies.
+Finally, install the development dependencies. The `install.py` script helps manage these dependencies.
 
 ```bash
-poetry install --with dev
+python install.py dev
 ```
 
 If you have not installed a backend (i.e., [Tensorflow](https://www.tensorflow.org/), [PyTorch](https://pytorch.org/), or [Jax](https://jax.readthedocs.io/en/latest/index.html)) you can do so here.
 
 ```bash
-poetry install --with dev,BACKEND_NAME
+python install.py dev --backend BACKEND_NAME
 ```
 
 Note that the `BACKEND_NAME` to be specified here is
@@ -121,27 +121,13 @@ Note that the `BACKEND_NAME` to be specified here is
 - `torch` for the PyTorch backend; and
 - `jax` for the Jax backend.
 
+If you need to install with CUDA support, run
+
+```bash
+python install.py dev --backend BACKEND_NAME --with-cuda
+```
+
 That's it! You should now have access to the `keras_mml` package.
-
-### Installation Issues
-
-These are some of the known issues faced when installing Keras-MML.
-
-#### Development Installation With `torch` Backend
-
-*This is a known issue when installing Keras-MML with `dev` and `torch` on **AArch64** (i.e., **ARM64**) systems.*
-
-Attempting to install the `torch` backend using
-
-```bash
-poetry install --with torch
-```
-
-fails with a message like `Unable to find installation candidates for torch (2.2.2+cpu)`. To remedy, run
-
-```bash
-pip install torch~=2.2.2 torchvision~=0.17.2 torchaudio~=2.2.2
-```
 
 <!-- end installation -->
 

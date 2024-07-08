@@ -1,5 +1,5 @@
 #!/bin/bash
-poetry install --with dev,nvidia-gpu  # ADDITIONAL: Need to install GPU dependencies
+python install.py dev cuda  # ADDITIONAL: Need to install CUDA dependencies
 
 export temporary=$(poetry env info --path)
 echo "export PATH='$temporary/bin:$PATH'" >> ~/.bashrc
