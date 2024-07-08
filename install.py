@@ -27,7 +27,7 @@ def install(groups: Tuple[str, ...], backends: Tuple[str, ...], with_cuda: bool)
 
     for backend in backends:
         requirements_path = os.path.join(REQUIREMENTS_FOLDER, requirements_subfolder, f"requirements-{backend}.txt")
-        os.system(f"pip install -r {requirements_path}")
+        os.system(f"poetry run pip install -r {requirements_path}")
 
     print("\x1b[32mDone!")
 
