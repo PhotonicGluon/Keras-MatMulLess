@@ -5,6 +5,7 @@ Especially helpful during development.
 """
 
 import os
+import sys
 from argparse import ArgumentParser
 from typing import Tuple
 
@@ -18,18 +19,26 @@ def install(groups: Tuple[str, ...], backends: Tuple[str, ...], with_cuda: bool)
     WITH_GROUPS are the main dependency groups to install (from `pyproject.toml`).
     """
 
+    if len(groups) == 0 and len(backends) == 0:
+        print("\x1b[33mNothing to install.\x1b[0m")
+        return
+
     # Install the groups first
     if len(groups) != 0:
-        os.system(f"poetry install --with {','.join(groups)}")
+        exit_code = os.system(f"poetry install --with {','.join(groups)}")
+        if exit_code != 0:
+            sys.exit(exit_code)
 
     # Then install backend dependencies
     requirements_subfolder = "cuda" if with_cuda else "cpu"
 
     for backend in backends:
         requirements_path = os.path.join(REQUIREMENTS_FOLDER, requirements_subfolder, f"requirements-{backend}.txt")
-        os.system(f"poetry run pip install -r {requirements_path}")
+        exit_code = os.system(f"poetry run pip install -r {requirements_path}")
+        if exit_code != 0:
+            sys.exit(exit_code)
 
-    print("\x1b[32mDone!")
+    print("\x1b[32mDone!\x1b[0m")
 
 
 if __name__ == "__main__":
@@ -37,7 +46,7 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "groups",
-        nargs="+",
+        nargs="*",
         type=str.lower,
         help="main dependency groups to install (from `pyproject.toml`)",
     )
