@@ -23,6 +23,7 @@ python = "^3.9"
 keras = "~3.3.3"
 numpy = "~1.26.4"
 einops = "~0.8.0"
+jaxtyping = "~0.2.31"
 
 # Others
 poetry-dynamic-versioning = { extras = ["plugin"], version = "~1.4.0" }
