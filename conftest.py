@@ -48,3 +48,7 @@ def pytest_ignore_collect(collection_path: pathlib.Path) -> bool:
 
     if collection_path.name.startswith("_"):
         return True
+    if collection_path.name == "docs":
+        return True
+    if collection_path.name == "experiments":
+        return True
