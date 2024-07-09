@@ -5,6 +5,7 @@ Implements embedding layers.
 from typing import Tuple
 
 import keras
+from jaxtyping import Array, Float
 from keras import ops
 
 from keras_mml.layers.core.dense import DenseMML
@@ -22,12 +23,6 @@ class TokenEmbedding(keras.layers.Layer):
 
     This layer could optionally include position information in the embeddings by enabling the
     :py:attr:`with_positions` attribute.
-
-    .. admonition:: Calling Convention
-        :class: tip
-
-        - **Input Shape**: 2D tensor of shape ``(batch_size, sequence_length)``
-        - **Output Shape**: ``(batch_size, sequence_length, embedding_dim)``
 
     Attributes:
         max_len: Maximum length of a sentence.
@@ -105,7 +100,9 @@ class TokenEmbedding(keras.layers.Layer):
 
         self.built = True
 
-    def call(self, inputs):
+    def call(
+        self, inputs: Float[Array, "batch_size sequence_len"]
+    ) -> Float[Array, "batch_size sequence_len embedding_dim"]:
         """
         Calling method of the layer.
 
@@ -136,12 +133,6 @@ class PatchEmbedding(keras.layers.Layer):
 
     This layer could optionally include position information in the embeddings by enabling the
     :py:attr:`with_positions` attribute.
-
-    .. admonition:: Calling Convention
-        :class: tip
-
-        - **Input Shape**: 3D tensor of shape ``(batch_size, patch_count, patch_dim)``
-        - **Output Shape**: ``(batch_size, patch_count, embedding_dim)``
 
     Attributes:
         num_patches: Number of patches in each image.
@@ -209,7 +200,9 @@ class PatchEmbedding(keras.layers.Layer):
 
         self.built = True
 
-    def call(self, inputs):
+    def call(
+        self, inputs: Float[Array, "batch_size patch_count patch_dim"]
+    ) -> Float[Array, "batch_size patch_count embedding_dim"]:
         """
         Calling method of the layer.
 

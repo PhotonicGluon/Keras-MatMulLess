@@ -5,6 +5,7 @@ Implements a matmul-less Gated Linear Unit (GLU) layer.
 from typing import Any, Dict, Optional, Tuple
 
 import keras
+from jaxtyping import Array, Float
 from keras import activations, ops
 
 from keras_mml.layers.core import DenseMML
@@ -25,12 +26,6 @@ class GLUMML(keras.Layer):
 
     See section 3.3.2 of the aforementioned paper for the notation used in the implementation of the
     code.
-
-    .. admonition:: Calling Convention
-        :class: tip
-
-        - **Input Shape**: ``(batch_size, d1, ..., dn)``, i.e., allows any shape.
-        - **Output Shape**: ``(batch_size, d1, ..., units)``
 
     Attributes:
         units: Dimensionality of the output space.
@@ -117,7 +112,7 @@ class GLUMML(keras.Layer):
 
         self.built = True
 
-    def call(self, inputs):
+    def call(self, inputs: Float[Array, "batch_size *dims last_dim"]) -> Float[Array, "batch_size *dims units"]:
         """
         Calling method of the layer.
 

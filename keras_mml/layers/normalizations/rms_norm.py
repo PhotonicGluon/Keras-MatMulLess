@@ -5,6 +5,7 @@ Root Mean Square Normalization (RMSNorm) implementation.
 from typing import Optional, Tuple
 
 import keras
+from jaxtyping import Array, Float
 from keras import constraints, initializers, ops, regularizers
 
 
@@ -14,12 +15,6 @@ class RMSNorm(keras.Layer):
     Implements Root Mean Square Normalization (RMSNorm).
 
     The implementation of RMSNorm follows |RMSNorm Paper|_.
-
-    .. admonition:: Calling Convention
-        :class: tip
-
-        - **Input Shape**: ``(batch_size, d1, ..., dn)``, i.e., allows any shape.
-        - **Output Shape**: ``(batch_size, d1, ..., dn)``
 
     Attributes:
         has_learnable_weights: Whether the layer has learnable per-element affine parameters.
@@ -125,7 +120,7 @@ class RMSNorm(keras.Layer):
 
         self.built = True
 
-    def call(self, inputs):
+    def call(self, inputs: Float[Array, "batch_size *dims"]) -> Float[Array, "batch_size *dims"]:
         """
         Calling method of the layer.
 

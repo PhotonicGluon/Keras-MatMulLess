@@ -5,6 +5,7 @@ Custom common RNN layers.
 from typing import Any, List, Optional
 
 import keras
+from jaxtyping import Array, Float
 
 
 class RNN(keras.layers.RNN):
@@ -12,7 +13,13 @@ class RNN(keras.layers.RNN):
     Custom RNN layer that implements custom overrides of common methods.
     """
 
-    def call(self, sequences, initial_state: Optional[List] = None, mask: Optional[Any] = None, training: bool = False):
+    def call(
+        self,
+        sequences: Float[Array, "batch_size timesteps features"],
+        initial_state: Optional[List] = None,
+        mask: Optional[Any] = None,
+        training: bool = False,
+    ) -> Float[Array, "batch_size timesteps"]:
         """
         Calling method of the layer.
 
@@ -40,7 +47,13 @@ class RNN(keras.layers.RNN):
 
         return output
 
-    def inner_loop(self, sequences, initial_state, mask, training: bool = False):
+    def inner_loop(
+        self,
+        sequences: Float[Array, "batch_size timesteps features"],
+        initial_state: Float[Array, "*state_dims"],
+        mask: Float[Array, "*mask_dims"],
+        training: bool = False,
+    ):
         """
         Handles the execution of the recurrent loop of the recurrent neural network.
 

@@ -7,6 +7,7 @@ from typing import Dict, Optional, Tuple
 import keras
 import numpy as np
 from einops import asnumpy
+from jaxtyping import Array, Float
 from keras import activations, constraints, initializers, ops, regularizers
 
 from keras_mml.layers.core._dense_impl import BackendDenseMML
@@ -51,12 +52,6 @@ class DenseMML(BackendDenseMML):
 
     .. WARNING::
        Once a model that uses this layer is loaded from a file, it **cannot** be retrained.
-
-    .. admonition:: Calling Convention
-        :class: tip
-
-        - **Input Shape**: ``(batch_size, d1, ..., dn)``, i.e., allows any shape.
-        - **Output Shape**: ``(batch_size, d1, ..., units)``
 
     Attributes:
         units: Dimensionality of the output space.
@@ -168,7 +163,7 @@ class DenseMML(BackendDenseMML):
         self.input_spec = keras.layers.InputSpec(min_ndim=2, axes={-1: input_dim})
         self.built = True
 
-    def call(self, inputs):
+    def call(self, inputs: Float[Array, "batch_size *dims last_dim"]) -> Float[Array, "batch_size *dims units"]:
         """
         Calling method of the layer.
 

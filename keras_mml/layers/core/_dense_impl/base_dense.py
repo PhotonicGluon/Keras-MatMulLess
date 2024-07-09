@@ -5,6 +5,7 @@ Base class for all matmul-less dense layers.
 from typing import Any, Tuple
 
 import keras
+from jaxtyping import Array, Float
 
 from keras_mml.utils.array.ternary_multiplication import ternary_multiplication
 
@@ -26,7 +27,7 @@ class BaseDenseMML:
         self._kernel_scale = None  #: Used for when the layer is loaded from file.
 
     @staticmethod
-    def _compute_kernel_scale(w) -> float:
+    def _compute_kernel_scale(w: Float[Array, "*dims"]) -> float:
         """
         Computes the scale factor of the kernel matrix.
 
@@ -40,7 +41,7 @@ class BaseDenseMML:
         raise NotImplementedError  # pragma: no cover
 
     @staticmethod
-    def _quantize_kernel(w, scale: float):
+    def _quantize_kernel(w: Float[Array, "*dims"], scale: float):
         """
         Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
 
@@ -54,7 +55,9 @@ class BaseDenseMML:
 
         raise NotImplementedError  # pragma: no cover
 
-    def _get_quantized_arrays(self, x_norm) -> Tuple[Any, Any, float]:
+    def _get_quantized_arrays(
+        self, x_norm: Float[Array, "*dims"]
+    ) -> Tuple[Float[Array, "*dims_1"], Float[Array, "*dims_2"], float]:
         """
         Gets the quantized activation and weight values.
 
@@ -69,7 +72,9 @@ class BaseDenseMML:
         raise NotImplementedError  # pragma: no cover
 
     @staticmethod
-    def _ternary_multiplication(x_quantized, w_quantized, w_scale: float) -> Any:
+    def _ternary_multiplication(
+        x_quantized: Float[Array, "*dims_1"], w_quantized: Float[Array, "*dims_2"], w_scale: float
+    ) -> Any:
         """
         Applies the ternary multiplication algorithm.
 

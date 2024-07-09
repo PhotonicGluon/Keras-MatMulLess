@@ -5,6 +5,7 @@ Implements a matmul-less attention layer.
 from typing import Tuple
 
 import keras
+from jaxtyping import Array, Float
 
 from keras_mml.layers.recurrent.gru import GRUMML
 
@@ -18,12 +19,6 @@ class AttentionMML(keras.Layer):
     the |AttentionPaper|_ paper. Rather, this layer follows the description of the token-mixer in
     |MatMulFreeLLM|_ (see section 3.3.1), where we use
     :py:class:`~keras_mml.layers.recurrent.GRUMML` as the attention mechanism.
-
-    .. admonition:: Calling Convention
-        :class: tip
-
-        - **Input Shape**: 3D tensor of shape ``(batch_size, sequence_length, features)``
-        - **Output Shape**: ``(batch_size, sequence_length, out_dim)``
 
     Attributes:
         num_heads: Number of attention heads.
@@ -91,7 +86,9 @@ class AttentionMML(keras.Layer):
         super().build(input_shape)
         self._internal_layer.build(input_shape)
 
-    def call(self, inputs):
+    def call(
+        self, inputs: Float[Array, "batch_size sequence_length features"]
+    ) -> Float[Array, "batch_size sequence_length out_dim"]:
         """
         Calling method of the layer.
 

@@ -3,6 +3,7 @@ Implements an image patch extraction layer.
 """
 
 import keras
+from jaxtyping import Array, Float
 from keras import ops
 
 
@@ -15,12 +16,6 @@ class Patches(keras.Layer):
     Vision Transformers (ViT).
 
     Adapted from the ``Patches`` class in the Keras code example |ViT-CodeEx|_.
-
-    .. admonition:: Calling Convention
-        :class: tip
-
-        - **Input Shape**: 4D tensor with shape ``(batch_size, height, width, channels)``
-        - **Output Shape**: ``(batch_size, patch_count, channels * (patch_size)**2)``
 
     Attributes:
         patch_size: Size of the patches.
@@ -51,9 +46,14 @@ class Patches(keras.Layer):
 
         self.patch_size = patch_size
 
-    def call(self, inputs):
+    def call(
+        self, inputs: Float[Array, "batch_size height width channels"]
+    ) -> Float[Array, "batch_size patch_count patch_dim"]:
         """
         Calling method of the layer.
+
+        .. NOTE::
+            ``patch_dim`` is equal to ``channels * (patch_size)**2``.
 
         Args:
             inputs: Inputs into the layer.

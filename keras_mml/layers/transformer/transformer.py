@@ -5,6 +5,7 @@ Implements a matmul-less transformer block.
 from typing import Tuple
 
 import keras
+from jaxtyping import Array, Float
 
 from keras_mml.layers.activations import SwiGLUMML
 from keras_mml.layers.normalizations.rms_norm import RMSNorm
@@ -20,12 +21,6 @@ class TransformerBlockMML(keras.Layer):
     the Keras example |KerasTransformer|_ for its high-level implementation. However, we use the
     custom :py:class:`~keras_mml.layers.transformer.AttentionMML` class for the attention mechanism
     and :py:class:`~keras_mml.layers.activations.SwiGLUMML` for the feed-forward network (FFN) part.
-
-    .. admonition:: Calling Convention
-        :class: tip
-
-        - **Input Shape**: 3D tensor of shape ``(batch_size, sequence_length, features)``
-        - **Output Shape**: ``(batch_size, sequence_length, embedding_dim)``
 
     Attributes:
         embedding_dim: Dimension of the embeddings.
@@ -130,7 +125,9 @@ class TransformerBlockMML(keras.Layer):
 
         self.built = True
 
-    def call(self, inputs):
+    def call(
+        self, inputs: Float[Array, "batch_size sequence_length features"]
+    ) -> Float[Array, "batch_size sequence_length embedding_dim"]:
         """
         Calling method of the layer.
 

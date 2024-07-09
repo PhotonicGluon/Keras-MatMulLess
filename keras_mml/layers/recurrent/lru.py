@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import keras
 import numpy as np
+from jaxtyping import Array, Float
 from keras import ops
 
 from keras_mml.layers.core import DenseMML
@@ -30,12 +31,6 @@ class LRUCellMML(keras.Layer):
 
     This class processes one step within the whole time sequence input, whereas :py:class:`~LRUMML`
     processes the whole sequence.
-
-    .. admonition:: Calling Convention
-        :class: tip
-
-        - **Input Shape**: 2D tensor of shape ``(batch_size, features)``
-        - **Output Shape**: ``(batch_size, units)``
 
     Attributes:
         units: Dimensionality of the output space.
@@ -227,7 +222,9 @@ class LRUCellMML(keras.Layer):
             name="gamma_log", shape=(self.state_dim,), initializer=_GammaLogInitializer(self._nu_log)
         )
 
-    def call(self, inputs, states, training=False):
+    def call(
+        self, inputs: Float[Array, "batch_size features"], states: Float[Array, "*state_dims"], training=False
+    ) -> Float[Array, "batch_size units"]:
         """
         Calling method of the cell.
 
@@ -310,13 +307,6 @@ class LRUMML(RNN):
     A), with a few modifications from |LRU-PyTorch|_. We replace some matrix multiplications with
     ternary weights, although the option to use it as fully matrix multiplication free is available
     using the :py:attr:`~fully_mml` attribute.
-
-    .. admonition:: Calling Convention
-        :class: tip
-
-        - **Input Shape**: 3D tensor of shape ``(batch_size, timesteps, features)``
-            - Takes an optional mask of shape ``(batch_size, timesteps)``
-        - **Output Shape**: ``(batch_size, units)``
 
     Attributes:
         units: Dimensionality of the output space.

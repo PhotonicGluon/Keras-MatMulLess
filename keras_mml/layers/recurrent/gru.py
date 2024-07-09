@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import keras
 import numpy as np
 from einops import rearrange
+from jaxtyping import Array, Float
 from keras import activations, constraints, initializers, ops, regularizers
 
 from keras_mml.layers.core import DenseMML
@@ -20,12 +21,6 @@ class GRUCellMML(keras.Layer):
 
     This class processes one step within the whole time sequence input, whereas :py:class:`~GRUMML`
     processes the whole sequence.
-
-    .. admonition:: Calling Convention
-        :class: tip
-
-        - **Input Shape**: 2D tensor of shape ``(batch_size, features)``
-        - **Output Shape**: ``(batch_size, units)``
 
     Attributes:
         units: Dimensionality of the output space.
@@ -218,7 +213,9 @@ class GRUCellMML(keras.Layer):
 
         self.built = True
 
-    def call(self, inputs, states, training=False):
+    def call(
+        self, inputs: Float[Array, "batch_size features"], states: Float[Array, "*state_dims"], training=False
+    ) -> Float[Array, "batch_size units"]:
         """
         Calling method of the cell.
 
@@ -343,13 +340,6 @@ class GRUMML(RNN):
     - :math:`\\sigma` is the :py:attr:`~.recurrent_activation` (e.g., Sigmoid activation); and
     - :math:`\\tau` is the :py:attr:`~.activation` (e.g., Silu activation).
     
-    .. admonition:: Calling Convention
-        :class: tip
-
-        - **Input Shape**: 3D tensor of shape ``(batch_size, timesteps, features)``
-            - Takes an optional mask of shape ``(batch_size, timesteps)``
-        - **Output Shape**: ``(batch_size, units)``
-        
     Attributes:
         units: Dimensionality of the output space.
         fully_mml: Whether to use matmul-free operations for all the layers.
