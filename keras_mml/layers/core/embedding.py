@@ -5,7 +5,8 @@ Implements embedding layers.
 from typing import Tuple
 
 import keras
-from jaxtyping import Array, Float
+import numpy as np
+from jaxtyping import Float
 from keras import ops
 
 from keras_mml.layers.core.dense import DenseMML
@@ -101,8 +102,8 @@ class TokenEmbedding(keras.layers.Layer):
         self.built = True
 
     def call(
-        self, inputs: Float[Array, "batch_size sequence_len"]
-    ) -> Float[Array, "batch_size sequence_len embedding_dim"]:
+        self, inputs: Float[np.ndarray, "batch_size sequence_len"]
+    ) -> Float[np.ndarray, "batch_size sequence_len embedding_dim"]:
         """
         Calling method of the layer.
 
@@ -201,8 +202,8 @@ class PatchEmbedding(keras.layers.Layer):
         self.built = True
 
     def call(
-        self, inputs: Float[Array, "batch_size patch_count patch_dim"]
-    ) -> Float[Array, "batch_size patch_count embedding_dim"]:
+        self, inputs: Float[np.ndarray, "batch_size patch_count patch_dim"]
+    ) -> Float[np.ndarray, "batch_size patch_count embedding_dim"]:
         """
         Calling method of the layer.
 

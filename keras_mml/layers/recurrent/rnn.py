@@ -5,7 +5,8 @@ Custom common RNN layers.
 from typing import Any, List, Optional
 
 import keras
-from jaxtyping import Array, Float
+import numpy as np
+from jaxtyping import Float
 
 
 class RNN(keras.layers.RNN):
@@ -15,11 +16,11 @@ class RNN(keras.layers.RNN):
 
     def call(
         self,
-        sequences: Float[Array, "batch_size timesteps features"],
+        sequences: Float[np.ndarray, "batch_size timesteps features"],
         initial_state: Optional[List] = None,
         mask: Optional[Any] = None,
         training: bool = False,
-    ) -> Float[Array, "batch_size timesteps"]:
+    ) -> Float[np.ndarray, "batch_size timesteps"]:
         """
         Calling method of the layer.
 
@@ -49,9 +50,9 @@ class RNN(keras.layers.RNN):
 
     def inner_loop(
         self,
-        sequences: Float[Array, "batch_size timesteps features"],
-        initial_state: Float[Array, "*state_dims"],
-        mask: Float[Array, "*mask_dims"],
+        sequences: Float[np.ndarray, "batch_size timesteps features"],
+        initial_state: Float[np.ndarray, "*state_dims"],
+        mask: Float[np.ndarray, "*mask_dims"],
         training: bool = False,
     ):
         """

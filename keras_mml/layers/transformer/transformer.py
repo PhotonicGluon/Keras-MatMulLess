@@ -5,7 +5,8 @@ Implements a matmul-less transformer block.
 from typing import Tuple
 
 import keras
-from jaxtyping import Array, Float
+import numpy as np
+from jaxtyping import Float
 
 from keras_mml.layers.activations import SwiGLUMML
 from keras_mml.layers.normalizations.rms_norm import RMSNorm
@@ -126,8 +127,8 @@ class TransformerBlockMML(keras.Layer):
         self.built = True
 
     def call(
-        self, inputs: Float[Array, "batch_size sequence_length features"]
-    ) -> Float[Array, "batch_size sequence_length embedding_dim"]:
+        self, inputs: Float[np.ndarray, "batch_size sequence_length features"]
+    ) -> Float[np.ndarray, "batch_size sequence_length embedding_dim"]:
         """
         Calling method of the layer.
 

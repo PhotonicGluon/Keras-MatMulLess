@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import keras
 import numpy as np
 from einops import rearrange
-from jaxtyping import Array, Float
+from jaxtyping import Float
 from keras import activations, constraints, initializers, ops, regularizers
 
 from keras_mml.layers.core import DenseMML
@@ -214,8 +214,8 @@ class GRUCellMML(keras.Layer):
         self.built = True
 
     def call(
-        self, inputs: Float[Array, "batch_size features"], states: Float[Array, "*state_dims"], training=False
-    ) -> Float[Array, "batch_size units"]:
+        self, inputs: Float[np.ndarray, "batch_size features"], states: Float[np.ndarray, "*state_dims"], training=False
+    ) -> Float[np.ndarray, "batch_size units"]:
         """
         Calling method of the cell.
 

@@ -3,7 +3,8 @@ Implements an image patch extraction layer.
 """
 
 import keras
-from jaxtyping import Array, Float
+import numpy as np
+from jaxtyping import Float
 from keras import ops
 
 
@@ -47,8 +48,8 @@ class Patches(keras.Layer):
         self.patch_size = patch_size
 
     def call(
-        self, inputs: Float[Array, "batch_size height width channels"]
-    ) -> Float[Array, "batch_size patch_count patch_dim"]:
+        self, inputs: Float[np.ndarray, "batch_size height width channels"]
+    ) -> Float[np.ndarray, "batch_size patch_count patch_dim"]:
         """
         Calling method of the layer.
 

@@ -5,7 +5,8 @@ Root Mean Square Normalization (RMSNorm) implementation.
 from typing import Optional, Tuple
 
 import keras
-from jaxtyping import Array, Float
+import numpy as np
+from jaxtyping import Float
 from keras import constraints, initializers, ops, regularizers
 
 
@@ -120,7 +121,7 @@ class RMSNorm(keras.Layer):
 
         self.built = True
 
-    def call(self, inputs: Float[Array, "batch_size *dims"]) -> Float[Array, "batch_size *dims"]:
+    def call(self, inputs: Float[np.ndarray, "batch_size *dims"]) -> Float[np.ndarray, "batch_size *dims"]:
         """
         Calling method of the layer.
 

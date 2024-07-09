@@ -5,7 +5,8 @@ Implements a matmul-less attention layer.
 from typing import Tuple
 
 import keras
-from jaxtyping import Array, Float
+import numpy as np
+from jaxtyping import Float
 
 from keras_mml.layers.recurrent.gru import GRUMML
 
@@ -87,8 +88,8 @@ class AttentionMML(keras.Layer):
         self._internal_layer.build(input_shape)
 
     def call(
-        self, inputs: Float[Array, "batch_size sequence_length features"]
-    ) -> Float[Array, "batch_size sequence_length out_dim"]:
+        self, inputs: Float[np.ndarray, "batch_size sequence_length features"]
+    ) -> Float[np.ndarray, "batch_size sequence_length out_dim"]:
         """
         Calling method of the layer.
 
