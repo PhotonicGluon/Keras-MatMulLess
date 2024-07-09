@@ -84,7 +84,12 @@ typehints_use_rtype = False
 typehints_defaults = "comma"
 
 intersphinx_disabled_domains = ["std"]
-intersphinx_mapping = {"python": ("https://docs.python.org/3", None), "numpy": ("https://numpy.org/doc/stable/", None)}
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "torch": ("https://pytorch.org/docs/stable/", None),
+    "keras": ("https://keras.io/api/", "objects_keras.inv"),
+}
 
 autosummary_ignore_module_all = False
 
