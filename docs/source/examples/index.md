@@ -10,6 +10,7 @@ Time Series Forecasting <time-series-forecasting>
 Autoencoders <autoencoders>
 Credit Card Fraud Detection <fraud-detection>
 Gated Linear Units (GLUs) <gated-linear-unit>
-Text Classification With Transformers <transformers>
+Text Classification With Transformer <transformers>
+Image Classification With Vision Transformer <vision-transformers>
 Hyperparameter Tuning <hyperparameter-tuning>
 ```

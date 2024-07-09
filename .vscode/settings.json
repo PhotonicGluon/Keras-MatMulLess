@@ -15,6 +15,7 @@
         "automodule",
         "autosectionlabel",
         "autosummary",
+        "CIFAR",
         "convolutional",
         "copybutton",
         "crossentropy",
