@@ -49,6 +49,7 @@
         "intersphinx",
         "ipynb",
         "isscalar",
+        "jaxtyping",
         "Kaggle",
         "keepdim",
         "keepdims",

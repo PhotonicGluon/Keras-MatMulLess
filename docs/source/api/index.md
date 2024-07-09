@@ -1,10 +1,10 @@
-# API
+# Keras-MML API
 
-These pages list the API of Keras-MML.
+These pages detail the API of Keras-MML, as well as some guidance on interpreting the documentation.
 
 ```{toctree}
 :maxdepth: 1
 
-Layers <layers/index>
-Utilities <utils/index>
+Guides <guides/index>
+Reference <reference/index>
 ```
