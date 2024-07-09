@@ -66,9 +66,7 @@ class GLUMML(keras.Layer):
         """
 
         if units <= 0:
-            raise ValueError(
-                f"Received an invalid value for argument `units`, expected a positive integer, got {units}"
-            )
+            raise ValueError(f"Received an invalid value for units, expected a positive integer, got {units}")
 
         if activation not in PERMITTED_ACTIVATIONS:
             raise ValueError(
