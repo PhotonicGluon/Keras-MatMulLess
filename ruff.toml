@@ -37,16 +37,26 @@ exclude = [
 target-version = "py39"
 
 [lint]
-# PyLint (`PL`) + isort (`I`) + pep8-naming (`N`) + flake8-bugbear (`B`) + flake8-quotes (`Q`)
 select = [
     "PL",   # PyLint
+    "E",    # pycodestyle
+    "W",    # pycodestyle
+    "C90",  # maccabe
     "I",    # isort
+    "N",    # pep8-naming
+    "B",    # flake8-bugbear
+    "Q",    # flake8-quotes
+    "FLY",  # flynt
+    "PERF", # Perflint
     "RUF",  # Ruff-specific
 ]
 ignore = [
     # PyLint
     "PLR0913", # too-many-arguments
     "PLR2004", # magic-value-comparison
+]
+unfixable = [
+    "B", # Avoid trying to fix flake8-bugbear (`B`) violations
 ]
 
 # Allow unused variables when underscore-prefixed.
