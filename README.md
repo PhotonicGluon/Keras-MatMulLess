@@ -8,7 +8,7 @@
 [![Read the Docs - Stable](https://img.shields.io/readthedocs/keras-matmulless?label=docs%20(stable)&logo=readthedocs)](https://keras-matmulless.readthedocs.io/en/stable/)
 [![Read the Docs - Latest](https://img.shields.io/readthedocs/keras-matmulless?label=docs%20(latest)&logo=readthedocs)](https://keras-matmulless.readthedocs.io/en/latest/)
 [![Code Style - Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Linting - PyLint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
+[![Linting - Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 > We offer no explanation as to why these architectures seem to work; we attribute their success, as all else, to divine benevolence.
 > <div style="text-align: right">&mdash; Noam Shazeer, in <a href="https://arxiv.org/pdf/2002.05202v1"><em>GLU Variants Improve Transformer</em></a></div>

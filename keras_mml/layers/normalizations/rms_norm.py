@@ -42,7 +42,7 @@ class RMSNorm(keras.Layer):
         bias_regularizer: Optional[str] = None,
         gain_constraint: Optional[str] = None,
         bias_constraint: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initializes a new RMSNorm instance.

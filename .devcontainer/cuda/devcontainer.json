@@ -25,9 +25,8 @@
                 "tamasfe.even-better-toml",
                 "streetsidesoftware.code-spell-checker",
                 "ms-azuretools.vscode-docker",
-                "ms-python.pylint",
+                "charliermarsh.ruff",
                 "ms-vscode.cpptools"
-            ]
+            }
         }
     }
-}
