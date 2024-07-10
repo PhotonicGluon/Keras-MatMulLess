@@ -8,9 +8,31 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 
 <!-- towncrier release notes start -->
 
+## [0.1.0a3](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0a3) - 2024-07-10
+
+### Removals
+
+- Removed Python 3.12 support (to be in line with [Keras' Python supported versions](https://pypi.org/project/keras/3.3.3/))
+
+### New Features
+
+- Added stricter call annotation using the `jaxtyping` package.
+
+### Changes
+
+- Downgraded minimum required version of NumPy from `1.26.4` to `1.23.5`.
+
+### Documentation Changes
+
+- Added new code example on vision transformers.
+- Added new style for call convention.
+
+### Miscellaneous Changes
+
+- Fixed `stable-build.yml` GitHub action.
+- Added more package information (e.g., classifiers, keywords) into `pyproject.toml`.
 
 ## [0.1.0a2](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0a2) - 2024-07-05
-
 
 ### New Features
 
@@ -35,7 +57,6 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 - Fixed scrollbar ugliness with the math block rendering on the documentation site.
 - Made a new look for the homepage.
 - Removed spurious "defaults to" in some layers' documentation.
-
 
 ## [0.1.0a1](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0a1) - 2024-07-03
 

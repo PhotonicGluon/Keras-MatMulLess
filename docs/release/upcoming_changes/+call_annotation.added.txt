@@ -1,1 +1,0 @@
-Added stricter call annotation using the `jaxtyping` package.
