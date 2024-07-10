@@ -108,7 +108,7 @@ class LRUCellMML(keras.Layer):
         self._d_gate = None
 
     # Helper methods
-    def _init_nu_log(self, shape: Tuple[int, ...], dtype: str = None) -> np.ndarray:
+    def _init_nu_log(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> np.ndarray:
         """
         Initializer for the ``nu_log`` weight.
 
@@ -124,7 +124,7 @@ class LRUCellMML(keras.Layer):
         nu_log = ops.log(-0.5 * ops.log(uniform * (self.r_max**2 - self.r_min**2) + self.r_min**2))
         return nu_log
 
-    def _init_theta_log(self, shape: Tuple[int, ...], dtype: str = None) -> np.ndarray:
+    def _init_theta_log(self, shape: Tuple[int, ...], dtype: Optional[str] = None) -> np.ndarray:
         """
         Initializer for the ``theta_log`` weight.
 
@@ -140,7 +140,7 @@ class LRUCellMML(keras.Layer):
         theta_log = ops.log(self.max_phase * uniform)
         return theta_log
 
-    def _init_b_matrix(self, shape: Tuple[int, int], dtype: str = None) -> np.ndarray:
+    def _init_b_matrix(self, shape: Tuple[int, int], dtype: Optional[str] = None) -> np.ndarray:
         """
         Initializer for the $B$ matrix weights.
 
@@ -156,7 +156,7 @@ class LRUCellMML(keras.Layer):
         values = keras.random.normal(shape, dtype=dtype) / ops.sqrt(2 * input_dim)
         return values
 
-    def _init_c_matrix(self, shape: Tuple[int, int], dtype: str = None) -> np.ndarray:
+    def _init_c_matrix(self, shape: Tuple[int, int], dtype: Optional[str] = None) -> np.ndarray:
         """
         Initializer for the $C$ matrix weights.
 

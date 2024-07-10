@@ -4,6 +4,7 @@ indent-width = 4
 
 # Exclude files
 exclude = [
+    # Defaults
     ".bzr",
     ".direnv",
     ".eggs",
@@ -29,8 +30,11 @@ exclude = [
     "dist",
     "node_modules",
     "site-packages",
-    "tests",
     "venv",
+    # Added
+    "tests",
+    "install.py",
+    "clean.py",
 ]
 
 # Support Python 3.9+
@@ -44,7 +48,9 @@ select = [
     "C90",  # maccabe
     "I",    # isort
     "N",    # pep8-naming
+    "BLE",  # flake8-blind-except
     "B",    # flake8-bugbear
+    "S",    # flake8-security
     "Q",    # flake8-quotes
     "FLY",  # flynt
     "PERF", # Perflint
