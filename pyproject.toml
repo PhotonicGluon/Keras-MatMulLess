@@ -28,10 +28,7 @@ numpy = "~1.23.5"
 einops = "~0.8.0"
 jaxtyping = "~0.2.31"
 ml-dtypes = "~0.3.2"
-poetry-dynamic-versioning = { extras = ["plugin"], version = "~1.4.0", optional = true }
-
-[tool.poetry.extras]
-dynamic-versioning = ["poetry-dynamic-versioning"]
+poetry-dynamic-versioning = { extras = ["plugin"], version = "~1.4.0" }
 
 [tool.poetry.group.test]
 optional = true
