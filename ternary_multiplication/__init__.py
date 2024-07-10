@@ -1,5 +1,5 @@
 """
-Implementation of ternary multiplication.
+Backend implementation of ternary multiplication.
 """
 
 from keras import ops

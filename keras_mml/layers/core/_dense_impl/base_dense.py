@@ -8,7 +8,7 @@ import keras
 import numpy as np
 from jaxtyping import Float
 
-from keras_mml.utils.array.ternary_multiplication import ternary_multiplication
+from ternary_multiplication import ternary_multiplication
 
 EPSILON = 1e-5
 HUGE = 1e9
