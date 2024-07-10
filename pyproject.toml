@@ -34,9 +34,13 @@ python = ">=3.9,<3.13"
 
 # Main dependencies
 keras = "~3.3.3"
-numpy = "~1.23.5"
+numpy = [
+    { version = "~1.23.5", markers = "python_version < \"3.12\"" },
+    { version = "~1.26.0", markers = "python_version >= \"3.12\"" },
+]
 einops = "~0.8.0"
 jaxtyping = "~0.2.31"
+ml-dtypes = "~0.4.0"
 
 # Others
 poetry-dynamic-versioning = { extras = ["plugin"], version = "~1.4.0" }
