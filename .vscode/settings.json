@@ -36,6 +36,7 @@
         "docstrings",
         "dollarmath",
         "dtype",
+        "eigen",
         "einops",
         "elem",
         "endfor",
@@ -147,5 +148,6 @@
     "autoDocstring.docstringFormat": "google-notypes",
     "autoDocstring.startOnNewLine": true,
     "evenBetterToml.formatter.columnWidth": 100,
-    "evenBetterToml.formatter.arrayAutoCollapse": true
+    "evenBetterToml.formatter.arrayAutoCollapse": true,
+    "C_Cpp.formatting": "vcFormat"
 }
