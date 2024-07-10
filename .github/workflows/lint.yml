@@ -27,10 +27,10 @@ jobs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v3
       - name: Install Linting Dependencies
-        run: python install.py build --backend tensorflow torch jax
-      - name: Add PyLint Executable From Poetry Env To PATH
+        run: python install.py build
+      - name: Add Ruff Executable From Poetry Env To PATH
         run: echo "PATH=$(poetry env info --path)/bin:$PATH" >> $GITHUB_ENV
-      - name: Run linters
-        uses: wearerequired/lint-action@v2
+      - name: Run Ruff Linter
+        uses: chartboost/ruff-action@v1
         with:
-          pylint: true
+          version: 0.5.1

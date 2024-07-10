@@ -1,0 +1,1 @@
+Changed linter from PyLint to Ruff.
