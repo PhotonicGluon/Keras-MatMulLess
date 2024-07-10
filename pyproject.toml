@@ -21,7 +21,7 @@ python = "^3.9"
 
 # Main dependencies
 keras = "~3.3.3"
-numpy = "~1.26.4"
+numpy = "~1.23.5"
 einops = "~0.8.0"
 jaxtyping = "~0.2.31"
 
@@ -72,7 +72,7 @@ optional = true
 [tool.poetry.group.notebook.dependencies]
 jupyter = "^1.0.0"
 notebook = "~7.2.1"
-pandas = "~2.2.2"
+pandas = "~2.0.3"
 seaborn = "~0.13.2"
 matplotlib = "~3.9.0"
 
