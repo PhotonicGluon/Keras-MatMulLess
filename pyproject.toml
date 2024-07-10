@@ -23,11 +23,15 @@ packages = [{ include = "keras_mml" }]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
+
+# Main dependencies
 keras = "~3.3.3"
 numpy = "~1.23.5"
 einops = "~0.8.0"
 jaxtyping = "~0.2.31"
 ml-dtypes = "~0.3.2"
+
+# Others
 poetry-dynamic-versioning = { extras = ["plugin"], version = "~1.4.0" }
 
 [tool.poetry.group.test]
