@@ -1,0 +1,1 @@
+Removed Python 3.12 support (to be in line with [Keras' Python supported versions](https://pypi.org/project/keras/3.3.3/))

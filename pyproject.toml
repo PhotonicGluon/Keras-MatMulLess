@@ -17,7 +17,7 @@ classifiers = []
 packages = [{ include = "keras_mml" }]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.12"
 
 # Main dependencies
 keras = "~3.3.3"

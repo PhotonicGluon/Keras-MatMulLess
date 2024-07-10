@@ -2288,70 +2288,6 @@ files = [
 
 [[package]]
 name = "ml-dtypes"
-version = "0.2.0"
-description = ""
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "ml_dtypes-0.2.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:df6a76e1c8adf484feb138ed323f9f40a7b6c21788f120f7c78bec20ac37ee81"},
-    {file = "ml_dtypes-0.2.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bc29a0524ef5e23a7fbb8d881bdecabeb3fc1d19d9db61785d077a86cb94fab2"},
-    {file = "ml_dtypes-0.2.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f08c391c2794f2aad358e6f4c70785a9a7b1df980ef4c232b3ccd4f6fe39f719"},
-    {file = "ml_dtypes-0.2.0-cp310-cp310-win_amd64.whl", hash = "sha256:75015818a7fccf99a5e8ed18720cb430f3e71a8838388840f4cdf225c036c983"},
-    {file = "ml_dtypes-0.2.0-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:e70047ec2c83eaee01afdfdabee2c5b0c133804d90d0f7db4dd903360fcc537c"},
-    {file = "ml_dtypes-0.2.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:36d28b8861a8931695e5a31176cad5ae85f6504906650dea5598fbec06c94606"},
-    {file = "ml_dtypes-0.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e85ba8e24cf48d456e564688e981cf379d4c8e644db0a2f719b78de281bac2ca"},
-    {file = "ml_dtypes-0.2.0-cp311-cp311-win_amd64.whl", hash = "sha256:832a019a1b6db5c4422032ca9940a990fa104eee420f643713241b3a518977fa"},
-    {file = "ml_dtypes-0.2.0-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:8faaf0897942c8253dd126662776ba45f0a5861968cf0f06d6d465f8a7bc298a"},
-    {file = "ml_dtypes-0.2.0-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:35b984cddbe8173b545a0e3334fe56ea1a5c3eb67c507f60d0cfde1d3fa8f8c2"},
-    {file = "ml_dtypes-0.2.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:022d5a4ee6be14569c2a9d1549e16f1ec87ca949681d0dca59995445d5fcdd5b"},
-    {file = "ml_dtypes-0.2.0-cp38-cp38-win_amd64.whl", hash = "sha256:50845af3e9a601810751b55091dee6c2562403fa1cb4e0123675cf3a4fc2c17a"},
-    {file = "ml_dtypes-0.2.0-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:f00c71c8c63e03aff313bc6a7aeaac9a4f1483a921a6ffefa6d4404efd1af3d0"},
-    {file = "ml_dtypes-0.2.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:80d304c836d73f10605c58ccf7789c171cc229bfb678748adfb7cea2510dfd0e"},
-    {file = "ml_dtypes-0.2.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:32107e7fa9f62db9a5281de923861325211dfff87bd23faefb27b303314635ab"},
-    {file = "ml_dtypes-0.2.0-cp39-cp39-win_amd64.whl", hash = "sha256:1749b60348da71fd3c2ab303fdbc1965958dc50775ead41f5669c932a341cafd"},
-    {file = "ml_dtypes-0.2.0.tar.gz", hash = "sha256:6488eb642acaaf08d8020f6de0a38acee7ac324c1e6e92ee0c0fea42422cb797"},
-]
-
-[package.dependencies]
-numpy = {version = ">=1.23.3", markers = "python_version > \"3.10\""}
-
-[package.extras]
-dev = ["absl-py", "pyink", "pylint (>=2.6.0)", "pytest", "pytest-xdist"]
-
-[[package]]
-name = "ml-dtypes"
-version = "0.3.1"
-description = ""
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "ml_dtypes-0.3.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:510d249a91face47211762eb294d6fe64f325356b965fb6388c1bf51bd339267"},
-    {file = "ml_dtypes-0.3.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f83ff080df8910c0f987f615b03e4f8198638e0c00c6e679ea8892dda909763b"},
-    {file = "ml_dtypes-0.3.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fcae2c69715410d96906e1dfe8f017d9f78a0d10e0df91aae52e91f51fdfe45e"},
-    {file = "ml_dtypes-0.3.1-cp310-cp310-win_amd64.whl", hash = "sha256:da274599e4950a9b488d21571061f49a185537cc77f2d3f8121151d58a9e9f16"},
-    {file = "ml_dtypes-0.3.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:5e0b0b6bb07fa5ad11bb61d174667176bee5e05857225067aabfc5adc1b51d23"},
-    {file = "ml_dtypes-0.3.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5727effa7650f7ab10906542d137cfb3244fdc3b2b519beff42f82def8ba59be"},
-    {file = "ml_dtypes-0.3.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:42a8980afd8b7c8e270e8b5c260237286b5b26acd276fcb758d13cd7cb567e99"},
-    {file = "ml_dtypes-0.3.1-cp311-cp311-win_amd64.whl", hash = "sha256:cb0c404e0dd3e25b56362c1c1e5de0ef717f727dde59fa721af4ce6ab2acca44"},
-    {file = "ml_dtypes-0.3.1-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:3d8ca0acbd377082792d8b97081ba580abdad67c6afb7f827012c675b052f058"},
-    {file = "ml_dtypes-0.3.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4828b62fa3bf1ae35faa40f3db9a38ec72fbce02f328a1d14c3a9da4606af364"},
-    {file = "ml_dtypes-0.3.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d1a8dc3bac1da2a17d0e2e4cba36ee89721d0bd33ea4765af2eefb5f41409e0f"},
-    {file = "ml_dtypes-0.3.1-cp312-cp312-win_amd64.whl", hash = "sha256:a777928dcba8865ab4a8157eeb25d23aed7bc82e5fd74e1d5eca821d3f148b39"},
-    {file = "ml_dtypes-0.3.1-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:438437e2e614a3c91d75581653b6c40ec890e8b5994d7190a90c931740151c95"},
-    {file = "ml_dtypes-0.3.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:70984b473db6489ec1d8c79b082a1322105155193049d08a3b0c515094e9777b"},
-    {file = "ml_dtypes-0.3.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4d94b2d1bed77284694f7fd0479640fa7aa5d96433dca3cbcec407a5ef752e77"},
-    {file = "ml_dtypes-0.3.1-cp39-cp39-win_amd64.whl", hash = "sha256:979d7d196d9a17e0135ae22878f74241fbd3522cef58d7b292f1fd5b32282201"},
-    {file = "ml_dtypes-0.3.1.tar.gz", hash = "sha256:60778f99194b4c4f36ba42da200b35ef851ce4d4af698aaf70f5b91fe70fc611"},
-]
-
-[package.dependencies]
-numpy = {version = ">=1.23.3", markers = "python_version > \"3.10\" and python_version <= \"3.12\""}
-
-[package.extras]
-dev = ["absl-py", "pyink", "pylint (>=2.6.0)", "pytest", "pytest-xdist"]
-
-[[package]]
-name = "ml-dtypes"
 version = "0.4.0"
 description = ""
 optional = false
@@ -2379,7 +2315,7 @@ files = [
 [package.dependencies]
 numpy = [
     {version = ">1.20", markers = "python_version < \"3.10\""},
-    {version = ">=1.23.3", markers = "python_version >= \"3.11\" and python_version < \"3.12\""},
+    {version = ">=1.23.3", markers = "python_version >= \"3.11\""},
     {version = ">=1.21.2", markers = "python_version >= \"3.10\" and python_version < \"3.11\""},
 ]
 
@@ -3414,8 +3350,7 @@ astroid = ">=3.2.2,<=3.3.0-dev0"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
 dill = [
     {version = ">=0.2", markers = "python_version < \"3.11\""},
-    {version = ">=0.3.7", markers = "python_version >= \"3.12\""},
-    {version = ">=0.3.6", markers = "python_version >= \"3.11\" and python_version < \"3.12\""},
+    {version = ">=0.3.6", markers = "python_version >= \"3.11\""},
 ]
 isort = ">=4.2.5,<5.13.0 || >5.13.0,<6"
 mccabe = ">=0.6,<0.8"
@@ -5185,5 +5120,5 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.9"
-content-hash = "fe399a578fb3d1791775c15235e2f227198bb0664c5c72dcb7266f480ca58460"
+python-versions = ">=3.9,<3.12"
+content-hash = "79a9a217ddbfe7a30a5ed9cc793df206495376d487f6ddaf8b0d4828e9dbf640"
