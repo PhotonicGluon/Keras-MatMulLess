@@ -1,4 +1,15 @@
 {
+    // Main VSCode settings
+    "editor.formatOnSave": true,
+    "files.exclude": {
+        "**/.Trash-1000": true,
+        "**/.ipynb_checkpoints": true,
+        "**/__pycache__": true,
+        "**/jupyter_execute": true,
+        ".pytest_cache": true,
+        ".coverage": true
+    },
+    // Extension settings
     "cSpell.words": [
         "absmax",
         "absmean",
@@ -122,15 +133,18 @@
         "ylabel",
         "yscale"
     ],
-    "files.exclude": {
-        "**/.Trash-1000": true,
-        "**/.ipynb_checkpoints": true,
-        "**/__pycache__": true,
-        "**/jupyter_execute": true,
-        ".pytest_cache": true,
-        ".coverage": true
-    },
     "pylint.path": [
         "pylint"
-    ]
+    ],
+    "black-formatter.args": [
+        "--line-length=120"
+    ],
+    "isort.check": true,
+    "isort.args": [
+        "-w 120"
+    ],
+    "autoDocstring.docstringFormat": "google-notypes",
+    "autoDocstring.startOnNewLine": true,
+    "evenBetterToml.formatter.columnWidth": 100,
+    "evenBetterToml.formatter.arrayAutoCollapse": true
 }
