@@ -32,10 +32,10 @@ jobs:
           python-version: "3.9"
       - name: Install Poetry
         uses: abatilo/actions-poetry@v3
-      - name: Install Project Dependencies
+      - name: Install Building Dependencies
         run: |
           poetry self add "poetry-dynamic-versioning[plugin]"
-          python install.py dev
+          python install.py build
           poetry dynamic-versioning enable
       - name: Build Package
         run: poetry build

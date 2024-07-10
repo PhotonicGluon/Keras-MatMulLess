@@ -103,16 +103,23 @@ Now we install Poetry.
 pip install poetry
 ```
 
-Finally, install the development dependencies. The `install.py` script helps manage these dependencies.
+Finally, install the development dependencies. The development dependencies are split into several groups.
+
+- The `test` group contains dependencies that are used to perform testing.
+- The `docs` group contains dependencies that are used to generate the documentation.
+- The `build` group contains dependencies that are used to create a distributable.
+- The `notebook` group is required to run the Jupyter notebooks in the documentation folder.
+
+Simply include the desired groups in the `install.py` call. For example, to install `test`, `docs`, and `build` (the main development dependencies), run the following command.
 
 ```bash
-python install.py dev
+python install.py test docs build
 ```
 
 If you have not installed a backend (i.e., [Tensorflow](https://www.tensorflow.org/), [PyTorch](https://pytorch.org/), or [Jax](https://jax.readthedocs.io/en/latest/index.html)) you can do so here.
 
 ```bash
-python install.py dev --backend BACKEND_NAME
+python install.py test docs build --backend BACKEND_NAME
 ```
 
 Note that the `BACKEND_NAME` to be specified here is
@@ -124,7 +131,7 @@ Note that the `BACKEND_NAME` to be specified here is
 If you need to install with CUDA support, run
 
 ```bash
-python install.py dev --backend BACKEND_NAME --with-cuda
+python install.py test docs build --backend BACKEND_NAME --with-cuda
 ```
 
 That's it! You should now have access to the `keras_mml` package.
