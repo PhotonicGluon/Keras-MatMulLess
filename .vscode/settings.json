@@ -33,6 +33,7 @@
         "figsize",
         "fillchar",
         "flatiter",
+        "fontsize",
         "frombuffer",
         "fullname",
         "furo",
