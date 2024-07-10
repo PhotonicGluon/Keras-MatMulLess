@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - "**.py"
+  pull_request:
+    branches:
+      - main
 
 jobs:
   run-tests:
