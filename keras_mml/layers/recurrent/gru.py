@@ -311,35 +311,35 @@ class GRUCellMML(keras.Layer):
 class GRUMML(RNN):
     """
     Gated Recurrent Unit (GRU) layer, mostly without matrix multiplications.
-    
+
     The implementation of this layer mostly follows the :math:`\\mathrm{MLGRU}` implementation in
     |MatMulFreeLLM|_ (see section 3.3.1). We differ from the implementation of
     :math:`\\mathrm{MLGRU}` by allowing :math:`\\mathbf{g}_t` and :math:`\\mathbf{o}_t` to be
     regular matrix multiplications, rather than just matmul-free ternary weights. The option to make
     everything ternary weights is controlled by the :py:attr:`~fully_mml` attribute.
-    
+
     Specifically, we perform the following recurrence steps.
-    
+
     .. math::
         \\begin{align*}
             \\mathbf{f}_t &= \\sigma(\\mathbf{x}_t\\mathbf{W}_f + \\mathbf{b}_f)\\\\
             \\mathbf{c}_t &= \\tau(\\mathbf{x}_t\\mathbf{W}_c + \\mathbf{b}_c)\\\\
-            \\mathbf{h}_t &= \\mathbf{f}_t\\odot\\mathbf{h}_{t-1} 
-                                + (1-\\mathbf{f}_t)\\odot\\mathbf{c}_t \\\\
+            \\mathbf{h}_t &= \\mathbf{f}_t\\odot\\mathbf{h}_{t-1}
+                + (1-\\mathbf{f}_t)\\odot\\mathbf{c}_t \\\\
             \\mathbf{g}_t &= \\sigma(\\mathbf{x}_t\\mathbf{W}_g + \\mathbf{b}_g)\\\\
             \\mathbf{o}_t' &= \\mathbf{g}_t\\odot\\mathbf{h}_t\\\\
             \\mathbf{o}_t &= \\mathbf{o}_t'\\mathbf{W}_o + \\mathbf{b}_o\\\\
         \\end{align*}
-        
+
     where
-    
+
     - :math:`\\mathbf{W}_f` and :math:`\\mathbf{W}_c` are ternary weights (and so do not use matrix\
         multiplications during their operation);
     - :math:`\\mathbf{W}_g` and :math:`\\mathbf{W}_o` are (possible) ternary weights, or just\
         regular weight matrices;
     - :math:`\\sigma` is the :py:attr:`~.recurrent_activation` (e.g., Sigmoid activation); and
     - :math:`\\tau` is the :py:attr:`~.activation` (e.g., Silu activation).
-    
+
     Attributes:
         units: Dimensionality of the output space.
         fully_mml: Whether to use matmul-free operations for all the layers.
@@ -354,7 +354,7 @@ class GRUMML(RNN):
         bias_regularizer: Regularizer function applied to the bias vector.
         weights_constraint: Constraint function applied to the gates' matrices.
         bias_constraint: Constraint function applied to the bias vector.
-    
+
     .. |MatMulFreeLLM| replace:: *Scalable MatMul-free Language Modeling*
     .. _MatMulFreeLLM: https://arxiv.org/pdf/2406.02528v5
     """
