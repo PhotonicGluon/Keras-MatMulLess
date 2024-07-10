@@ -80,6 +80,7 @@
         "numpy",
         "prange",
         "pred",
+        "pyproject",
         "quickstart",
         "reftypes",
         "reglu",

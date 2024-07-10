@@ -12,8 +12,20 @@ description = "Keras layers without using matrix multiplications."
 license = "Apache-2.0"
 authors = ["PhotonicGluon <25820201+PhotonicGluon@users.noreply.github.com>"]
 readme = "README.md"
-keywords = []
-classifiers = []
+keywords = ["tensorflow", "pytorch", "jax", "keras", "machine learning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+]
 packages = [{ include = "keras_mml" }]
 
 [tool.poetry.dependencies]
