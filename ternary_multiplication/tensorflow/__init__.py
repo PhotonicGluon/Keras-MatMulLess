@@ -1,0 +1,1 @@
+from ternary_multiplication.tensorflow.python.ops.ternary_mul_ops import ternary_mul
