@@ -144,5 +144,8 @@
     "autoDocstring.docstringFormat": "google-notypes",
     "autoDocstring.startOnNewLine": true,
     "evenBetterToml.formatter.columnWidth": 100,
-    "evenBetterToml.formatter.arrayAutoCollapse": true
+    "evenBetterToml.formatter.arrayAutoCollapse": true,
+    "ruff.lint.args": [
+        "--config=ruff.toml"
+    ]
 }
