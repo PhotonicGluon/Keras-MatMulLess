@@ -66,4 +66,4 @@ REGISTER_GPU(float);
 REGISTER_GPU(int32);
 #endif  // GOOGLE_CUDA
 }  // end namespace functor
-}  // namespace tensorflow
+}  // end namespace tensorflow
