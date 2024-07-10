@@ -1,0 +1,1 @@
+Make devcontainer settings become VSCode workspace settings.

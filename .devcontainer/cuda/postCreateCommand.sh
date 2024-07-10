@@ -1,5 +1,5 @@
 #!/bin/bash
-python install.py dev cuda  # ADDITIONAL: Need to install CUDA dependencies
+python install.py test docs build cuda  # ADDITIONAL: Need to install CUDA dependencies
 
 export temporary=$(poetry env info --path)
 echo "export PATH='$temporary/bin:$PATH'" >> ~/.bashrc
