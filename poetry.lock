@@ -4670,6 +4670,33 @@ docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,<8.2)", "pytest-mock", "pytest-mypy-testing"]
 
 [[package]]
+name = "triton-nightly"
+version = "3.0.0.post20240626041721"
+description = "A language and compiler for custom Deep Learning operations"
+optional = true
+python-versions = "*"
+files = [
+    {file = "triton_nightly-3.0.0.post20240626041721-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ccf14c792f607b6ea2a863e622cd724187918a9bda8ec347f394693e1f0195aa"},
+    {file = "triton_nightly-3.0.0.post20240626041721-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5a89793dffa46a6da4d0b9d1588d16007e9239e8e951894ad523aab0741a75ac"},
+    {file = "triton_nightly-3.0.0.post20240626041721-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:7364aa5c36d114c1cf072044f00003e3e6a2bccff337f8f90050d1d827b0c3ea"},
+    {file = "triton_nightly-3.0.0.post20240626041721-cp38-cp38-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9b3821899694fd781d77acde69ea5e753d16420835d576118b5ba8248ea5ef3f"},
+    {file = "triton_nightly-3.0.0.post20240626041721-cp39-cp39-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:e1043ee0c4b117d66dc2fa2e4827bb48145a019fbfb4da9410dc1dd633e647a9"},
+]
+
+[package.dependencies]
+filelock = "*"
+
+[package.extras]
+build = ["cmake (>=3.20)", "lit"]
+tests = ["autopep8", "flake8", "isort", "llnl-hatchet", "numpy", "pytest", "scipy (>=1.7.1)"]
+tutorials = ["matplotlib", "pandas", "tabulate"]
+
+[package.source]
+type = "legacy"
+url = "https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/Triton-Nightly/pypi/simple"
+reference = "triton-nightly"
+
+[[package]]
 name = "trove-classifiers"
 version = "2024.7.2"
 description = "Canonical source for classifiers on PyPI (pypi.org)."
@@ -5118,7 +5145,10 @@ files = [
 doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
 test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-itertools", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy", "pytest-ruff (>=0.2.1)"]
 
+[extras]
+torch-cuda = ["triton-nightly"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "471b6b81cb1ffec22b72b0f4fd9354712578c938e4a73301dfcc48226b590fd5"
+content-hash = "ddaec95a15ef322f8485af665727046a3b84276151be41ed14c4f01a7ef29b34"
