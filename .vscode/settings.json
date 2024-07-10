@@ -134,9 +134,6 @@
         "ylabel",
         "yscale"
     ],
-    "pylint.path": [
-        "pylint"
-    ],
     "black-formatter.args": [
         "--line-length=120"
     ],
