@@ -32,6 +32,7 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 - Fixed `stable-build.yml` GitHub action.
 - Added more package information (e.g., classifiers, keywords) into `pyproject.toml`.
 
+
 ## [0.1.0a2](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0a2) - 2024-07-05
 
 ### New Features
@@ -57,6 +58,7 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 - Fixed scrollbar ugliness with the math block rendering on the documentation site.
 - Made a new look for the homepage.
 - Removed spurious "defaults to" in some layers' documentation.
+
 
 ## [0.1.0a1](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0a1) - 2024-07-03
 
