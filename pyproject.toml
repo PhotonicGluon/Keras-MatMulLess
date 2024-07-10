@@ -40,7 +40,7 @@ numpy = [
 ]
 einops = "~0.8.0"
 jaxtyping = "~0.2.31"
-ml-dtypes = "~0.4.0"
+ml-dtypes = "~0.3.2"
 
 # Others
 poetry-dynamic-versioning = { extras = ["plugin"], version = "~1.4.0" }
