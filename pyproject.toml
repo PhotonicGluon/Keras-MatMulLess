@@ -12,18 +12,31 @@ description = "Keras layers without using matrix multiplications."
 license = "Apache-2.0"
 authors = ["PhotonicGluon <25820201+PhotonicGluon@users.noreply.github.com>"]
 readme = "README.md"
-keywords = []
-classifiers = []
+keywords = ["tensorflow", "pytorch", "jax", "keras", "machine learning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development",
+]
 packages = [{ include = "keras_mml" }]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.12"
 
 # Main dependencies
 keras = "~3.3.3"
-numpy = "~1.26.4"
+numpy = "~1.23.5"
 einops = "~0.8.0"
 jaxtyping = "~0.2.31"
+ml-dtypes = "~0.3.2"
 
 # Others
 poetry-dynamic-versioning = { extras = ["plugin"], version = "~1.4.0" }
@@ -72,7 +85,7 @@ optional = true
 [tool.poetry.group.notebook.dependencies]
 jupyter = "^1.0.0"
 notebook = "~7.2.1"
-pandas = "~2.2.2"
+pandas = "~2.0.3"
 seaborn = "~0.13.2"
 matplotlib = "~3.9.0"
 
