@@ -1,5 +1,5 @@
 #!/bin/bash
-python install.py dev
+python install.py test docs build
 
 export temporary=$(poetry env info --path)
 echo "export PATH='$temporary/bin:$PATH'" >> ~/.bashrc

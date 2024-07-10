@@ -26,8 +26,8 @@ jobs:
           python-version: "3.9"
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
-      - name: Install Project Dependencies
-        run: python install.py dev --backend tensorflow torch jax
+      - name: Install Linting Dependencies
+        run: python install.py build --backend tensorflow torch jax
       - name: Add PyLint Executable From Poetry Env To PATH
         run: echo "PATH=$(poetry env info --path)/bin:$PATH" >> $GITHUB_ENV
       - name: Run linters
