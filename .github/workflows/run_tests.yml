@@ -23,13 +23,13 @@ jobs:
         with:
           python-version: "3.9"  # This is the lowest supported version
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
+        uses: abatilo/actions-poetry@v3
       - name: Install Tests Dependencies
         run: python install.py test --backend ${{ matrix.backend }}
       - name: Test with Pytest
         run: poetry run pytest -n auto --eager --doctest-modules --cov=keras_mml --cov-report=xml:coverage-${{ matrix.backend }}.xml
       - name: Upload Coverage Reports to Codecov
-        uses: codecov/codecov-action@v4.4.1
+        uses: codecov/codecov-action@v4.5.0
         with:
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -56,7 +56,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
+        uses: abatilo/actions-poetry@v3
       - name: Install Tests Dependencies
         run: python install.py test --backend jax
       - name: Test with Pytest

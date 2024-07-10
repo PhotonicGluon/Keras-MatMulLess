@@ -31,7 +31,7 @@ jobs:
         with:
           python-version: "3.9"
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
+        uses: abatilo/actions-poetry@v3
       - name: Install Building Dependencies
         run: |
           poetry self add "poetry-dynamic-versioning[plugin]"
@@ -45,7 +45,7 @@ jobs:
           name: python-package-distributions
           path: dist/
       - name: Publish Package
-        uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+        uses: pypa/gh-action-pypi-publish@ec4db0b4ddc65acdf4bff5fa45ac92d78b56bdf0
         continue-on-error: ${{ inputs.continue_on_error }}
         with:
           user: __token__
