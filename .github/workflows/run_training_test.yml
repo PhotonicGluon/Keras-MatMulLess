@@ -25,6 +25,18 @@ on:
         required: true
         type: string
         description: "Script to run; must end in `.py`"
+      with_tensorflow:
+        required: true
+        type: boolean
+        default: true
+      with_torch:
+        required: true
+        type: boolean
+        default: true
+      with_jax:
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   matrix_prep:
@@ -36,22 +48,22 @@ jobs:
         id: set-matrix
         run: |
           backends=()
-          if [[ ${{ inputs.with_tensorflow }} &&  ]]; then
+          if [[ "${{ inputs.with_tensorflow }}" = "true" ]]; then
             backends+=("tensorflow")
           fi
-          if [[ ${{ inputs.with_torch }} ]]; then
+          if [[ "${{ inputs.with_torch }}" = "true" ]]; then
             backends+=("torch")
           fi
-          if [[ ${{ inputs.with_jax }} ]]; then
+          if [[ "${{ inputs.with_jax }}" = "true" ]]; then
             backends+=("jax")
           fi
-          backends=$(jq -c -n '$ARGS.positional' --args "${backends[@]})
+          backends=$(jq -c -n '$ARGS.positional' --args "${backends[@]}")
           echo "matrix={\"backend\": $(echo $backends)}" >> $GITHUB_OUTPUT
   training-test:
+    needs: [matrix_prep]
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        backend: ["tensorflow", "torch", "jax"]
+      matrix: ${{ fromJson(needs.matrix_prep.outputs.matrix) }}
     env:
       KERAS_BACKEND: ${{ matrix.backend }}
     steps:

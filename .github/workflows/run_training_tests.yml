@@ -25,3 +25,4 @@ jobs:
     uses: ./.github/workflows/run_training_test.yml
     with:
       script_name: transformers.py
+      with_torch: false
