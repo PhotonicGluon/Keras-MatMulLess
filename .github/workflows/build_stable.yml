@@ -19,7 +19,7 @@ jobs:
   # Phase 2 - Push to testing endpoint and testing branch
   publish-testpypi:
     needs: [run-training-tests]
-    uses: ./.github/workflows/publish_to_testpypi.yml
+    uses: ./.github/workflows/publish_testpypi.yml
     with:
       continue_on_error: true
       is_nightly_build: false
@@ -59,7 +59,7 @@ jobs:
           git push -u origin stable
   publish-pypi:
     needs: [push-to-nightly, publish-testpypi]
-    uses: ./.github/workflows/publish_to_pypi.yml
+    uses: ./.github/workflows/publish_pypi.yml
     with:
       continue_on_error: true
     secrets: inherit
