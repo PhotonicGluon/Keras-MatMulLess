@@ -1,1 +1,0 @@
-Added missing `scikit-learn` dependency for the `notebook` Poetry group.
