@@ -89,6 +89,7 @@ notebook = "^7.2.1"
 pandas = "^2.0.3"
 seaborn = "^0.13.2"
 matplotlib = "^3.9.0"
+scikit-learn = "^1.5.1"
 
 [tool.poetry-dynamic-versioning]
 enable = true
