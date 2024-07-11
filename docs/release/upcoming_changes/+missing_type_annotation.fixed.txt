@@ -1,0 +1,1 @@
+Fixed missing type annotation for `_quantize_kernel()` in `BaseDenseMML`.
