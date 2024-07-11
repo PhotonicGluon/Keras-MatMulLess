@@ -6,6 +6,12 @@ on:
 
 jobs:
   mnist-test:
+    name: MNIST Classification Test
     uses: ./.github/workflows/run_training_test.yml
     with:
       script_name: mnist.py
+  time-series-test:
+    name: Time Series Forecasting Test
+    uses: ./.github/workflows/run_training_test.yml
+    with:
+      script_name: time_series_forecasting.py
