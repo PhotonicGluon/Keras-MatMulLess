@@ -146,6 +146,10 @@ That's it! You should now have access to the `keras_mml` package.
 
 Read the [tutorial](https://keras-matmulless.readthedocs.io/en/stable/getting-started/tutorial.html).
 
+## Contributing
+
+We welcome contributions! Please read more about contributing to Keras-MML in the [contribution guidelines](.github/CONTRIBUTING.md).
+
 ## License
 
 Keras-MML is licensed under the Apache 2.0 license.
