@@ -13,7 +13,7 @@ jobs:
   run-tests:
     uses: ./.github/workflows/run_tests.yml
     secrets: inherit
-  # Phase 2 - Push to testing endpoint
+  # Phase 2 - Push to testing endpoint and testing branch
   publish-testpypi:
     needs: [run-tests]
     uses: ./.github/workflows/publish_to_testpypi.yml
@@ -21,9 +21,8 @@ jobs:
       continue_on_error: true
       is_nightly_build: false
     secrets: inherit
-  # Phase 3 - Update branches
   push-to-nightly:
-    needs: [publish-testpypi]
+    needs: [run-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -38,8 +37,9 @@ jobs:
           git checkout nightly
           git merge origin/main
           git push -u origin nightly
+  # Phase 3 - Publish to release endpoint and update branch
   push-to-stable:
-    needs: [publish-testpypi]
+    needs: [push-to-nightly, publish-testpypi]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -54,17 +54,16 @@ jobs:
           git checkout stable
           git merge origin/main
           git push -u origin stable
-  # Phase 4 - Publish to PyPi
   publish-pypi:
-    needs: [push-to-nightly, push-to-stable]
+    needs: [push-to-nightly, publish-testpypi]
     uses: ./.github/workflows/publish_to_pypi.yml
     with:
       continue_on_error: true
     secrets: inherit
-  # Phase 5 - Create GitHub release
+  # Phase 4 - Create GitHub release
   github-release:
     runs-on: ubuntu-latest
-    needs: [publish-pypi]
+    needs: [push-to-stable, publish-pypi]
     permissions:
       contents: write
       id-token: write
