@@ -13,16 +13,19 @@ jobs:
   run-tests:
     uses: ./.github/workflows/run_tests.yml
     secrets: inherit
+  run-training-tests:
+    needs: [run-tests]
+    uses: ./.github/workflows/run_training_tests.yml  
   # Phase 2 - Push to testing endpoint and testing branch
   publish-testpypi:
-    needs: [run-tests]
+    needs: [run-training-tests]
     uses: ./.github/workflows/publish_to_testpypi.yml
     with:
       continue_on_error: true
       is_nightly_build: false
     secrets: inherit
   push-to-nightly:
-    needs: [run-tests]
+    needs: [run-training-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
