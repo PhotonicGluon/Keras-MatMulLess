@@ -4,11 +4,15 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/keras-matmulless?label=pypi%20(stable)&logo=pypi)](https://pypi.org/project/keras-matmulless/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/keras-matmulless)](https://pypi.org/project/keras-matmulless/)
 [![PyPI - License](https://img.shields.io/pypi/l/keras-matmulless)](LICENSE)
-[![CodeCov](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess/graph/badge.svg?token=VKD0CJX1SD)](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess)
+
 [![Read the Docs - Stable](https://img.shields.io/readthedocs/keras-matmulless?label=docs%20(stable)&logo=readthedocs)](https://keras-matmulless.readthedocs.io/en/stable/)
 [![Read the Docs - Latest](https://img.shields.io/readthedocs/keras-matmulless?label=docs%20(latest)&logo=readthedocs)](https://keras-matmulless.readthedocs.io/en/latest/)
+
+[![CodeCov](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess/graph/badge.svg?token=VKD0CJX1SD)](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess)
 [![Code Style - Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Linting - Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](.github/CODE_OF_CONDUCT.md)
 
 > We offer no explanation as to why these architectures seem to work; we attribute their success, as all else, to divine benevolence.
 > <div style="text-align: right">&mdash; Noam Shazeer, in <a href="https://arxiv.org/pdf/2002.05202v1"><em>GLU Variants Improve Transformer</em></a></div>
