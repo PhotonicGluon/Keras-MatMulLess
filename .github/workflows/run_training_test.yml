@@ -32,6 +32,6 @@ jobs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v3
       - name: Install Tests Dependencies
-        run: poetry run python install.py --backend ${{ matrix.backend }}
+        run: poetry run python install.py test --backend ${{ matrix.backend }}
       - name: Run Training Test
         run: poetry run python .github/workflows/training_scripts/${{ inputs.script_name }}
