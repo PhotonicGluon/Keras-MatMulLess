@@ -32,6 +32,7 @@ exclude = [
     "site-packages",
     "venv",
     # Added
+    ".github",
     "tests",
     "install.py",
     "clean.py",
