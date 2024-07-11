@@ -1,0 +1,78 @@
+name: Run Training Test
+
+on: 
+  workflow_call:
+    inputs:
+      script_name:
+        required: true
+        type: string
+        description: "Script to run; must end in `.py`"
+      with_tensorflow:
+        type: boolean
+        default: true
+      with_torch:
+        type: boolean
+        default: true
+      with_jax:
+        type: boolean
+        default: true
+  workflow_dispatch:
+    inputs:
+      script_name:
+        required: true
+        type: string
+        description: "Script to run; must end in `.py`"
+      with_tensorflow:
+        required: true
+        type: boolean
+        default: true
+      with_torch:
+        required: true
+        type: boolean
+        default: true
+      with_jax:
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  matrix_prep:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set Matrix
+        id: set-matrix
+        run: |
+          backends=()
+          if [[ "${{ inputs.with_tensorflow }}" = "true" ]]; then
+            backends+=("tensorflow")
+          fi
+          if [[ "${{ inputs.with_torch }}" = "true" ]]; then
+            backends+=("torch")
+          fi
+          if [[ "${{ inputs.with_jax }}" = "true" ]]; then
+            backends+=("jax")
+          fi
+          backends=$(jq -c -n '$ARGS.positional' --args "${backends[@]}")
+          echo "matrix={\"backend\": $(echo $backends)}" >> $GITHUB_OUTPUT
+  training-test:
+    needs: [matrix_prep]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.matrix_prep.outputs.matrix) }}
+    env:
+      KERAS_BACKEND: ${{ matrix.backend }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"  # This is the lowest supported version
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v3
+      - name: Install Tests Dependencies
+        run: poetry run python install.py test notebook --backend ${{ matrix.backend }}
+      - name: Run Training Test
+        run: poetry run python .github/workflows/training_scripts/${{ inputs.script_name }}

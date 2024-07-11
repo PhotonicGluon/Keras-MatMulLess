@@ -1,0 +1,14 @@
+name: Run Tests on Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run-tests:
+    uses: ./.github/workflows/run_tests.yml
+    secrets: inherit
+  run-training-tests:
+    needs: [run-tests]
+    uses: ./.github/workflows/run_training_tests.yml

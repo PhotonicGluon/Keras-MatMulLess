@@ -1,0 +1,28 @@
+name: Run Training Tests
+
+on: 
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  gated-linear-unit-test:
+    name: Gated Linear Unit Test
+    uses: ./.github/workflows/run_training_test.yml
+    with:
+      script_name: gated_linear_unit.py
+  mnist-test:
+    name: MNIST Classification Test
+    uses: ./.github/workflows/run_training_test.yml
+    with:
+      script_name: mnist.py
+  time-series-test:
+    name: Time Series Forecasting Test
+    uses: ./.github/workflows/run_training_test.yml
+    with:
+      script_name: time_series_forecasting.py
+  transformers-test:
+    name: Transformers Test
+    uses: ./.github/workflows/run_training_test.yml
+    with:
+      script_name: transformers.py
+      with_torch: false

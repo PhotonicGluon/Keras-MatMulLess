@@ -4,11 +4,15 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/keras-matmulless?label=pypi%20(stable)&logo=pypi)](https://pypi.org/project/keras-matmulless/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/keras-matmulless)](https://pypi.org/project/keras-matmulless/)
 [![PyPI - License](https://img.shields.io/pypi/l/keras-matmulless)](LICENSE)
-[![CodeCov](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess/graph/badge.svg?token=VKD0CJX1SD)](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess)
+
 [![Read the Docs - Stable](https://img.shields.io/readthedocs/keras-matmulless?label=docs%20(stable)&logo=readthedocs)](https://keras-matmulless.readthedocs.io/en/stable/)
 [![Read the Docs - Latest](https://img.shields.io/readthedocs/keras-matmulless?label=docs%20(latest)&logo=readthedocs)](https://keras-matmulless.readthedocs.io/en/latest/)
+
+[![CodeCov](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess/graph/badge.svg?token=VKD0CJX1SD)](https://codecov.io/gh/PhotonicGluon/Keras-MatMulLess)
 [![Code Style - Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Linting - Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](.github/CODE_OF_CONDUCT.md)
 
 > We offer no explanation as to why these architectures seem to work; we attribute their success, as all else, to divine benevolence.
 > <div style="text-align: right">&mdash; Noam Shazeer, in <a href="https://arxiv.org/pdf/2002.05202v1"><em>GLU Variants Improve Transformer</em></a></div>
@@ -16,7 +20,7 @@
 <!-- start summary -->
 Keras layers without using matrix multiplications.
 
-This is a Keras based implementation of some layers mentioned in the papers [*The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits*](https://arxiv.org/pdf/2402.17764v1) and [*Scalable MatMul-free Language Modeling*](https://arxiv.org/pdf/2406.02528v5). <!-- end summary --> Find the documentation [here](https://keras-matmulless.readthedocs.io/en/latest/).
+This is a Keras based implementation of some layers mentioned in the papers [*The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits*](https://arxiv.org/pdf/2402.17764v1) and [*Scalable MatMul-free Language Modeling*](https://arxiv.org/pdf/2406.02528v5). <!-- end summary --> Find the documentation [here](https://keras-matmulless.readthedocs.io/).
 
 ## Rationale
 <!-- start rationale -->
@@ -140,21 +144,11 @@ That's it! You should now have access to the `keras_mml` package.
 
 ## Quickstart
 
-Read the [tutorial](https://keras-matmulless.readthedocs.io/en/latest/getting-started/tutorial.html).
+Read the [tutorial](https://keras-matmulless.readthedocs.io/en/stable/getting-started/tutorial.html).
 
-## Using Dev Containers
+## Contributing
 
-[![CPU Dev Container](https://img.shields.io/static/v1?label=CPU%20Dev%20Container&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/PhotonicGluon/Keras-MatMulLess)
-
-If you already have VS Code and Docker installed, you can click the badge above or [here](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/PhotonicGluon/Keras-MatMulLess) to get started. Clicking these links will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
-
-### CUDA
-
-Keras-MML offers a `cuda` dev container for working with CUDA.
-
-> [!IMPORTANT]  
-> Edit the [`Dockerfile`](.devcontainer/cuda/Dockerfile) file to set up the architecture properly.
-> By default it is using `amd64`. So, if you are on a `arm64` system, **uncomment the appropriate lines in the file**!
+We welcome contributions! Please read more about contributing to Keras-MML in the [contribution guidelines](.github/CONTRIBUTING.md).
 
 ## License
 
