@@ -5,10 +5,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-training-tests:
-    strategy:
-      matrix:
-        script_name: ["mnist.py", "time_series_forecasting.py", "gated_linear_unit.py"]
+  mnist-test:
+    name: MNIST Classification Test
     uses: ./.github/workflows/run_training_test.yml
     with:
-      script_name: ${{matrix.script_name}}
+      script_name: mnist.py
+  time-series-test:
+    name: Time Series Forecasting Test
+    uses: ./.github/workflows/run_training_test.yml
+    with:
+      script_name: time_series_forecasting.py
+  gated-linear-unit-test:
+    name: Gated Linear Unit Test
+    uses: ./.github/workflows/run_training_test.yml
+    with:
+      script_name: gated_linear_unit.py
