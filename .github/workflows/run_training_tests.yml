@@ -1,0 +1,11 @@
+name: Run Training Tests
+
+on: 
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  mnist-test:
+    uses: ./.github/workflows/run_training_test.yml
+    with:
+      script_name: mnist.py

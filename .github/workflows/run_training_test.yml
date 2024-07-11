@@ -1,0 +1,37 @@
+name: Run Training Test
+
+on: 
+  workflow_call:
+    inputs:
+      script_name:
+        required: true
+        type: string
+        description: "Script to run; must end in `.py`"
+  workflow_dispatch:
+    inputs:
+      script_name:
+        required: true
+        type: string
+        description: "Script to run; must end in `.py`"
+
+jobs:
+  training-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        backend: ["tensorflow", "torch", "jax"]
+    env:
+      KERAS_BACKEND: ${{ matrix.backend }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"  # This is the lowest supported version
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v3
+      - name: Install Tests Dependencies
+        run: python install.py test --backend ${{ matrix.backend }}
+      - name: Run Training Test
+        run: python .github/workflows/training_scripts/${{ inputs.script_name }}
