@@ -1,5 +1,7 @@
 """
-Runs the time-series forecasting raining code.
+Runs the time-series forecasting training code.
+
+Adapted from https://keras-matmulless.readthedocs.io/en/stable/examples/time-series-forecasting.html.
 """
 
 # Imports
@@ -35,7 +37,7 @@ train, test = dataset[0:train_size, :], dataset[train_size : len(dataset), :]
 print(len(train), len(test))
 
 # We want to provide the model some past data (specifically, LOOK_BACK days worth of data) and then ask it to predict
-# the following day’s passenger count.
+# the following day's passenger count.
 LOOK_BACK = 3
 
 
@@ -53,7 +55,6 @@ test_X, test_Y = create_dataset(test, LOOK_BACK)
 
 # Keras RNNs require the input to be of the shape (batch, timesteps, features), so we will reshape the input to match
 # this. Since we are just using the passenger counts, we only have one feature to include.
-
 train_X = train_X.reshape(train_X.shape[0], train_X.shape[1], 1)
 test_X = test_X.reshape(test_X.shape[0], test_X.shape[1], 1)
 

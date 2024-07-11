@@ -1,5 +1,7 @@
 """
 Runs the MNIST classifier training code.
+
+Adapted from https://keras-matmulless.readthedocs.io/en/stable/examples/mnist-classifier.html.
 """
 
 # First, let's prepare the imports.
