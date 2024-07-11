@@ -5,6 +5,11 @@ on:
   workflow_dispatch:
 
 jobs:
+  gated-linear-unit-test:
+    name: Gated Linear Unit Test
+    uses: ./.github/workflows/run_training_test.yml
+    with:
+      script_name: gated_linear_unit.py
   mnist-test:
     name: MNIST Classification Test
     uses: ./.github/workflows/run_training_test.yml
@@ -15,8 +20,8 @@ jobs:
     uses: ./.github/workflows/run_training_test.yml
     with:
       script_name: time_series_forecasting.py
-  gated-linear-unit-test:
-    name: Gated Linear Unit Test
+  transformers-test:
+    name: Transformers Test
     uses: ./.github/workflows/run_training_test.yml
     with:
-      script_name: gated_linear_unit.py
+      script_name: transformers.py
