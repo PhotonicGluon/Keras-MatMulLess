@@ -8,15 +8,12 @@ on:
         type: string
         description: "Script to run; must end in `.py`"
       with_tensorflow:
-        required: true
         type: boolean
         default: true
       with_torch:
-        required: true
         type: boolean
         default: true
       with_jax:
-        required: true
         type: boolean
         default: true
   workflow_dispatch:
