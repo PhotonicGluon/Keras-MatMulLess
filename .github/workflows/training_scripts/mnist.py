@@ -6,6 +6,7 @@ Adapted from https://keras-matmulless.readthedocs.io/en/stable/examples/mnist-cl
 
 # First, let's prepare the imports.
 import keras
+import training_setup
 
 import keras_mml
 
