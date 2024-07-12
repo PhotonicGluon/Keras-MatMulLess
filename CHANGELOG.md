@@ -8,6 +8,29 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 
 <!-- towncrier release notes start -->
 
+## [0.1.0b1](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0b1) - 2024-07-11
+
+### Changes
+
+- Changed linter from PyLint to Ruff.
+- Loosened dependency requirements to allow for more compatibility with other packages.
+- Reorganized poetry dependency groups.
+
+### Fixes
+
+- Added missing `scikit-learn` dependency for the `notebook` Poetry group.
+- Fixed missing type annotation for `_quantize_kernel()` in `BaseDenseMML`.
+
+### Miscellaneous Changes
+
+- Bump GitHub actions' versions. ([#1](https://github.com/PhotonicGluon/Keras-MatMulLess/issues/1))
+- Added a security policy, code of conduct, and contribution guidelines.
+- Added new training tests to GitHub actions to ensure that the changes does not affect performance and results of the models.
+- Configured dependabot to look out for dependency updates.
+- Made devcontainer settings become VSCode workspace settings.
+- Renamed and redid some GitHub actions.
+
+
 ## [0.1.0a3](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0a3) - 2024-07-10
 
 ### Removals
