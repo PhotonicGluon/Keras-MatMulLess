@@ -42,7 +42,7 @@ class BaseDenseMML:
         raise NotImplementedError  # pragma: no cover
 
     @staticmethod
-    def _quantize_kernel(w: Float[np.ndarray, "*dims"], scale: float):
+    def _quantize_kernel(w: Float[np.ndarray, "*dims"], scale: float) -> Float[np.ndarray, "*dims"]:
         """
         Quantizes the kernel values to 1.58 bits (i.e., :math:`\\log_{2}3` bits).
 

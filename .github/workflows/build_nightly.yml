@@ -31,7 +31,7 @@ jobs:
     secrets: inherit
   publish-testpypi:
     needs: [run-tests]
-    uses: ./.github/workflows/publish_to_testpypi.yml
+    uses: ./.github/workflows/publish_testpypi.yml
     with:
       continue_on_error: true
       is_nightly_build: true
