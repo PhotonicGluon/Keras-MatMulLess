@@ -1,1 +1,0 @@
-Loosened dependency requirements to allow for more compatibility with other packages.
