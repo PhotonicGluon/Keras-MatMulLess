@@ -8,6 +8,15 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 
 <!-- towncrier release notes start -->
 
+## [0.1.0rc1](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0rc1) - 2024-07-18
+
+### Miscellaneous Changes
+
+- Cleaned up the `install.py` script.
+- Fixed `Input 'repository_url' has been deprecated with message: The inputs have been normalized to use kebab-case.` warning in GitHub actions.
+- Removed useless setup code for Ruff linting action.
+
+
 ## [0.1.0b1](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0b1) - 2024-07-11
 
 ### Changes
