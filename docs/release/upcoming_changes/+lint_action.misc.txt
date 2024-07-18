@@ -1,0 +1,1 @@
+Removed useless setup code for Ruff linting action.
