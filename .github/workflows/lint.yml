@@ -20,16 +20,6 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v3
-      - name: Install Linting Dependencies
-        run: python install.py build
-      - name: Add Ruff Executable From Poetry Env To PATH
-        run: echo "PATH=$(poetry env info --path)/bin:$PATH" >> $GITHUB_ENV
       - name: Run Ruff Linter
         uses: chartboost/ruff-action@v1
         with:

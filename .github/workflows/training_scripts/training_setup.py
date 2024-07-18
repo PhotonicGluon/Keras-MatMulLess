@@ -17,7 +17,7 @@ if keras.config.backend() == "tensorflow":
     # but it will affect the overall performance, so be mindful of that.
     tf.config.experimental.enable_op_determinism()
 if keras.config.backend() == "torch":
-    # Enable eager mode for PyTorch
+    # Disable PyTorch compiling
     import os
 
-    os.environ["PYTEST_USE_EAGER"] = "true"
+    os.environ["DISABLE_TORCH_COMPILE"] = "true"
