@@ -9,7 +9,7 @@ from typing import Callable, Optional
 def torch_compile(model: Optional[Callable] = None, **kwargs) -> Callable:  # pragma: no cover
     """
     Custom decorator similar to :py:func:`torch.compile`. However the compilation of the function
-    will not be performed if the ``PYTEST_USE_EAGER`` environment variable is set.
+    will not be performed if the ``DISABLE_TORCH_COMPILE`` environment variable is set.
 
     Arguments:
         model: Module/function to optimize.
@@ -20,9 +20,9 @@ def torch_compile(model: Optional[Callable] = None, **kwargs) -> Callable:  # pr
         Decorated model.
     """
 
-    if os.environ.get("PYTEST_USE_EAGER"):
+    if os.environ.get("DISABLE_TORCH_COMPILE"):
         return lambda x: x  # Identity function
 
-    import torch  # We want to import only if we are not using eager; pylint: disable=import-outside-toplevel
+    import torch  # We want to import only if we are not using eager
 
     return torch.compile(model, **kwargs)

@@ -7,7 +7,8 @@
         "**/__pycache__": true,
         "**/jupyter_execute": true,
         ".pytest_cache": true,
-        ".coverage": true
+        ".coverage": true,
+        ".ruff_cache": true
     },
     // Extension settings
     "cSpell.words": [

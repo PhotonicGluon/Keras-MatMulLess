@@ -12,6 +12,16 @@ from typing import Tuple
 REQUIREMENTS_FOLDER = "requirements"
 
 
+def run_command(command: str):
+    """
+    Runs a command, exiting with that command's exit code if it is not zero.
+    """
+
+    exit_code = os.system(command)
+    if exit_code != 0:
+        sys.exit(exit_code)
+
+
 def install(groups: Tuple[str, ...], backends: Tuple[str, ...], with_cuda: bool):
     """
     Dependencies installer.
@@ -25,18 +35,14 @@ def install(groups: Tuple[str, ...], backends: Tuple[str, ...], with_cuda: bool)
 
     # Install the groups first
     if len(groups) != 0:
-        exit_code = os.system(f"poetry install --with {','.join(groups)}")
-        if exit_code != 0:
-            sys.exit(exit_code)
+        run_command(f"poetry install --with {','.join(groups)}")
 
     # Then install backend dependencies
     requirements_subfolder = "cuda" if with_cuda else "cpu"
 
     for backend in backends:
         requirements_path = os.path.join(REQUIREMENTS_FOLDER, requirements_subfolder, f"requirements-{backend}.txt")
-        exit_code = os.system(f"poetry run pip install -r {requirements_path}")
-        if exit_code != 0:
-            sys.exit(exit_code)
+        run_command(f"poetry run pip install -r {requirements_path}")
 
     print("\x1b[32mDone!\x1b[0m")
 

@@ -24,14 +24,14 @@ def pytest_configure(config: Config):
     """
 
     if config.getoption("--eager"):
-        os.environ["PYTEST_USE_EAGER"] = "true"
+        os.environ["DISABLE_TORCH_COMPILE"] = "true"
         try:
             import tensorflow as tf
 
             tf.config.run_functions_eagerly(True)
             tf.data.experimental.enable_debug_mode()
         except ModuleNotFoundError:
-            print("Tensorflow not installed; ignoring `--eager`.")
+            print("Tensorflow not installed; ignoring `--eager` flag for Tensorflow.")
 
 
 def pytest_ignore_collect(collection_path: pathlib.Path) -> bool:
