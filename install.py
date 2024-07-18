@@ -33,11 +33,17 @@ def install(groups: Tuple[str, ...], backends: Tuple[str, ...], with_cuda: bool)
         print("\x1b[33mNothing to install.\x1b[0m")
         return
 
-    # Install the groups first
+    # Install stuff using Poetry first
     if len(groups) != 0:
-        run_command(f"poetry install --with {','.join(groups)}")
+        # Handle the groups
+        command = f"poetry install --with {','.join(groups)}"
 
-    # Then install backend dependencies
+        # Handle special dependencies
+        if with_cuda and "torch" in backends:
+            command += "--extras torch-cuda"
+        run_command(command)
+
+    # Then install using pip
     requirements_subfolder = "cuda" if with_cuda else "cpu"
 
     for backend in backends:
