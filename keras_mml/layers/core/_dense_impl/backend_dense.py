@@ -8,15 +8,15 @@ import keras
 BACKEND = keras.config.backend()
 
 if BACKEND == "tensorflow":
-    from keras_mml.layers.core._dense_impl.tensorflow_dense import TensorflowDenseMML
+    from keras_mml.layers.core._dense_impl.tensorflow import TensorflowDenseMML
 
     BackendClass = TensorflowDenseMML
 elif BACKEND == "torch":
-    from keras_mml.layers.core._dense_impl.torch_dense import TorchDenseMML
+    from keras_mml.layers.core._dense_impl.torch import TorchDenseMML
 
     BackendClass = TorchDenseMML
 elif BACKEND == "jax":
-    from keras_mml.layers.core._dense_impl.jax_dense import JaxDenseMML
+    from keras_mml.layers.core._dense_impl.jax import JaxDenseMML
 
     BackendClass = JaxDenseMML
 else:  # pragma: no cover
