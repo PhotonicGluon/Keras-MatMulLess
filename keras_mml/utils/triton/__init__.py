@@ -4,4 +4,9 @@ Triton utility functions.
 Used with the PyTorch backend.
 """
 
-from .helpers import get_current_target, is_cuda
+try:
+    import triton
+except ModuleNotFoundError:
+    pass
+else:
+    from .helpers import get_current_target, is_cuda
