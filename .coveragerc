@@ -1,0 +1,8 @@
+[run]
+omit = 
+    # Omit anything in a .local directory anywhere
+    */.local/*
+    # Omit everything in /usr
+    /usr/*
+    # Omit triton utils subpackage
+    keras_mml/utils/triton/*
