@@ -11,9 +11,9 @@ if BACKEND == "tensorflow":
 
     backend_function = tf_ternary_multiplication
 elif BACKEND == "torch":
-    from ternary_multiplication.torch_multiplication import torch_ternary_multiplication
+    from ternary_multiplication.torch.mul import ternary_multiplication
 
-    backend_function = torch_ternary_multiplication
+    backend_function = ternary_multiplication
 elif BACKEND == "jax":
     from ternary_multiplication.jax_multiplication import jax_ternary_multiplication
 
