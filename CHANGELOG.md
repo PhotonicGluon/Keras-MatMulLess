@@ -8,6 +8,17 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 
 <!-- towncrier release notes start -->
 
+## [0.1.0rc2](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0rc2) - 2024-07-19
+
+### Documentation Changes
+
+- Added missing call conventions for `GRU` and `LRU`.
+
+### Miscellaneous Changes
+
+- Updated the versions of the dependencies listed in `poetry.lock`.
+
+
 ## [0.1.0rc1](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0rc1) - 2024-07-18
 
 ### Miscellaneous Changes
