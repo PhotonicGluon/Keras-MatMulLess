@@ -52,3 +52,10 @@ def pytest_ignore_collect(collection_path: pathlib.Path) -> bool:
         return True
     if collection_path.name == "experiments":
         return True
+
+    try:
+        import triton
+    except ModuleNotFoundError:
+        # Can skip any triton-related modules
+        if "triton" in collection_path.name:
+            return True
