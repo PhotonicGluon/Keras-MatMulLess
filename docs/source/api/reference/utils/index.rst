@@ -14,3 +14,4 @@ This page lists utilities in Keras-MML.
 
     array
     misc
+    triton
