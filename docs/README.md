@@ -10,13 +10,11 @@ The documentation is organized as follows:
 
 ## Building
 
-To build the documentation, run
+To build the documentation while in the root directory, run
 
 ```bash
-sphinx-autobuild source build
+python docs/build.py
 ```
-
-*within the `docs` folder*. Running this command in the root directory **will not work**.
 
 ## Cleaning
 
@@ -25,5 +23,3 @@ To clean up the build (and generated) folders, run
 ```bash
 python clean.py
 ```
-
-Again, this is to be run *within the `docs` folder*.

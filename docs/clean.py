@@ -7,6 +7,9 @@ import os
 import shutil
 import sys
 
+# Set current working directory to script location
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 # Main clean
 exit_code = os.system("make clean")
 if exit_code != 0:
