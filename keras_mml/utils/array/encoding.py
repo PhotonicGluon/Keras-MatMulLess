@@ -67,6 +67,13 @@ def encode_ternary_array(x: np.ndarray) -> Tuple[Tuple[int, ...], bytes]:
         (2, 2, 3)
         >>> encoded
         b'K\\xe48'
+
+        >>> x = np.array([[[0, 1, -1], [-1, 1, 0]], [[1, -1, 0], [0, -1, 1]]])
+        >>> shape, encoded = encode_ternary_array(x)
+        >>> shape
+        (2, 2, 3)
+        >>> encoded
+        b'K\\xe5\\x9c'
     """
 
     shape = x.shape
@@ -74,7 +81,9 @@ def encode_ternary_array(x: np.ndarray) -> Tuple[Tuple[int, ...], bytes]:
 
     # Get the frequency of each of the elements
     counts = Counter(flattened)
+    remaining = {0, 1, -1}
     elem_order = [x[0] for x in counts.most_common()]
+    elem_order += remaining.difference(elem_order)  # Account for when there may not be 3 elements in `elem_order`
 
     # Record down what the top 2 most frequent elements are
     temp_bits = ""
@@ -177,6 +186,12 @@ def decode_ternary_array(shape: Tuple[int, ...], encoded: bytes) -> np.ndarray:
                 [-1,  1,  0]],
         <BLANKLINE>
                [[ 1,  0,  0],
+                [ 0, -1,  1]]])
+        >>> decode_ternary_array((2, 2, 3), b"K\\xe5\\x9c")
+        array([[[ 0,  1, -1],
+                [-1,  1,  0]],
+        <BLANKLINE>
+               [[ 1, -1,  0],
                 [ 0, -1,  1]]])
     """
 
