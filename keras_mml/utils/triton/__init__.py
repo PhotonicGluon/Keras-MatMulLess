@@ -4,9 +4,12 @@ Triton utility functions.
 Used with the PyTorch backend.
 """
 
-try:
-    import triton
-except ModuleNotFoundError:
-    pass
-else:
-    from .helpers import get_current_target, is_cuda
+from .checks import can_use_triton
+
+# try:
+#     if not can_use_triton():
+#         raise ModuleNotFoundError
+# except ModuleNotFoundError:
+#     pass
+# else:
+#     pass  # Add other imports here
