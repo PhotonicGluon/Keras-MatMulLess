@@ -178,15 +178,18 @@ def decode_ternary_array(shape: Tuple[int, ...], encoded: bytes) -> np.ndarray:
     Examples:
         >>> decode_ternary_array((6,), b"\\xb4\\xe0")
         array([ 1, -1,  1,  0, -1,  1])
+
         >>> decode_ternary_array((2, 3), b"n\\x80")
         array([[ 0,  1, -1],
                [-1,  0,  0]])
+
         >>> decode_ternary_array((2, 2, 3), b"K\\xe48")
         array([[[ 0,  1, -1],
                 [-1,  1,  0]],
         <BLANKLINE>
                [[ 1,  0,  0],
                 [ 0, -1,  1]]])
+
         >>> decode_ternary_array((2, 2, 3), b"K\\xe5\\x9c")
         array([[[ 0,  1, -1],
                 [-1,  1,  0]],
