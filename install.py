@@ -40,7 +40,7 @@ def install(groups: Tuple[str, ...], backends: Tuple[str, ...], with_cuda: bool)
 
         # Handle special dependencies
         if with_cuda and "torch" in backends:
-            command += "--extras torch-cuda"
+            command += " --extras torch-cuda"
         run_command(command)
 
     # Then install using pip
