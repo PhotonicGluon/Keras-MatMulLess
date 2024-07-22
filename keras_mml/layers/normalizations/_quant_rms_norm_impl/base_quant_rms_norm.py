@@ -20,8 +20,12 @@ class BaseQuantRMSNorm(RMSNorm):
     """
 
     def call(self, inputs: Float[np.ndarray, "batch_size *dims"]) -> Float[np.ndarray, "batch_size *dims"]:
-        x = super().call(inputs)
+        # Process the normalization step first
+        x_norm = super().call(inputs)
 
-        scale = 127.0 / ops.clip(ops.max(ops.abs(x), axis=-1, keepdims=True), EPSILON, HUGE)
-        y = ops.clip(ops.round(x * scale), -128, 127) / scale
-        return y
+        # Generate the quantized activation values
+        scale = 127.0 / ops.clip(ops.max(ops.abs(x_norm), axis=-1, keepdims=True), EPSILON, HUGE)
+        x_quant = ops.clip(ops.round(x_norm * scale), -128, 127) / scale
+
+        # Use Straight-Through Estimator (STE) trick by stopping gradient propagation
+        return x_norm + ops.stop_gradient(x_quant - x_norm)
