@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "keras-matmulless"
-version = "0.0.0"
+version = "0.1.0"
 description = "Keras layers without using matrix multiplications."
 license = "Apache-2.0"
 authors = ["PhotonicGluon <25820201+PhotonicGluon@users.noreply.github.com>"]
@@ -44,7 +44,6 @@ optional = true
 [tool.poetry.group.test.dependencies]
 pytest = "~8.2.2"
 pytest-cov = "~5.0.0"
-pytest-xdist = "~3.6.1"
 
 [tool.poetry.group.docs]
 optional = true
