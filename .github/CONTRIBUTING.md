@@ -136,13 +136,13 @@ pytest .
 To speed up the testing process, you can choose to use multiple workers to run the tests by running
 
 ```bash
-pytest . -n auto
+pytest .
 ```
 
 To run all tests using a different backend (e.g. `jax` instead of the default `tensorflow`), you can simply specify it on the command line.
 
 ```bash
-KERAS_BACKEND=jax pytest . -n auto
+KERAS_BACKEND=jax pytest .
 ```
 
 #### Coverage
