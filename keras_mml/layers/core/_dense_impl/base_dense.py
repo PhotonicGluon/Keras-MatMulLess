@@ -7,8 +7,7 @@ from typing import Any, Tuple
 import keras
 import numpy as np
 from jaxtyping import Float
-
-from keras_mml.utils.array.ternary_multiplication import ternary_multiplication
+from keras import ops
 
 EPSILON = 1e-5
 HUGE = 1e9
@@ -79,6 +78,14 @@ class BaseDenseMML:
         """
         Applies the ternary multiplication algorithm.
 
+        .. IMPORTANT::
+            The current implementation of the ternary multiplication still falls back to
+            ``ops.matmul`` in Keras, since the backend-dependent implementations seem to be slower
+            than this baseline function. However, since ``w_quantized`` is a ternary matrix, it
+            should theoretically consist of only additions and subtractions. It just so happens that
+            linear algebra libraries (e.g. cuBLAS) is way faster than whatever could be implemented
+            by scratch.
+
         Args:
             x_quantized: Quantized activation values.
             w_quantized: Quantized kernel matrix without scaling applied.
@@ -88,4 +95,4 @@ class BaseDenseMML:
             Multiplied matrix.
         """
 
-        return ternary_multiplication(x_quantized, w_quantized, w_scale)
+        return ops.matmul(x_quantized, w_quantized) / w_scale
