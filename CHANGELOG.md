@@ -8,6 +8,11 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 
 <!-- towncrier release notes start -->
 
+## [0.1.0](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0) - 2024-07-22
+
+No significant changes.
+
+
 ## [0.1.0rc2](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0rc2) - 2024-07-19
 
 ### Documentation Changes

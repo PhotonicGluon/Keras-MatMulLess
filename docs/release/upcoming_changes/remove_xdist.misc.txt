@@ -1,0 +1,1 @@
+Removed `pytest-xdist` dependency for the `tests` Poetry group.
