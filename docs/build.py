@@ -2,6 +2,8 @@
 Builds the documentation in the source folder.
 """
 
+# ruff: noqa: S605, S607
+
 import os
 import sys
 
