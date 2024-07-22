@@ -11,23 +11,6 @@ from keras_mml.layers.core._dense_impl.base_dense import EPSILON, HUGE, BaseDens
 
 
 @jax.jit
-def _activations_quantization(x: jax.Array) -> jax.Array:
-    """
-    Quantizes the activations to 8-bit precision using absmax quantization.
-
-    Args:
-        x: Array of quantization values.
-
-    Returns:
-        The quantized activation values.
-    """
-
-    scale = 127.0 / jnp.expand_dims(jnp.clip(jnp.max(jnp.abs(x), axis=-1), EPSILON, HUGE), -1)
-    y = jnp.clip(jnp.round(x * scale), -128, 127) / scale
-    return y
-
-
-@jax.jit
 def _compute_kernel_scale(w: jax.Array) -> float:
     """
     Computes the scale factor of the kernel matrix.
@@ -56,24 +39,6 @@ def _quantize_kernel(w: jax.Array, scale: float) -> jax.Array:
     """
 
     return jnp.clip(jnp.round(w * scale), -1, 1)
-
-
-@jax.jit
-def _get_x_quantized(x_norm: jax.Array) -> jax.Array:
-    """
-    Gets the quantized activations, with support for the backward direction by using STE gradient
-    bypass.
-
-    We use a Straight-Through Estimator (STE) trick by stopping gradient propagation.
-
-    Args:
-        x_norm: Normalized activation values.
-
-    Returns:
-        Quantized activation values.
-    """
-
-    return x_norm + jax.lax.stop_gradient(_activations_quantization(x_norm) - x_norm)
 
 
 @jax.jit
@@ -108,9 +73,9 @@ class JaxDenseMML(BaseDenseMML):
     def _quantize_kernel(w: jax.Array, scale: float) -> jax.Array:
         return _quantize_kernel(w, scale)
 
-    def _get_quantized_arrays(self, x_norm: jax.Array) -> Tuple[jax.Array, jax.Array, float]:
+    def _get_quantized_arrays(self) -> Tuple[jax.Array, float]:
         if self._kernel_scale:
-            return _get_x_quantized(x_norm), self._kernel.value, self._kernel_scale
+            return self._kernel.value, self._kernel_scale
 
         scale = _compute_kernel_scale(self._kernel.value)
-        return _get_x_quantized(x_norm), _get_w_quantized(self._kernel.value, scale), scale
+        return _get_w_quantized(self._kernel.value, scale), scale

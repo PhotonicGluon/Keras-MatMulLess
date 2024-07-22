@@ -56,9 +56,7 @@ class BaseDenseMML:
 
         raise NotImplementedError  # pragma: no cover
 
-    def _get_quantized_arrays(
-        self, x_norm: Float[np.ndarray, "*dims"]
-    ) -> Tuple[Float[np.ndarray, "*dims_1"], Float[np.ndarray, "*dims_2"], float]:
+    def _get_quantized_arrays(self) -> Tuple[Float[np.ndarray, "*dims"], float]:
         """
         Gets the quantized activation and weight values.
 

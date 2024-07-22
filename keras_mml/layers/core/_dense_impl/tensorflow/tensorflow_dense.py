@@ -10,23 +10,6 @@ from keras_mml.layers.core._dense_impl.base_dense import EPSILON, HUGE, BaseDens
 
 
 @tf.function(jit_compile=True)
-def _activations_quantization(x: tf.Tensor) -> tf.Tensor:
-    """
-    Quantizes the activations to 8-bit precision using absmax quantization.
-
-    Args:
-        x: Array of quantization values.
-
-    Returns:
-        The quantized activation values.
-    """
-
-    scale = 127.0 / tf.clip_by_value(tf.reduce_max(tf.abs(x), axis=-1, keepdims=True), EPSILON, HUGE)
-    y = tf.clip_by_value(tf.round(x * scale), -128, 127) / scale
-    return y
-
-
-@tf.function(jit_compile=True)
 def _compute_kernel_scale(w: tf.Tensor) -> float:
     """
     Computes the scale factor of the kernel matrix.
@@ -55,24 +38,6 @@ def _quantize_kernel(w: tf.Tensor, scale: float) -> tf.Tensor:
     """
 
     return tf.clip_by_value(tf.round(w * scale), -1, 1)
-
-
-@tf.function(jit_compile=True)
-def _get_x_quantized(x_norm: tf.Tensor) -> tf.Tensor:
-    """
-    Gets the quantized activations, with support for the backward direction by using STE gradient
-    bypass.
-
-    We use a Straight-Through Estimator (STE) trick by stopping gradient propagation.
-
-    Args:
-        x_norm: Normalized activation values.
-
-    Returns:
-        Quantized activation values.
-    """
-
-    return x_norm + tf.stop_gradient(_activations_quantization(x_norm) - x_norm)
 
 
 @tf.function(jit_compile=True)
@@ -107,11 +72,11 @@ class TensorflowDenseMML(BaseDenseMML):
     def _quantize_kernel(w: tf.Tensor, scale: float) -> tf.Tensor:
         return _quantize_kernel(w, scale)
 
-    def _get_quantized_arrays(self, x_norm: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+    def _get_quantized_arrays(self) -> Tuple[tf.Tensor, tf.Tensor]:
         if self._kernel_scale:
-            return _get_x_quantized(x_norm), self._kernel.value, self._kernel_scale
+            return self._kernel.value, self._kernel_scale
 
         # Need this to avoid nasty "Called a function referencing variables which have been deleted" error
         w = tf.identity(self._kernel.value)
         scale = _compute_kernel_scale(w)
-        return _get_x_quantized(x_norm), _get_w_quantized(w, scale), scale
+        return _get_w_quantized(w, scale), scale

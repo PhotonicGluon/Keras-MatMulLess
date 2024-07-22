@@ -28,6 +28,8 @@ class BackendDenseMML(keras.Layer, BackendClass):
     Class that encapsulates the core algorithm for matmul-less dense.
     """
 
+    backend = BACKEND
+
     def __init__(self, *args, **kwargs):
         """
         Args:

@@ -11,23 +11,6 @@ from keras_mml.utils.misc.coverage import torch_compile
 
 
 @torch_compile(mode="reduce-overhead")
-def _activations_quantization(x: torch.Tensor) -> torch.Tensor:
-    """
-    Quantizes the activations to 8-bit precision using absmax quantization.
-
-    Args:
-        x: Array of quantization values.
-
-    Returns:
-        The quantized activation values.
-    """
-
-    scale = 127.0 / torch.unsqueeze(torch.max(torch.abs(x), dim=-1).values.clamp_(EPSILON), -1)
-    y = torch.clip(torch.round(x * scale), -128, 127) / scale
-    return y
-
-
-@torch_compile(mode="reduce-overhead")
 def _compute_kernel_scale(w: torch.Tensor) -> float:
     """
     Computes the scale factor of the kernel matrix.
@@ -56,24 +39,6 @@ def _quantize_kernel(w: torch.Tensor, scale: float) -> torch.Tensor:
     """
 
     return torch.clip(torch.round(w * scale), -1, 1)
-
-
-@torch_compile(mode="reduce-overhead")
-def _get_x_quantized(x_norm: torch.Tensor) -> torch.Tensor:
-    """
-    Gets the quantized activations, with support for the backward direction by using STE gradient
-    bypass.
-
-    We use a Straight-Through Estimator (STE) trick by stopping gradient propagation.
-
-    Args:
-        x_norm: Normalized activation values.
-
-    Returns:
-        Quantized activation values.
-    """
-
-    return x_norm + (_activations_quantization(x_norm) - x_norm).detach()
 
 
 @torch_compile(mode="reduce-overhead")
@@ -108,9 +73,9 @@ class TorchDenseMML(BaseDenseMML):
     def _quantize_kernel(w: torch.Tensor, scale: float) -> torch.Tensor:
         return _quantize_kernel(w, scale)
 
-    def _get_quantized_arrays(self, x_norm: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+    def _get_quantized_arrays(self) -> Tuple[torch.Tensor, torch.Tensor]:
         if self._kernel_scale:
-            return _get_x_quantized(x_norm), self._kernel.value, self._kernel_scale
+            return self._kernel.value, self._kernel_scale
 
         scale = _compute_kernel_scale(self._kernel.value)
-        return _get_x_quantized(x_norm), _get_w_quantized(self._kernel.value, scale), scale
+        return _get_w_quantized(self._kernel.value, scale), scale
