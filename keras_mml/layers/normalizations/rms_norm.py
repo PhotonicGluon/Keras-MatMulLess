@@ -27,6 +27,7 @@ class RMSNorm(keras.Layer):
         gain_constraint: Constraint for the gain weights.
         bias_constraint: Constraint for the bias vector.
         scale: Scaling factor. Available only after layer is built.
+        **kwargs: Keyword arguments for :py:class:`keras.Layer`.
 
     .. |RMSNorm Paper| replace:: *Root Mean Square Layer Normalization*
     .. _RMSNorm Paper: https://arxiv.org/pdf/1910.07467v1
