@@ -11,7 +11,7 @@ from jaxtyping import Float
 from keras import activations, constraints, initializers, ops, regularizers
 
 from keras_mml.layers.core._dense_impl import BackendDenseMML
-from keras_mml.layers.normalizations.rms_norm import RMSNorm
+from keras_mml.layers.normalizations.quant_rms_norm import QuantRMSNorm
 from keras_mml.utils.array.encoding import decode_ternary_array, encode_ternary_array
 
 EPSILON = 1e-5
@@ -141,7 +141,7 @@ class DenseMML(BackendDenseMML):
 
         input_dim = input_shape[-1]
 
-        self._activation_norm = RMSNorm()
+        self._activation_norm = QuantRMSNorm()
         self._activation_norm.build(input_shape)
 
         self._kernel = self.add_weight(
@@ -176,11 +176,11 @@ class DenseMML(BackendDenseMML):
             Transformed inputs.
         """
 
-        # First normalize the inputs
-        x_norm = self._activation_norm(inputs)
+        # First normalize and quantize the inputs
+        x_quantized = self._activation_norm(inputs)
 
-        # Get the quantized arrays
-        x_quantized, w_quantized, w_scale = self._get_quantized_arrays(x_norm)
+        # Quantize the weights, retrieving the scale
+        w_quantized, w_scale = self._get_quantized_arrays()
 
         # Perform ternary multiplication
         x = self._ternary_multiplication(x_quantized, w_quantized, w_scale)
