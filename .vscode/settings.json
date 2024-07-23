@@ -27,6 +27,7 @@
         "automodule",
         "autosectionlabel",
         "autosummary",
+        "autotune",
         "convolutional",
         "copybutton",
         "crossentropy",
