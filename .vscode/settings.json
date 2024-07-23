@@ -73,6 +73,7 @@
         "keepdims",
         "keras",
         "kwargs",
+        "libdevice",
         "lineplot",
         "LRUMML",
         "LSTM",
