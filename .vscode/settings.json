@@ -107,6 +107,7 @@
         "regularizer",
         "regularizers",
         "relu",
+        "rrms",
         "rtol",
         "rtype",
         "Sandboxing",
