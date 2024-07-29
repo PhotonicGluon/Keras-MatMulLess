@@ -347,8 +347,6 @@ def quant_rms_norm(
     """
     Wrapper function for the quantized RMSNorm.
 
-    Works only for the 2D case.
-
     Args:
         x: Input matrix.
         gain: Gain weight.
