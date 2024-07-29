@@ -7,8 +7,9 @@ import torch
 from jaxtyping import Float
 
 from keras_mml.layers.normalizations._quant_rms_norm_impl.base_quant_rms_norm import EPSILON, BaseQuantRMSNorm
-from keras_mml.layers.normalizations._quant_rms_norm_impl.torch.impl_2d import quant_rms_norm_2d
+from keras_mml.layers.normalizations._quant_rms_norm_impl.torch.triton_implementation import quant_rms_norm
 from keras_mml.utils.misc.coverage import torch_compile
+from keras_mml.utils.triton import can_use_triton
 
 
 @torch_compile(mode="reduce-overhead")
@@ -53,8 +54,8 @@ class TorchQuantRMSNorm(BaseQuantRMSNorm):
     """
 
     def call(self, inputs: Float[torch.Tensor, "batch_size *dims"]) -> Float[torch.Tensor, "batch_size *dims"]:
-        if inputs.ndim == 2:  # More efficient
-            return quant_rms_norm_2d(inputs, self._gain, self._bias, epsilon=EPSILON)
+        if can_use_triton:  # More efficient
+            return quant_rms_norm(inputs, self._gain, self._bias, epsilon=EPSILON)
 
         x_norm = super().call(inputs)
         return _get_x_quantized(x_norm)
