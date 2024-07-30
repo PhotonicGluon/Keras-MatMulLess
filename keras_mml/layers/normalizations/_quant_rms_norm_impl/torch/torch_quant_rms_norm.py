@@ -54,7 +54,7 @@ class TorchQuantRMSNorm(BaseQuantRMSNorm):
     """
 
     def call(self, inputs: Float[torch.Tensor, "batch_size *dims"]) -> Float[torch.Tensor, "batch_size *dims"]:
-        if can_use_triton:  # More efficient
+        if can_use_triton():  # More efficient
             return quant_rms_norm(inputs, self._gain, self._bias, epsilon=EPSILON)
 
         x_norm = super().call(inputs)

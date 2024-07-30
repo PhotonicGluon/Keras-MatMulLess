@@ -208,7 +208,7 @@ class QuantRMSNormFn(torch.autograd.Function):
     @staticmethod
     def forward(
         ctx: torch.autograd.function.FunctionCtx,
-        x: Float[torch.Tensor, "M N"],
+        x: Float[torch.Tensor, "*dims N"],
         gain: Optional[Float[torch.Tensor, "N"]],
         bias: Optional[Float[torch.Tensor, "N"]],
         epsilon: float = 1e-5,
@@ -262,7 +262,7 @@ class QuantRMSNormFn(torch.autograd.Function):
         return y
 
     @staticmethod
-    def backward(ctx: torch.autograd.function.FunctionCtx, grad_output: Float[torch.Tensor, "M N"]):
+    def backward(ctx: torch.autograd.function.FunctionCtx, grad_output: Float[torch.Tensor, "*dims N"]):
         # Retrieve stored values
         x, gain, bias, rrms = ctx.saved_tensors
         num_stacked_matrices = ctx.num_stacked_matrices
@@ -339,7 +339,7 @@ class QuantRMSNormFn(torch.autograd.Function):
 
 
 def quant_rms_norm(
-    x: Float[torch.Tensor, "M N"],
+    x: Float[torch.Tensor, "*dims N"],
     gain: Optional[Float[torch.Tensor, "N"]],
     bias: Optional[Float[torch.Tensor, "N"]],
     epsilon: float = 1e-5,
