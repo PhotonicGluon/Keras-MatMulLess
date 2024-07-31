@@ -164,6 +164,9 @@ cython_debug/
 .DS_Store
 .Trash-*
 
+act/
+.actrc
+
 docs/source/examples/data
 docs/source/**/generated
 docs/source/examples/misc

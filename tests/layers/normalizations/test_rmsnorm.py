@@ -1,7 +1,7 @@
 import numpy as np
+import pytest
 from einops import asnumpy, rearrange
 from keras import layers, models, ops
-import pytest
 
 from keras_mml.layers import RMSNorm
 
