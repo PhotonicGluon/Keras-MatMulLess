@@ -6,8 +6,6 @@ from keras import layers, models
 
 from keras_mml.layers import QuantRMSNorm
 
-os.environ["TRITON_PRINT_AUTOTUNING"] = "1"
-
 
 # Calls
 def test_call():
