@@ -230,10 +230,18 @@ class QuantRMSNormFn(torch.autograd.Function):
 
         # Allocate output
         y = torch.empty_like(x, dtype=x.dtype)
-        rrms = torch.empty(x.shape[:-1], dtype=torch.float32, device="cuda")
+        rrms = torch.empty(x.shape[:-1], dtype=torch.float32)
 
         # Run the kernel
         with torch.cuda.device(x.device.index):
+            # Ensure that all tensors are on the correct device
+            x = x.cuda()
+            y = y.cuda()
+            gain = gain.cuda() if gain is not None else None
+            bias = bias.cuda() if bias is not None else None
+            rrms = rrms.cuda()
+
+            # Then run the kernel
             quant_rms_norm_fwd_kernel[(num_stacked_matrices, M)](
                 # fmt: off
                 # Pointers to arrays
@@ -280,7 +288,7 @@ class QuantRMSNormFn(torch.autograd.Function):
         # Allocate output
         multi_processor_count = torch.cuda.get_device_properties(x.device).multi_processor_count
 
-        dx = torch.empty_like(x, dtype=x.dtype)
+        dx = torch.empty_like(x, dtype=x.dtype, device=x.device)
         if gain is not None:
             # This is temporary as we still need to sum across the rows later
             dg_temp = torch.empty(

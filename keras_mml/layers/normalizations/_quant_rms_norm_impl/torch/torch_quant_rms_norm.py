@@ -55,7 +55,23 @@ class TorchQuantRMSNorm(BaseQuantRMSNorm):
 
     def call(self, inputs: Float[torch.Tensor, "batch_size *dims"]) -> Float[torch.Tensor, "batch_size *dims"]:
         if can_use_triton():  # More efficient
-            return quant_rms_norm(inputs, self._gain, self._bias, epsilon=EPSILON)
+            was_less_than_2d = False
+            if inputs.ndim < 2:
+                was_less_than_2d = True
+
+                # Reshape to 2D
+                inputs = inputs.reshape((1, -1))
+
+            # Perform normalization
+            gain = self._gain.value if isinstance(self._gain, keras.src.backend.torch.core.Variable) else None
+            bias = self._bias.value if isinstance(self._bias, keras.src.backend.torch.core.Variable) else None
+            normed = quant_rms_norm(inputs, gain, bias, epsilon=EPSILON)
+
+            if was_less_than_2d:
+                # Reshape back to 1D
+                normed = normed.reshape((-1,))
+
+            return normed
 
         x_norm = super().call(inputs)
         return _get_x_quantized(x_norm)
