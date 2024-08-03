@@ -114,7 +114,7 @@ format-jinja = """
         {%- if revision is not none -%}
             {{ serialize_pep440(base, stage, revision + 1, dev=datetime.now().strftime("%Y%m%d%H")) }}
         {%- else -%}
-            {{ serialize_pep440(base, stage, revision, dev=datetime.now().strftime("%Y%m%d%H")) }}
+            {{ serialize_pep440(bump_version(base), stage, revision, dev=datetime.now().strftime("%Y%m%d%H")) }}
         {%- endif -%}
     {%- elif revision is not none -%}
         {{ serialize_pep440(base, stage, revision + 1, dev=distance, metadata=[commit]) }}
