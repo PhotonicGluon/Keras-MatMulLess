@@ -8,6 +8,19 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 
 <!-- towncrier release notes start -->
 
+## [0.1.1](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.1) - 2024-08-19
+
+### Performance Improvements
+
+- Made the ternary array saving more memory efficient. ([#3](https://github.com/PhotonicGluon/Keras-MatMulLess/issues/3))
+
+### Miscellaneous Changes
+
+- Bumped dependency versions in `poetry.lock`.
+- Removed `pytest-xdist` dependency for the `tests` Poetry group.
+- Bumped `sigstore/gh-action-sigstore-python` from `2.1.1` to `3.0.0` in the `github-actions` group. ([#4](https://github.com/PhotonicGluon/Keras-MatMulLess/issues/4))
+
+
 ## [0.1.0](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.0) - 2024-07-22
 
 No significant changes.

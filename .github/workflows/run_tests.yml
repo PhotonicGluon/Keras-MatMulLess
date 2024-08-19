@@ -2,14 +2,29 @@ name: Run Tests
 
 on: 
   workflow_call:
+    inputs:
+      with_backend_tests:
+        type: boolean
+        default: true
+      with_version_tests:
+        type: boolean
+        default: true
     secrets:
       CODECOV_TOKEN:
         required: true
   workflow_dispatch:
+    inputs:
+      with_backend_tests:
+        type: boolean
+        default: true
+      with_version_tests:
+        type: boolean
+        default: true
 
 jobs:
   run-backend-tests:
     runs-on: ubuntu-latest
+    if: ${{ inputs.with_backend_tests }}
     strategy:
       matrix:
         backend: ["tensorflow", "torch", "jax"]
@@ -43,6 +58,7 @@ jobs:
   
   run-version-tests:
     runs-on: ubuntu-latest
+    if: ${{ inputs.with_version_tests }}
     strategy:
       matrix:
         python-version: ["3.10", "3.11"]  # Already using 3.9 above
