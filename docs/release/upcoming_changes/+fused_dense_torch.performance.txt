@@ -1,0 +1,1 @@
+Implemented a fused `DenseMML` for the PyTorch backend (CUDA GPU Only).
