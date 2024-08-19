@@ -1,1 +1,0 @@
-Bumped `sigstore/gh-action-sigstore-python` from `2.1.1` to `3.0.0` in the `github-actions` group.
