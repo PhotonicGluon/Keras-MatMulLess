@@ -21,11 +21,6 @@ classifiers = [
 ]
 packages = [{ include = "keras_mml" }]
 
-[[tool.poetry.source]]
-name = "triton-nightly"
-url = "https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/Triton-Nightly/pypi/simple/"
-priority = "explicit"
-
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
 
@@ -38,13 +33,13 @@ ml-dtypes = "^0.3.1"
 
 # PyTorch with CUDA
 # TODO: Replace with triton~=3.0.0 once it is out
-triton-nightly = { version = "3.0.0.post20240626041721", source = "triton-nightly", optional = true }
+triton = { version = "~3.0.0", optional = true }
 
 # Others
 poetry-dynamic-versioning = { extras = ["plugin"], version = "^1.4.0" }
 
 [tool.poetry.extras]
-torch-cuda = ["triton-nightly"]
+torch-cuda = ["triton"]
 
 [tool.poetry.group.test]
 optional = true
