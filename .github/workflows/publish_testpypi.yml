@@ -44,7 +44,7 @@ jobs:
       - name: Build Package
         run: POETRY_IS_NIGHTLY_BUILD=${{ inputs.is_nightly_build }} poetry build
       - name: Publish Package
-        uses: pypa/gh-action-pypi-publish@ec4db0b4ddc65acdf4bff5fa45ac92d78b56bdf0
+        uses: pypa/gh-action-pypi-publish@8a08d616893759ef8e1aa1f2785787c0b97e20d6
         continue-on-error: ${{ inputs.continue_on_error }}
         with:
           repository-url: https://test.pypi.org/legacy/
