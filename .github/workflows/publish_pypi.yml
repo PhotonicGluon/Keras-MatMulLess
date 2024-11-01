@@ -45,7 +45,7 @@ jobs:
           name: python-package-distributions
           path: dist/
       - name: Publish Package
-        uses: pypa/gh-action-pypi-publish@897895f1e160c830e369f9779632ebc134688e1b
+        uses: pypa/gh-action-pypi-publish@fb13cb306901256ace3dab689990e13a5550ffaa
         continue-on-error: ${{ inputs.continue_on_error }}
         with:
           user: __token__
