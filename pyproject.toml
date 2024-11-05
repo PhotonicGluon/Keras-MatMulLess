@@ -26,7 +26,7 @@ packages = [{ include = "keras_mml" }]
 python = ">=3.9,<3.13"
 
 # Main dependencies
-keras = "<3.6.0"
+keras = "^3.3.3"
 numpy = [
     { version = "^1.23.5", markers = "python_version < \"3.12\"" },
     { version = "^1.26.0", markers = "python_version >= \"3.12\"" },
