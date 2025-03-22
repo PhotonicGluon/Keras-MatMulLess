@@ -23,9 +23,10 @@ classifiers = [
 packages = [{ include = "keras_mml" }]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.9.2,<3.13"
 
 # Main dependencies
+cryptography = "^44.0.2"
 keras = "^3.3.3"
 numpy = [
     { version = "^1.23.5", markers = "python_version < \"3.12\"" },
