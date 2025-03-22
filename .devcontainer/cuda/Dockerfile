@@ -12,7 +12,7 @@ RUN apt-get install -y \
 RUN python3 -m pip install -U pip
 
 # Set up poetry
-RUN pip install poetry
+RUN pip install "poetry<2"
 ENV PYTHONPATH="$PYTHONPATH:$PWD"
 
 # ADDITIONAL: Set up NVIDA GPU support
