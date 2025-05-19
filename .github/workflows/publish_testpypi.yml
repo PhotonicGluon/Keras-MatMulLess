@@ -35,7 +35,7 @@ jobs:
         with:
           python-version: "3.9"
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v3
+        uses: abatilo/actions-poetry@v4
       - name: Install Building Dependencies
         run: |
           poetry self add "poetry-dynamic-versioning[plugin]"
@@ -44,7 +44,7 @@ jobs:
       - name: Build Package
         run: POETRY_IS_NIGHTLY_BUILD=${{ inputs.is_nightly_build }} poetry build
       - name: Publish Package
-        uses: pypa/gh-action-pypi-publish@15c56dba361d8335944d31a2ecd17d700fc7bcbc
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc
         continue-on-error: ${{ inputs.continue_on_error }}
         with:
           repository-url: https://test.pypi.org/legacy/
