@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "keras-matmulless"
-version = "0.1.1"
+version = "0.1.2"
 description = "Keras layers without using matrix multiplications."
 license = "Apache-2.0"
 authors = ["PhotonicGluon <25820201+PhotonicGluon@users.noreply.github.com>"]
