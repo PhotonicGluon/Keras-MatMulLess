@@ -8,6 +8,19 @@ This project uses [*towncrier*](https://towncrier.readthedocs.io/) and the chang
 
 <!-- towncrier release notes start -->
 
+## [0.1.2](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.2) - 2025-05-19
+
+
+### New Features
+
+- Added Python 3.12 support. ([#5](https://github.com/PhotonicGluon/Keras-MatMulLess/issues/5))
+
+### Miscellaneous Changes
+
+- Bumped dependency versions in `poetry.lock`.
+- Updated the `github-actions` versions. ([#6](https://github.com/PhotonicGluon/Keras-MatMulLess/issues/6), [#7](https://github.com/PhotonicGluon/Keras-MatMulLess/issues/7), [#8](https://github.com/PhotonicGluon/Keras-MatMulLess/issues/8), [#10](https://github.com/PhotonicGluon/Keras-MatMulLess/issues/10), [#13](https://github.com/PhotonicGluon/Keras-MatMulLess/issues/13))
+
+
 ## [0.1.1](https://github.com/PhotonicGluon/Keras-MatMulLess/tree/v0.1.1) - 2024-08-19
 
 ### Performance Improvements
