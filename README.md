@@ -22,6 +22,9 @@ Keras layers without using matrix multiplications.
 
 This is a Keras based implementation of some layers mentioned in the papers [*The Era of 1-bit LLMs: All Large Language Models are in 1.58 Bits*](https://arxiv.org/pdf/2402.17764v1) and [*Scalable MatMul-free Language Modeling*](https://arxiv.org/pdf/2406.02528v5). <!-- end summary --> Find the documentation [here](https://keras-matmulless.readthedocs.io/).
 
+## Important Notice
+Keras-MatMulLess was officially archived on 14 February 2026. Interested parties that want to expand the capabilities of Keras-MatMulLess are welcome to make a fork of the repository. :)
+
 ## Rationale
 <!-- start rationale -->
 
